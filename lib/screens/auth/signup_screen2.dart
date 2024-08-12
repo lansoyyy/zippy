@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zippy/screens/auth/signup_screen.dart';
+import 'package:zippy/screens/auth/login_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -7,16 +7,18 @@ import 'package:zippy/widgets/textfield_widget.dart';
 
 import '../../utils/const.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen2 extends StatefulWidget {
+  const SignupScreen2({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen2> createState() => _SignupScreen2State();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final number = TextEditingController();
-  final otp = TextEditingController();
+class _SignupScreen2State extends State<SignupScreen2> {
+  final email = TextEditingController();
+  final password = TextEditingController();
+  final cpassword = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,47 +70,44 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 40,
                   ),
                   TextWidget(
-                    text: 'Log in',
+                    text: 'Sign up',
                     fontSize: 32,
                     color: secondary,
+                    fontFamily: 'Medium',
+                  ),
+                  TextWidget(
+                    text:
+                        'Fill in the required information below\nor register with your social account',
+                    fontSize: 12,
+                    color: Colors.black,
                     fontFamily: 'Medium',
                   ),
                   const SizedBox(
                     height: 25,
                   ),
                   TextFieldWidget(
-                    height: 80,
-                    length: 9,
-                    inputType: TextInputType.number,
-                    prefix: TextWidget(
-                      text: '+63',
-                      fontSize: 24,
-                      color: Colors.black,
-                      fontFamily: 'Medium',
-                    ),
+                    inputType: TextInputType.emailAddress,
+                    height: 55,
+                    hint: 'Enter your Email',
                     borderColor: secondary,
-                    label: 'Mobile Number',
-                    controller: number,
+                    label: 'Email',
+                    controller: email,
                   ),
                   TextFieldWidget(
-                    suffix: Padding(
-                      padding:
-                          const EdgeInsets.only(right: 10, top: 10, bottom: 10),
-                      child: ButtonWidget(
-                        height: 10,
-                        width: 75,
-                        fontSize: 12,
-                        label: 'Get OTP',
-                        onPressed: () {},
-                      ),
-                    ),
-                    height: 80,
-                    length: 6,
-                    inputType: TextInputType.number,
+                    showEye: true,
+                    height: 55,
+                    hint: 'Enter your Password',
                     borderColor: secondary,
-                    label: 'Enter OTP',
-                    controller: otp,
-                    hint: 'Enter 6-digit Code',
+                    label: 'Password',
+                    controller: password,
+                  ),
+                  TextFieldWidget(
+                    showEye: true,
+                    height: 55,
+                    hint: 'Enter your Password',
+                    borderColor: secondary,
+                    label: 'Verify Password',
+                    controller: cpassword,
                   ),
                   const SizedBox(
                     height: 10,
@@ -117,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 50,
                     width: 320,
                     fontSize: 20,
-                    label: 'Log in',
+                    label: 'Next',
                     onPressed: () {},
                   ),
                   const SizedBox(
@@ -134,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 5, right: 5),
                         child: TextWidget(
-                          text: 'or log in with',
+                          text: 'or sign up with',
                           fontSize: 12,
                           color: secondary,
                         ),
@@ -152,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      for (int i = 0; i < socials.length; i++)
+                      for (int i = 1; i < socials.length; i++)
                         Padding(
                           padding: const EdgeInsets.only(left: 5, right: 5),
                           child: Image.asset(
@@ -167,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 20,
                   ),
                   TextWidget(
-                    text: 'Don’t have an account ?',
+                    text: 'Already have an account ?',
                     fontSize: 14,
                     color: Colors.grey,
                     fontFamily: 'Medium',
@@ -177,13 +176,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
+                      Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                            builder: (context) => const SignupScreen()),
+                            builder: (context) => const LoginScreen()),
                       );
                     },
                     child: TextWidget(
-                      text: 'Create an Account',
+                      text: 'Log in Now',
                       fontSize: 15,
                       color: Colors.black,
                       fontFamily: 'Bold',

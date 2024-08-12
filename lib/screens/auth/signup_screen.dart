@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:zippy/screens/auth/signup_screen.dart';
+import 'package:zippy/screens/auth/login_screen.dart';
+import 'package:zippy/screens/auth/signup_screen2.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -7,16 +8,20 @@ import 'package:zippy/widgets/textfield_widget.dart';
 
 import '../../utils/const.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final number = TextEditingController();
+class _SignupScreenState extends State<SignupScreen> {
+  final name = TextEditingController();
+  final bday = TextEditingController();
+  final address = TextEditingController();
   final otp = TextEditingController();
+  final number = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,13 +73,47 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 40,
                   ),
                   TextWidget(
-                    text: 'Log in',
+                    text: 'Create Account',
                     fontSize: 32,
                     color: secondary,
                     fontFamily: 'Medium',
                   ),
+                  TextWidget(
+                    text: 'Fill in the required information below',
+                    fontSize: 12,
+                    color: Colors.black,
+                    fontFamily: 'Medium',
+                  ),
                   const SizedBox(
                     height: 25,
+                  ),
+                  TextFieldWidget(
+                    height: 55,
+                    hint: 'eg. Josefa M. Rizalino',
+                    borderColor: secondary,
+                    label: 'Fullname',
+                    controller: name,
+                  ),
+                  TextFieldWidget(
+                    height: 55,
+                    hint: 'MM/DD/YYYY',
+                    borderColor: secondary,
+                    label: 'Birthday',
+                    controller: bday,
+                    suffix: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.calendar_month_outlined,
+                          color: secondary,
+                        )),
+                  ),
+                  TextFieldWidget(
+                    inputType: TextInputType.streetAddress,
+                    height: 55,
+                    hint: 'Enter your Location',
+                    borderColor: secondary,
+                    label: 'Address',
+                    controller: address,
                   ),
                   TextFieldWidget(
                     height: 80,
@@ -117,57 +156,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 50,
                     width: 320,
                     fontSize: 20,
-                    label: 'Log in',
-                    onPressed: () {},
+                    label: 'Next',
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const SignupScreen2()),
+                      );
+                    },
                   ),
                   const SizedBox(
                     height: 30,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                          width: 110,
-                          child: Divider(
-                            color: secondary,
-                          )),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5, right: 5),
-                        child: TextWidget(
-                          text: 'or log in with',
-                          fontSize: 12,
-                          color: secondary,
-                        ),
-                      ),
-                      const SizedBox(
-                          width: 110,
-                          child: Divider(
-                            color: secondary,
-                          )),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (int i = 0; i < socials.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5, right: 5),
-                          child: Image.asset(
-                            socials[i],
-                            width: 54,
-                            height: 54,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
                   TextWidget(
-                    text: 'Don’t have an account ?',
+                    text: 'Already have an account ?',
                     fontSize: 14,
                     color: Colors.grey,
                     fontFamily: 'Medium',
@@ -177,13 +178,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
+                      Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                            builder: (context) => const SignupScreen()),
+                            builder: (context) => const LoginScreen()),
                       );
                     },
                     child: TextWidget(
-                      text: 'Create an Account',
+                      text: 'Log in Now',
                       fontSize: 15,
                       color: Colors.black,
                       fontFamily: 'Bold',
