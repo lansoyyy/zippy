@@ -41,21 +41,13 @@ class _SignupScreenState extends State<SignupScreen> {
                     width: 191,
                     height: 80,
                   ),
-                  const SizedBox(
-                    height: 12.5,
-                  ),
-                  TextWidget(
-                    text: 'Hi! Welcome',
-                    fontSize: 25,
-                    color: Colors.white,
-                  ),
                 ],
               ),
             ),
           ),
           Container(
             width: double.infinity,
-            height: 450,
+            height: 525,
             decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
