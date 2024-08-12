@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
 class TextFieldWidget extends StatefulWidget {
@@ -21,6 +22,11 @@ class TextFieldWidget extends StatefulWidget {
   final TextCapitalization? textCapitalization;
 
   bool? hasValidator;
+  Widget? prefix;
+
+  late int? length;
+
+  Widget? suffix;
 
   TextFieldWidget({
     super.key,
@@ -31,12 +37,15 @@ class TextFieldWidget extends StatefulWidget {
     this.width = double.infinity,
     this.height = 65,
     this.maxLine = 1,
+    this.prefix,
+    this.suffix,
+    this.length,
     this.hintColor = Colors.black,
     this.borderColor = Colors.transparent,
     this.showEye = false,
     this.enabled = true,
     this.color = Colors.black,
-    this.radius = 5,
+    this.radius = 100,
     this.hasValidator = true,
     this.textCapitalization = TextCapitalization.sentences,
     this.inputType = TextInputType.text,
@@ -51,28 +60,23 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 5, bottom: 5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextWidget(
-              text: widget.label, fontSize: 12, color: widget.hintColor!),
-          const SizedBox(
-            height: 5,
+      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 25, right: 25),
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: TextFormField(
+          maxLength: widget.length,
+          enabled: widget.enabled,
+          style: const TextStyle(
+            fontFamily: 'Medium',
+            fontSize: 24,
           ),
-          SizedBox(
-            width: widget.width,
-            height: widget.height,
-            child: TextFormField(
-              enabled: widget.enabled,
-              style: const TextStyle(
-                fontFamily: 'QRegular',
-                fontSize: 14,
-              ),
-              textCapitalization: widget.textCapitalization!,
-              keyboardType: widget.inputType,
-              decoration: InputDecoration(
-                suffixIcon: widget.showEye! == true
+          textCapitalization: widget.textCapitalization!,
+          keyboardType: widget.inputType,
+          decoration: InputDecoration(
+            prefix: widget.prefix,
+            suffixIcon: widget.suffix ??
+                (widget.showEye! == true
                     ? IconButton(
                         onPressed: () {
                           setState(() {
@@ -82,59 +86,65 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
                         icon: widget.isObscure!
                             ? const Icon(Icons.visibility)
                             : const Icon(Icons.visibility_off))
-                    : const SizedBox(),
-                filled: true,
-                fillColor: Colors.grey[100],
-                hintText: 'Enter ${widget.label}',
-                border: InputBorder.none,
-                disabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: widget.borderColor!,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: widget.borderColor!,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: widget.borderColor!,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Colors.red,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                errorStyle: const TextStyle(fontFamily: 'QBold', fontSize: 12),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Colors.red,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
+                    : const SizedBox()),
+            hintText: widget.hint,
+            border: InputBorder.none,
+            label: TextWidget(
+              text: widget.label,
+              fontSize: 18,
+              color: secondary,
+            ),
+            hintStyle: const TextStyle(
+              fontFamily: 'Regular',
+              color: Colors.grey,
+              fontSize: 24,
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: widget.borderColor!,
               ),
-
-              maxLines: widget.maxLine,
-              obscureText: widget.isObscure!,
-              controller: widget.controller,
-              validator: widget.hasValidator!
-                  ? (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a ${widget.label}';
-                      }
-
-                      return null;
-                    }
-                  : widget.validator, // Pass the validator to the TextFormField
+              borderRadius: BorderRadius.circular(widget.radius!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: widget.borderColor!,
+              ),
+              borderRadius: BorderRadius.circular(widget.radius!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: widget.borderColor!,
+              ),
+              borderRadius: BorderRadius.circular(widget.radius!),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderSide: const BorderSide(
+                color: Colors.red,
+              ),
+              borderRadius: BorderRadius.circular(widget.radius!),
+            ),
+            errorStyle: const TextStyle(fontFamily: 'Medium', fontSize: 12),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: const BorderSide(
+                color: Colors.red,
+              ),
+              borderRadius: BorderRadius.circular(widget.radius!),
             ),
           ),
-        ],
+
+          maxLines: widget.maxLine,
+          obscureText: widget.isObscure!,
+          controller: widget.controller,
+          validator: widget.hasValidator!
+              ? (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a ${widget.label}';
+                  }
+
+                  return null;
+                }
+              : widget.validator, // Pass the validator to the TextFormField
+        ),
       ),
     );
   }

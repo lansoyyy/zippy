@@ -21,7 +21,7 @@ class ButtonWidget extends StatelessWidget {
       this.width = 275,
       this.fontSize = 18,
       this.height = 50,
-      this.color = primary});
+      this.color = secondary});
   @override
   Widget build(BuildContext context) {
     return MaterialButton(
