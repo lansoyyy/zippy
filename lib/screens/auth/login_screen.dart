@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/auth/signup_screen.dart';
+import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -118,7 +119,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 320,
                     fontSize: 20,
                     label: 'Log in',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                            builder: (context) => const HomeScreen()),
+                      );
+                    },
                   ),
                   const SizedBox(
                     height: 30,
