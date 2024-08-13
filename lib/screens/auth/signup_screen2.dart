@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/auth/login_screen.dart';
+import 'package:zippy/screens/auth/signup_screen3.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -109,7 +110,12 @@ class _SignupScreen2State extends State<SignupScreen2> {
                     width: 320,
                     fontSize: 20,
                     label: 'Next',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const SignupScreen3()),
+                      );
+                    },
                   ),
                   const SizedBox(
                     height: 30,
