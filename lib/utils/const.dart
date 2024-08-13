@@ -4,6 +4,7 @@
 
 String logo = 'assets/images/logo.png';
 String label = 'assets/images/label.png';
+String avatar = 'assets/images/avatar.png';
 
 List socials = [
   'assets/images/phone.png',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/auth/signup_screen.dart';
+import 'package:zippy/screens/auth/signup_screen4.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -173,7 +174,12 @@ class _SignupScreen3State extends State<SignupScreen3> {
                     width: 320,
                     fontSize: 20,
                     label: 'Create Account',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const SignupScreen4()),
+                      );
+                    },
                   ),
                   const SizedBox(
                     height: 30,
