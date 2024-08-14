@@ -12,3 +12,18 @@ List socials = [
   'assets/images/google.png',
   'assets/images/facebook.png'
 ];
+
+List foodCategories = [
+  'assets/images/fastfood.png',
+  'assets/images/coffee.png',
+  'assets/images/donut.png',
+  'assets/images/bbq.png',
+  'assets/images/pizza.png'
+];
+List foodCategoriesName = [
+  'Fastfood',
+  'Drinks',
+  'Donut',
+  'BBQ',
+  'Pizza',
+];
