@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
@@ -77,28 +78,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.search, color: Colors.black54),
-                            SizedBox(width: 8.0),
-                            Expanded(
-                              child: TextField(
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'What are you craving today?',
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'Regular',
-                                      fontSize: 14,
-                                    )),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => const SearchPage()),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.search, color: Colors.black54),
+                              SizedBox(width: 8.0),
+                              Expanded(
+                                child: TextField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'What are you craving today?',
+                                      hintStyle: TextStyle(
+                                        fontFamily: 'Regular',
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      )),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 20.0),
