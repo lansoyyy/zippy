@@ -6,6 +6,8 @@ import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
+import 'pages/shop_page.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -168,66 +170,75 @@ class _HomeScreenState extends State<HomeScreen> {
                         for (int i = 0; i < 5; i++)
                           Padding(
                             padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                              width: 265,
-                              height: 86,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(
-                                  15,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => const ShopPage()),
+                                );
+                              },
+                              child: Container(
+                                width: 265,
+                                height: 86,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(
+                                    15,
+                                  ),
                                 ),
-                              ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15, right: 15),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 64,
-                                      height: 60,
-                                      decoration: const BoxDecoration(
-                                        image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: AssetImage(
-                                            'assets/images/Rectangle 2.png',
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15, right: 15),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: 64,
+                                        height: 60,
+                                        decoration: const BoxDecoration(
+                                          image: DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: AssetImage(
+                                              'assets/images/Rectangle 2.png',
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      width: 15,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        TextWidget(
-                                          text: 'Bluebird Coffee',
-                                          fontSize: 20,
-                                          fontFamily: 'Bold',
-                                        ),
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.location_on_sharp,
-                                              color: secondary,
-                                              size: 15,
-                                            ),
-                                            TextWidget(
-                                              text: '10 mtr Left',
-                                              fontSize: 12,
-                                              fontFamily: 'Medium',
-                                              color: Colors.grey,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                      const SizedBox(
+                                        width: 15,
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          TextWidget(
+                                            text: 'Bluebird Coffee',
+                                            fontSize: 20,
+                                            fontFamily: 'Bold',
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.location_on_sharp,
+                                                color: secondary,
+                                                size: 15,
+                                              ),
+                                              TextWidget(
+                                                text: '10 mtr Left',
+                                                fontSize: 12,
+                                                fontFamily: 'Medium',
+                                                color: Colors.grey,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
