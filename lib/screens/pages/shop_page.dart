@@ -67,83 +67,121 @@ class ShopPage extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20),
+            Card(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                width: 320,
+                height: 160,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: secondary,
+                  color: Colors.white,
+                  border: Border.all(color: secondary),
+                  borderRadius: BorderRadius.circular(
+                    10,
                   ),
-                  borderRadius: BorderRadius.circular(5.0),
+                  image: const DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage(
+                      'assets/images/Rectangle 38.png',
+                    ),
+                  ),
                 ),
-                child: const Row(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.search, color: Colors.black54),
-                    SizedBox(width: 8.0),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'What are you craving today?',
-                            hintStyle: TextStyle(
-                              fontFamily: 'Regular',
-                              fontSize: 14,
-                              color: Colors.black,
-                            )),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 10, right: 15),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: Icon(
+                          Icons.favorite,
+                          color: Colors.white,
+                          size: 35,
+                        ),
                       ),
                     ),
-                    Icon(Icons.tune, color: Colors.black54),
+                    Container(
+                      width: double.infinity,
+                      height: 36,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(
+                            7.5,
+                          ),
+                          bottomRight: Radius.circular(
+                            7.5,
+                          ),
+                        ),
+                        color: secondary,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 15, right: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            TextWidget(
+                              text: 'Bluebird Coffee',
+                              fontSize: 15,
+                              fontFamily: 'Bold',
+                              color: Colors.white,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextWidget(
+                                  text: '4.5',
+                                  fontSize: 14,
+                                  fontFamily: 'Regular',
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                const Icon(
+                                  Icons.star_rate_rounded,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                for (int i = 0; i < foodCategories.length; i++)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 5, right: 5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: i == 0 ? secondary.withOpacity(0.3) : null,
-                            shape: BoxShape.circle,
-                            border: Border.all(
+                for (int i = 0; i < shopCategories.length; i++)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      TextWidget(
+                        text: shopCategories[i],
+                        fontSize: 15,
+                        fontFamily: 'Medium',
+                        color: secondary,
+                      ),
+                      i == 0
+                          ? const Icon(
+                              Icons.circle,
                               color: secondary,
+                              size: 15,
+                            )
+                          : const SizedBox(
+                              height: 15,
                             ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Image.asset(
-                              foodCategories[i],
-                              width: 25,
-                              height: 25,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextWidget(
-                          text: foodCategoriesName[i],
-                          fontSize: 12,
-                          fontFamily: 'Medium',
-                          color: secondary,
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
               ],
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
             for (int i = 0; i < 10; i++)
               Padding(
@@ -154,8 +192,8 @@ class ShopPage extends StatelessWidget {
                     Card(
                       elevation: 3,
                       child: Container(
-                        width: 80,
-                        height: 132,
+                        width: 100,
+                        height: 112.5,
                         decoration: BoxDecoration(
                           image: const DecorationImage(
                             fit: BoxFit.cover,
@@ -177,8 +215,8 @@ class ShopPage extends StatelessWidget {
                     Card(
                       elevation: 3,
                       child: Container(
-                        width: 230,
-                        height: 132,
+                        width: 210,
+                        height: 112.5,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
@@ -186,71 +224,77 @@ class ShopPage extends StatelessWidget {
                             color: secondary,
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextWidget(
-                                text: 'Jollibee Downtown Strip',
-                                fontSize: 16,
-                                fontFamily: 'Bold',
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 33,
+                              decoration: const BoxDecoration(
+                                color: secondary,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(
+                                    7.5,
+                                  ),
+                                  topRight: Radius.circular(
+                                    7.5,
+                                  ),
+                                ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                              child: Center(
+                                child: TextWidget(
+                                  text: 'Coffee and Cake',
+                                  fontSize: 15,
+                                  fontFamily: 'Bold',
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextWidget(
+                              text:
+                                  '1 serving of americano coffee and 1 slice of cake',
+                              fontSize: 12,
+                              fontFamily: 'Medium',
+                              color: Colors.black,
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10, right: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Icon(
-                                    Icons.delivery_dining_outlined,
-                                    size: 15,
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
                                   TextWidget(
-                                    text: 'Free delivery',
-                                    fontSize: 10,
-                                    fontFamily: 'Regular',
+                                    text: '₱ 159',
+                                    fontSize: 12,
+                                    fontFamily: 'Bold',
+                                    color: secondary,
                                   ),
-                                  const SizedBox(
-                                    width: 15,
-                                  ),
-                                  const Icon(
-                                    Icons.access_time_sharp,
-                                    size: 15,
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  TextWidget(
-                                    text: '10-15 minutes',
-                                    fontSize: 10,
-                                    fontFamily: 'Regular',
+                                  Row(
+                                    children: [
+                                      TextWidget(
+                                        text: 'Add to Cart',
+                                        fontSize: 12,
+                                        fontFamily: 'Bold',
+                                        color: secondary,
+                                      ),
+                                      const Icon(
+                                        Icons.arrow_right_alt_outlined,
+                                        color: secondary,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                              TextWidget(
-                                text: 'Fastfood • Chicken • Burger • Pasta',
-                                fontSize: 16,
-                                align: TextAlign.start,
-                                fontFamily: 'Bold',
-                                color: secondary,
-                              ),
-                              TextWidget(
-                                text: 'Price range ₱',
-                                fontSize: 10,
-                                fontFamily: 'Regular',
-                              ),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: TextWidget(
-                                  text: '20% off first purchase. min ₱500',
-                                  fontSize: 10,
-                                  fontFamily: 'Regular',
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

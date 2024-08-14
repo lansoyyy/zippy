@@ -27,3 +27,11 @@ List foodCategoriesName = [
   'BBQ',
   'Pizza',
 ];
+
+List shopCategories = [
+  'Combo',
+  'Meals',
+  'Snacks',
+  'Drinks',
+  'Add-ons',
+];
