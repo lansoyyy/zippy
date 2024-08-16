@@ -278,7 +278,7 @@ class _ReviewPageState extends State<ReviewPage> {
                           children: [
                             Radio(
                               activeColor: secondary,
-                              value: false,
+                              value: i == 0 ? false : true,
                               groupValue: false,
                               onChanged: (value) {},
                             ),
@@ -343,7 +343,7 @@ class _ReviewPageState extends State<ReviewPage> {
                           children: [
                             Radio(
                               activeColor: secondary,
-                              value: false,
+                              value: true,
                               groupValue: false,
                               onChanged: (value) {},
                             ),
