@@ -35,3 +35,10 @@ List shopCategories = [
   'Drinks',
   'Add-ons',
 ];
+
+String home = 'assets/images/home.png';
+String office = 'assets/images/office.png';
+String groups = 'assets/images/groups.png';
+String gcash = 'assets/images/image 5.png';
+String paymaya = 'assets/images/image 6.png';
+String bpi = 'assets/images/clarity_bank-solid.png';
