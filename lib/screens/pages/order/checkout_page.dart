@@ -21,6 +21,27 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   @override
+  void initState() {
+    // TODO: implement initState
+
+    showDialogs();
+
+    super.initState();
+  }
+
+  showDialogs() async {
+    showLoadingDialog('assets/images/Group 121.png', 'Eyeing out for riders',
+        '1 to 5 minutes');
+    await Future.delayed(const Duration(seconds: 5));
+    Navigator.pop(context);
+    await Future.delayed(const Duration(seconds: 2));
+    showLoadingDialog('assets/images/Group 121 (1).png',
+        'Preparing your Treats', '15 to 20 minutes');
+    await Future.delayed(const Duration(seconds: 5));
+    Navigator.pop(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -145,6 +166,58 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         ],
       ),
+    );
+  }
+
+  showLoadingDialog(String image, String caption, String duration) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: SizedBox(
+            height: 320,
+            width: 240,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextWidget(
+                  text: 'Please wait...',
+                  fontSize: 20,
+                  fontFamily: 'Bold',
+                  color: secondary,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Image.asset(
+                  image,
+                  height: 160,
+                  width: 160,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextWidget(
+                  text: caption,
+                  fontSize: 20,
+                  fontFamily: 'Bold',
+                  color: secondary,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                TextWidget(
+                  text: duration,
+                  fontSize: 15,
+                  fontFamily: 'Regular',
+                  color: secondary,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
