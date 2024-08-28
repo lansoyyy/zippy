@@ -38,6 +38,7 @@ dependencies:
   fluttertoast:
   intl:
   google_maps_flutter:
+  flutter_spinkit:
 
 dev_dependencies:
   flutter_test:
