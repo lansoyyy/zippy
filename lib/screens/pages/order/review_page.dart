@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zippy/screens/pages/order/checkout_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -489,6 +490,59 @@ class _ReviewPageState extends State<ReviewPage> {
                         fontSize: 20,
                         fontFamily: 'Bold',
                         color: secondary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        width: 140,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(
+                            color: secondary,
+                          ),
+                        ),
+                        child: Center(
+                          child: TextWidget(
+                            text: 'Vouchers',
+                            fontSize: 20,
+                            fontFamily: 'Bold',
+                            color: secondary,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                                builder: (context) => const CheckoutPage()),
+                          );
+                        },
+                        child: Container(
+                          width: 140,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            color: secondary,
+                            border: Border.all(
+                              color: secondary,
+                            ),
+                          ),
+                          child: Center(
+                            child: TextWidget(
+                              text: 'Checkout',
+                              fontSize: 20,
+                              fontFamily: 'Bold',
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
