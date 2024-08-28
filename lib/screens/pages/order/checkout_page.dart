@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
+import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
 class CheckoutPage extends StatefulWidget {
@@ -162,6 +163,103 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 )
               ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: double.infinity,
+              height: 140,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(25),
+                    topRight: Radius.circular(25)),
+                color: Colors.white,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset(
+                              icon,
+                              height: 20,
+                              width: 20,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            TextWidget(
+                                text: 'arriving in 5-10 minutes', fontSize: 12),
+                          ],
+                        ),
+                        TextWidget(
+                          text: 'Total: ₱800',
+                          fontSize: 15,
+                          fontFamily: 'Bold',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Card(
+                          elevation: 3,
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: IconButton(
+                              onPressed: () {},
+                              icon: const Icon(
+                                Icons.phone,
+                                color: secondary,
+                              )),
+                        ),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const CheckoutPage()),
+                            );
+                          },
+                          child: Container(
+                            width: 240,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              color: secondary,
+                              border: Border.all(
+                                color: secondary,
+                              ),
+                            ),
+                            child: Center(
+                              child: TextWidget(
+                                text: 'Open Chat',
+                                fontSize: 20,
+                                fontFamily: 'Bold',
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
