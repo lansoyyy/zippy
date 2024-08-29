@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:zippy/screens/pages/order/completed_page.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
@@ -232,7 +233,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           onTap: () {
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
-                                  builder: (context) => const CheckoutPage()),
+                                  builder: (context) => const CompletedPage()),
                             );
                           },
                           child: Container(
