@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/button_widget.dart';
@@ -109,7 +110,11 @@ class CompletedPage extends StatelessWidget {
                 width: 310,
                 color: secondary,
                 label: 'DONE',
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  );
+                },
               ),
             ),
           ],
