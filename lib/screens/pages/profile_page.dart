@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/button_widget.dart';
 
@@ -595,11 +596,16 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            tileWidget(
-              'Favorites',
-              const Icon(
-                Icons.favorite,
-                color: Colors.white,
+            GestureDetector(
+              onTap: () {
+                showFavorites(context);
+              },
+              child: tileWidget(
+                'Favorites',
+                const Icon(
+                  Icons.favorite,
+                  color: Colors.white,
+                ),
               ),
             ),
             GestureDetector(
@@ -921,6 +927,92 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
                     onPressed: () {
                       Navigator.pop(context);
                     },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  showFavorites(context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SizedBox(
+          height: 500,
+          width: double.infinity,
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.keyboard_arrow_down_outlined,
+                    color: secondary,
+                    size: 50,
+                  ),
+                  TextWidget(
+                    text: 'Favorites',
+                    fontSize: 24,
+                    color: secondary,
+                    fontFamily: 'Bold',
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextWidget(
+                    text: 'click on the heart to remove from favorites',
+                    fontSize: 15,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    height: 375,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          for (int i = 0; i < 10; i++)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 15),
+                              child: Container(
+                                width: 320,
+                                height: 65,
+                                decoration: BoxDecoration(
+                                  color: secondary,
+                                  borderRadius: BorderRadius.circular(
+                                    20,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/Rectangle 40.png',
+                                      height: double.infinity,
+                                      width: 120,
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    TextWidget(
+                                      text: 'Bluebird Coffee',
+                                      fontSize: 20,
+                                      color: Colors.white,
+                                      fontFamily: 'Bold',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
                   ),
                 ],
               ),
