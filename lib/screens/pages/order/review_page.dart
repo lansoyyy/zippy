@@ -496,55 +496,34 @@ class _ReviewPageState extends State<ReviewPage> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        width: 140,
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const CheckoutPage()),
+                        );
+                      },
+                      child: Container(
+                        width: 280,
                         height: 40,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(50),
+                          color: secondary,
                           border: Border.all(
                             color: secondary,
                           ),
                         ),
                         child: Center(
                           child: TextWidget(
-                            text: 'Vouchers',
+                            text: 'Checkout',
                             fontSize: 20,
                             fontFamily: 'Bold',
-                            color: secondary,
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: (context) => const CheckoutPage()),
-                          );
-                        },
-                        child: Container(
-                          width: 140,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            color: secondary,
-                            border: Border.all(
-                              color: secondary,
-                            ),
-                          ),
-                          child: Center(
-                            child: TextWidget(
-                              text: 'Checkout',
-                              fontSize: 20,
-                              fontFamily: 'Bold',
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                   const SizedBox(
                     height: 20,
