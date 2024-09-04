@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zippy/screens/auth/landing_screen.dart';
 import 'package:zippy/screens/onboarding_screens/onboarding_third.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
@@ -33,8 +34,8 @@ class OnboardingSix extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const OnboardingThird()));
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => const LandingScreen()));
                     },
                     child: Row(
                       children: [
