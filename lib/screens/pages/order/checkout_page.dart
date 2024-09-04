@@ -32,8 +32,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   showDialogs() async {
-    showLoadingDialog('assets/images/Group 121.png', 'Eyeing out for riders',
-        '1 to 5 minutes');
+    showLoadingDialog('assets/images/Group 121 (2).png',
+        'Eyeing out for riders', '1 to 5 minutes');
     await Future.delayed(const Duration(seconds: 5));
     Navigator.pop(context);
     await Future.delayed(const Duration(seconds: 2));
