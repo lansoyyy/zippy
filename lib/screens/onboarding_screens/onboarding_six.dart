@@ -27,7 +27,7 @@ class OnboardingSix extends StatelessWidget {
                           child: Icon(
                             Icons.circle,
                             size: 10,
-                            color: i == 0 ? secondary : Colors.grey,
+                            color: i == 5 ? secondary : Colors.grey,
                           ),
                         ),
                     ],
