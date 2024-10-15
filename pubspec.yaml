@@ -39,6 +39,10 @@ dependencies:
   intl:
   google_maps_flutter:
   flutter_spinkit:
+  firebase_core:
+  cloud_firestore:
+  firebase_storage:
+  firebase_auth:
 
 dev_dependencies:
   flutter_test:

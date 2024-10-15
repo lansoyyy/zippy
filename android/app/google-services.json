@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "417538124533",
+    "project_id": "zippy-3c566",
+    "storage_bucket": "zippy-3c566.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:417538124533:android:7d16a66c31021ff16bb3bc",
+        "android_client_info": {
+          "package_name": "com.sciver.zippy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwpIbeot9QRZpt26UgTC4wbTJxRmu1ZNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:417538124533:android:592b1d4fef32e8b86bb3bc",
+        "android_client_info": {
+          "package_name": "com.zippy.merchant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwpIbeot9QRZpt26UgTC4wbTJxRmu1ZNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:417538124533:android:17d9d4ab235e87e06bb3bc",
+        "android_client_info": {
+          "package_name": "com.zippy.rider"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwpIbeot9QRZpt26UgTC4wbTJxRmu1ZNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
