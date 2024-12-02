@@ -1,10 +1,56 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
-class ShopPage extends StatelessWidget {
+class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
+
+  @override
+  State<ShopPage> createState() => _ShopPageState();
+}
+
+class _ShopPageState extends State<ShopPage> {
+  List<Map<String, dynamic>> merchants = [];
+  List<Map<String, dynamic>> menuItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMerchants();
+    fetchMenuItems();
+  }
+
+  Future<void> fetchMerchants() async {
+    CollectionReference merchantsCollection =
+        FirebaseFirestore.instance.collection('Merchant');
+
+    QuerySnapshot querySnapshot = await merchantsCollection.get();
+    final allData = querySnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+
+    setState(() {
+      merchants = allData;
+    });
+  }
+
+  Future<void> fetchMenuItems() async {
+    CollectionReference menuCollection =
+        FirebaseFirestore.instance.collection('Menu');
+
+    QuerySnapshot querySnapshot = await menuCollection.get();
+    final allData = querySnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+
+    setState(() {
+      menuItems = allData;
+    });
+
+    print('Datas: $menuItems');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,124 +229,126 @@ class ShopPage extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            for (int i = 0; i < 10; i++)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Card(
-                      elevation: 3,
-                      child: Container(
-                        width: 100,
-                        height: 112.5,
-                        decoration: BoxDecoration(
-                          image: const DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage(
-                              'assets/images/Rectangle 2.png',
+            ...menuItems.map((item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Card(
+                        elevation: 3,
+                        child: Container(
+                          width: 100,
+                          height: 112.5,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(
+                                item['imageUrl'] ??
+                                    '', // Ensure the image URL field matches your database
+                              ),
                             ),
-                          ),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: secondary,
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: secondary,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Card(
-                      elevation: 3,
-                      child: Container(
-                        width: 210,
-                        height: 112.5,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: secondary,
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Card(
+                        elevation: 3,
+                        child: Container(
+                          width: 210,
+                          height: 112.5,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: secondary,
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              height: 33,
-                              decoration: const BoxDecoration(
-                                color: secondary,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(
-                                    7.5,
-                                  ),
-                                  topRight: Radius.circular(
-                                    7.5,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                height: 33,
+                                decoration: const BoxDecoration(
+                                  color: secondary,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(
+                                      7.5,
+                                    ),
+                                    topRight: Radius.circular(
+                                      7.5,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              child: Center(
-                                child: TextWidget(
-                                  text: 'Coffee and Cake',
-                                  fontSize: 15,
-                                  fontFamily: 'Bold',
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            TextWidget(
-                              text:
-                                  '1 serving of americano coffee and 1 slice of cake',
-                              fontSize: 12,
-                              fontFamily: 'Medium',
-                              color: Colors.black,
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 10, right: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  TextWidget(
-                                    text: '₱ 159',
-                                    fontSize: 12,
+                                child: Center(
+                                  child: TextWidget(
+                                    text: item['name'] ??
+                                        'No Name', // Ensure the name field matches your database
+                                    fontSize: 15,
                                     fontFamily: 'Bold',
-                                    color: secondary,
+                                    color: Colors.white,
                                   ),
-                                  Row(
-                                    children: [
-                                      TextWidget(
-                                        text: 'Add to Cart',
-                                        fontSize: 12,
-                                        fontFamily: 'Bold',
-                                        color: secondary,
-                                      ),
-                                      const Icon(
-                                        Icons.arrow_right_alt_outlined,
-                                        color: secondary,
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              TextWidget(
+                                text: item['description'] ??
+                                    'No description available', // Ensure the description field matches your database
+                                fontSize: 12,
+                                fontFamily: 'Medium',
+                                color: Colors.black,
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    TextWidget(
+                                      text:
+                                          '₱ ${item['price']?.toString() ?? '0.00'}', // Ensure the price field matches your database
+                                      fontSize: 12,
+                                      fontFamily: 'Bold',
+                                      color: secondary,
+                                    ),
+                                    Row(
+                                      children: [
+                                        TextWidget(
+                                          text: 'Add to Cart',
+                                          fontSize: 12,
+                                          fontFamily: 'Bold',
+                                          color: secondary,
+                                        ),
+                                        const Icon(
+                                          Icons.arrow_right_alt_outlined,
+                                          color: secondary,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                    ],
+                  ),
+                )),
           ],
         ),
       ),
