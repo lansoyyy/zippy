@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
@@ -22,6 +23,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<Map<String, dynamic>> merchants = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMerchants();
+  }
+
+  Future<void> fetchMerchants() async {
+    CollectionReference merchantsCollection =
+        FirebaseFirestore.instance.collection('Merchant');
+
+    QuerySnapshot querySnapshot = await merchantsCollection.get();
+    final allData = querySnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+
+    setState(() {
+      merchants = allData;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,84 +198,81 @@ class _HomeScreenState extends State<HomeScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (int i = 0; i < 5; i++)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (context) => const ShopPage()),
-                                );
-                              },
-                              child: Container(
-                                width: 265,
-                                height: 86,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(
-                                    15,
-                                  ),
+                      children: merchants.map((merchant) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ShopPage(),
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 15, right: 15),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: 64,
-                                        height: 60,
-                                        decoration: const BoxDecoration(
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: AssetImage(
-                                              'assets/images/Rectangle 2.png',
-                                            ),
+                              );
+                            },
+                            child: Container(
+                              width: 265,
+                              height: 86,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 15, right: 15),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 64,
+                                      height: 60,
+                                      decoration: const BoxDecoration(
+                                        image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: AssetImage(
+                                            'assets/images/Rectangle 2.png',
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(
-                                        width: 15,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          TextWidget(
-                                            text: 'Bluebird Coffee',
-                                            fontSize: 20,
-                                            fontFamily: 'Bold',
-                                          ),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.location_on_sharp,
-                                                color: secondary,
-                                                size: 15,
-                                              ),
-                                              TextWidget(
-                                                text: '10 mtr Left',
-                                                fontSize: 12,
-                                                fontFamily: 'Medium',
-                                                color: Colors.grey,
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(width: 15),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        TextWidget(
+                                          text: merchant['businessName'] ??
+                                              'Unknown',
+                                          fontSize: 20,
+                                          fontFamily: 'Bold',
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.location_on_sharp,
+                                              color: secondary,
+                                              size: 15,
+                                            ),
+                                            TextWidget(
+                                              text: merchant['address'] ??
+                                                  'No address provided',
+                                              fontSize: 12,
+                                              fontFamily: 'Medium',
+                                              color: Colors.grey,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                      ],
+                        );
+                      }).toList(),
                     ),
                   ),
                 ],
