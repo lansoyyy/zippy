@@ -48,8 +48,6 @@ class _ShopPageState extends State<ShopPage> {
     setState(() {
       menuItems = allData;
     });
-
-    print('Datas: $menuItems');
   }
 
   @override
@@ -165,7 +163,8 @@ class _ShopPageState extends State<ShopPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             TextWidget(
-                              text: 'Bluebird Coffee',
+                              text:
+                                  merchants[0]['businessName'] ?? 'Loading...',
                               fontSize: 15,
                               fontFamily: 'Bold',
                               color: Colors.white,
@@ -291,7 +290,7 @@ class _ShopPageState extends State<ShopPage> {
                                 child: Center(
                                   child: TextWidget(
                                     text: item['name'] ??
-                                        'No Name', // Ensure the name field matches your database
+                                        'Loading...', // Ensure the name field matches your database
                                     fontSize: 15,
                                     fontFamily: 'Bold',
                                     color: Colors.white,
@@ -325,19 +324,24 @@ class _ShopPageState extends State<ShopPage> {
                                       fontFamily: 'Bold',
                                       color: secondary,
                                     ),
-                                    Row(
-                                      children: [
-                                        TextWidget(
-                                          text: 'Add to Cart',
-                                          fontSize: 12,
-                                          fontFamily: 'Bold',
-                                          color: secondary,
-                                        ),
-                                        const Icon(
-                                          Icons.arrow_right_alt_outlined,
-                                          color: secondary,
-                                        ),
-                                      ],
+                                    GestureDetector(
+                                      onTap: () {
+                                        // Add to cart functionality
+                                      },
+                                      child: Row(
+                                        children: [
+                                          TextWidget(
+                                            text: 'Add to Cart',
+                                            fontSize: 12,
+                                            fontFamily: 'Bold',
+                                            color: secondary,
+                                          ),
+                                          const Icon(
+                                            Icons.arrow_right_alt_outlined,
+                                            color: secondary,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
