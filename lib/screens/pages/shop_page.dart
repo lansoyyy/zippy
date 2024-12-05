@@ -5,7 +5,8 @@ import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
 class ShopPage extends StatefulWidget {
-  const ShopPage({super.key});
+  final String merchantId;
+  const ShopPage({super.key, required this.merchantId});
 
   @override
   State<ShopPage> createState() => _ShopPageState();
@@ -40,13 +41,15 @@ class _ShopPageState extends State<ShopPage> {
     CollectionReference menuCollection =
         FirebaseFirestore.instance.collection('Menu');
 
-    QuerySnapshot querySnapshot = await menuCollection.get();
-    final allData = querySnapshot.docs
+    QuerySnapshot querySnapshot =
+        await menuCollection.where('uid', isEqualTo: widget.merchantId).get();
+
+    final filteredData = querySnapshot.docs
         .map((doc) => doc.data() as Map<String, dynamic>)
         .toList();
 
     setState(() {
-      menuItems = allData;
+      menuItems = filteredData;
     });
   }
 

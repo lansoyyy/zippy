@@ -205,7 +205,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => const ShopPage(),
+                                  builder: (context) =>
+                                      ShopPage(merchantId: merchant['uid']),
                                 ),
                               );
                             },
