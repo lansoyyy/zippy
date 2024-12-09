@@ -152,12 +152,7 @@ class SearchPage extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: GestureDetector(
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) => const ReviewPage()),
-                      );
-                    },
+                    onTap: () {},
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

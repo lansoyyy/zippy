@@ -1,5 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:zippy/screens/pages/order/checkout_page.dart';
+import 'package:zippy/screens/pages/order/completed_page.dart';
+import 'package:zippy/screens/pages/order/review_page.dart';
+import 'package:zippy/screens/pages/profile_page.dart';
+import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -15,6 +20,8 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
   List<Map<String, dynamic>> merchants = [];
   List<Map<String, dynamic>> menuItems = [];
+
+  int basketCount = 0;
 
   @override
   void initState() {
@@ -50,6 +57,12 @@ class _ShopPageState extends State<ShopPage> {
 
     setState(() {
       menuItems = filteredData;
+    });
+  }
+
+  void addToCart() {
+    setState(() {
+      basketCount++;
     });
   }
 
@@ -91,20 +104,50 @@ class _ShopPageState extends State<ShopPage> {
                     ),
                     Row(
                       children: [
-                        TextWidget(
-                          text: 'Cart',
-                          fontSize: 15,
-                          color: secondary,
-                          fontFamily: 'Medium',
-                        ),
+                        // TextWidget(
+                        //   text: 'Cart',
+                        //   fontSize: 15,
+                        //   color: secondary,
+                        //   fontFamily: 'Medium',
+                        // ),
                         const SizedBox(
                           width: 10,
                         ),
-                        Image.asset(
-                          'assets/images/cart.png',
-                          height: 20,
-                          width: 20,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => const ReviewPage()));
+                          },
+                          child: Image.asset(
+                            'assets/images/cart.png',
+                            height: 20,
+                            width: 20,
+                          ),
                         ),
+                        if (basketCount > 0)
+                          Positioned(
+                            right: 8,
+                            top: 52,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 14,
+                                minHeight: 14,
+                              ),
+                              child: Text(
+                                '$basketCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ],
@@ -245,8 +288,7 @@ class _ShopPageState extends State<ShopPage> {
                             image: DecorationImage(
                               fit: BoxFit.cover,
                               image: NetworkImage(
-                                item['imageUrl'] ??
-                                    '', // Ensure the image URL field matches your database
+                                item['imageUrl'] ?? '',
                               ),
                             ),
                             color: Colors.white,
@@ -329,7 +371,7 @@ class _ShopPageState extends State<ShopPage> {
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        // Add to cart functionality
+                                        addToCart();
                                       },
                                       child: Row(
                                         children: [
