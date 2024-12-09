@@ -20,6 +20,7 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
   List<Map<String, dynamic>> merchants = [];
   List<Map<String, dynamic>> menuItems = [];
+  List<Map<String, dynamic>> selectedItems = [];
 
   int basketCount = 0;
 
@@ -60,9 +61,10 @@ class _ShopPageState extends State<ShopPage> {
     });
   }
 
-  void addToCart() {
+  void addToCart(Map<String, dynamic> item) {
     setState(() {
       basketCount++;
+      selectedItems.add(item); // Add item to selectedItems list
     });
   }
 
@@ -116,7 +118,9 @@ class _ShopPageState extends State<ShopPage> {
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ReviewPage()));
+                                builder: (context) => ReviewPage(
+                                    selectedItems:
+                                        selectedItems))); // Pass selectedItems to ReviewPage
                           },
                           child: Image.asset(
                             'assets/images/cart.png',
@@ -371,7 +375,7 @@ class _ShopPageState extends State<ShopPage> {
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        addToCart();
+                                        addToCart(item);
                                       },
                                       child: Row(
                                         children: [

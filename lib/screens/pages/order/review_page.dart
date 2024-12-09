@@ -5,15 +5,13 @@ import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/textfield_widget.dart';
 
-class ReviewPage extends StatefulWidget {
-  const ReviewPage({super.key});
+class ReviewPage extends StatelessWidget {
+  final List<Map<String, dynamic>> selectedItems;
 
-  @override
-  State<ReviewPage> createState() => _ReviewPageState();
-}
+  ReviewPage({super.key, required this.selectedItems});
 
-class _ReviewPageState extends State<ReviewPage> {
   final remarks = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,66 +66,23 @@ class _ReviewPageState extends State<ReviewPage> {
             const SizedBox(
               height: 20,
             ),
-            for (int i = 0; i < 3; i++)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Center(
-                  child: Container(
-                    width: 320,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: secondary,
-                      ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: selectedItems.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: TextWidget(
+                      text: item['name'], // Adjust based on your item structure
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontFamily: 'Medium',
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          height: double.infinity,
-                          width: 225,
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(18),
-                              bottomLeft: Radius.circular(18),
-                            ),
-                            color: secondary,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 20, right: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextWidget(
-                                  text: '2x     Coffee and Cake',
-                                  fontSize: 15,
-                                  fontFamily: 'Bold',
-                                  color: Colors.white,
-                                ),
-                                TextWidget(
-                                  text: 'Total: ₱ 598',
-                                  fontSize: 14,
-                                  fontFamily: 'Regular',
-                                  color: Colors.white,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: TextWidget(
-                            text: 'Change',
-                            fontSize: 15,
-                            fontFamily: 'Medium',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                  );
+                }).toList(),
               ),
+            ),
             const SizedBox(
               height: 10,
             ),
