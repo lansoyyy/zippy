@@ -1,16 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/pages/order/checkout_page.dart';
 import 'package:zippy/utils/colors.dart';
-import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/textfield_widget.dart';
 
-class ReviewPage extends StatelessWidget {
+class ReviewPage extends StatefulWidget {
   final List<Map<String, dynamic>> selectedItems;
 
-  ReviewPage({super.key, required this.selectedItems});
+  const ReviewPage({super.key, required this.selectedItems});
 
+  @override
+  State<ReviewPage> createState() => _ReviewPageState();
+}
+
+class _ReviewPageState extends State<ReviewPage> {
   final remarks = TextEditingController();
+  late Map<String, Map<String, dynamic>> itemCounts;
+
+  @override
+  void initState() {
+    super.initState();
+    itemCounts = {};
+    for (var item in widget.selectedItems) {
+      if (itemCounts.containsKey(item['name'])) {
+        itemCounts[item['name']]!['count']++;
+      } else {
+        itemCounts[item['name']] = {
+          'price': item['price'],
+          'count': 1,
+        };
+      }
+    }
+  }
+
+  void addItem(String name) {
+    setState(() {
+      itemCounts[name]!['count']++;
+    });
+  }
+
+  void removeItem(String name) {
+    setState(() {
+      if (itemCounts[name]!['count'] > 1) {
+        itemCounts[name]!['count']--;
+      } else {
+        itemCounts.remove(name);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +94,7 @@ class ReviewPage extends StatelessWidget {
                     ),
                     const Icon(
                       Icons.delete,
-                      color: secondary,
+                      color: Colors.white,
                     ),
                   ],
                 ),
@@ -67,20 +104,81 @@ class ReviewPage extends StatelessWidget {
               height: 20,
             ),
             Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: selectedItems.map((item) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: TextWidget(
-                      text: item['name'], // Adjust based on your item structure
-                      fontSize: 16,
-                      color: Colors.black,
-                      fontFamily: 'Medium',
-                    ),
-                  );
-                }).toList(),
+              padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+              child: Center(
+                child: Column(
+                  children: widget.selectedItems.map((item) {
+                    return Container(
+                      margin: const EdgeInsets.only(
+                          bottom: 10), // Add margin between items
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(18)),
+                        color: secondary,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20, top: 10, bottom: 10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextWidget(
+                              text: 'X',
+                              fontSize: 15,
+                              color: white,
+                              fontFamily: 'Bold',
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextWidget(
+                                  text: item['name'],
+                                  fontSize: 15,
+                                  fontFamily: 'Bold',
+                                  color: Colors.white,
+                                ),
+                                TextWidget(
+                                  text: 'Total ₱ ${item['price']}',
+                                  fontSize: 14,
+                                  fontFamily: 'Regular',
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  iconSize: 20,
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.add),
+                                  color: Colors.white,
+                                ),
+                                IconButton(
+                                  iconSize: 20,
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.remove),
+                                  color: Colors.white,
+                                ),
+                                IconButton(
+                                  iconSize: 20,
+                                  onPressed: () {
+                                    widget.selectedItems.remove(item);
+                                  },
+                                  icon: const Icon(Icons.delete),
+                                  color: Colors.white,
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
             const SizedBox(
