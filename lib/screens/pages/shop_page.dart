@@ -1,10 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:zippy/screens/pages/order/checkout_page.dart';
-import 'package:zippy/screens/pages/order/completed_page.dart';
 import 'package:zippy/screens/pages/order/review_page.dart';
-import 'package:zippy/screens/pages/profile_page.dart';
-import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -368,8 +364,8 @@ class _ShopPageState extends State<ShopPage> {
                                   children: [
                                     TextWidget(
                                       text:
-                                          '₱ ${item['price']?.toString() ?? '0.00'}', // Ensure the price field matches your database
-                                      fontSize: 12,
+                                          '₱ ${item['price']?.toString() ?? '0.00'}',
+                                      fontSize: 15,
                                       fontFamily: 'Bold',
                                       color: secondary,
                                     ),
@@ -381,7 +377,7 @@ class _ShopPageState extends State<ShopPage> {
                                         children: [
                                           TextWidget(
                                             text: 'Add to Cart',
-                                            fontSize: 12,
+                                            fontSize: 15,
                                             fontFamily: 'Bold',
                                             color: secondary,
                                           ),

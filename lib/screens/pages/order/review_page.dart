@@ -166,7 +166,9 @@ class _ReviewPageState extends State<ReviewPage> {
                                 IconButton(
                                   iconSize: 20,
                                   onPressed: () {
-                                    widget.selectedItems.remove(item);
+                                    setState(() {
+                                      widget.selectedItems.remove(item);
+                                    });
                                   },
                                   icon: const Icon(Icons.delete),
                                   color: Colors.white,
