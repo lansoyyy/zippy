@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:zippy/firebase_options.dart';
-import 'package:zippy/screens/onboarding_screens/onboarding_one.dart';
+import 'package:zippy/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Zippy',
-      home: OnboardingOne(),
+      home: HomeScreen(),
     );
   }
 }

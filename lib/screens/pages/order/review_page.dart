@@ -22,11 +22,13 @@ class _ReviewPageState extends State<ReviewPage> {
     super.initState();
     itemCounts = {};
     for (var item in widget.selectedItems) {
+      double price = double.tryParse(item['price'].toString()) ??
+          0.0; // Ensure price is a double
       if (itemCounts.containsKey(item['name'])) {
         itemCounts[item['name']]!['count']++;
       } else {
         itemCounts[item['name']] = {
-          'price': item['price'],
+          'price': price,
           'count': 1,
         };
       }
@@ -107,10 +109,13 @@ class _ReviewPageState extends State<ReviewPage> {
               padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
               child: Center(
                 child: Column(
-                  children: widget.selectedItems.map((item) {
+                  children: itemCounts.entries.map((entry) {
+                    String itemName = entry.key;
+                    int itemCount = entry.value['count'];
+                    double itemPrice = entry.value['price'];
+
                     return Container(
-                      margin: const EdgeInsets.only(
-                          bottom: 10), // Add margin between items
+                      margin: const EdgeInsets.only(bottom: 10),
                       width: double.infinity,
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(18)),
@@ -124,7 +129,7 @@ class _ReviewPageState extends State<ReviewPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             TextWidget(
-                              text: 'X',
+                              text: 'x$itemCount',
                               fontSize: 15,
                               color: white,
                               fontFamily: 'Bold',
@@ -134,13 +139,14 @@ class _ReviewPageState extends State<ReviewPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 TextWidget(
-                                  text: item['name'],
+                                  text: itemName,
                                   fontSize: 15,
                                   fontFamily: 'Bold',
                                   color: Colors.white,
                                 ),
                                 TextWidget(
-                                  text: 'Total ₱ ${item['price']}',
+                                  text:
+                                      'Total ₱ ${(itemPrice * itemCount).toStringAsFixed(2)}',
                                   fontSize: 14,
                                   fontFamily: 'Regular',
                                   color: Colors.white,
@@ -153,13 +159,13 @@ class _ReviewPageState extends State<ReviewPage> {
                               children: [
                                 IconButton(
                                   iconSize: 20,
-                                  onPressed: () {},
+                                  onPressed: () => addItem(itemName),
                                   icon: const Icon(Icons.add),
                                   color: Colors.white,
                                 ),
                                 IconButton(
                                   iconSize: 20,
-                                  onPressed: () {},
+                                  onPressed: () => removeItem(itemName),
                                   icon: const Icon(Icons.remove),
                                   color: Colors.white,
                                 ),
@@ -167,7 +173,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                   iconSize: 20,
                                   onPressed: () {
                                     setState(() {
-                                      widget.selectedItems.remove(item);
+                                      itemCounts.remove(itemName);
                                     });
                                   },
                                   icon: const Icon(Icons.delete),
