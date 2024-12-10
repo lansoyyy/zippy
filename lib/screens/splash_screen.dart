@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/auth/landing_screen.dart';
 
-import '../utils/colors.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:zippy/screens/pages/order/review_page.dart';
-import 'package:zippy/screens/pages/shop_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';

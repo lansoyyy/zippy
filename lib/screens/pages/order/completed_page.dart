@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/utils/colors.dart';
-import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
 

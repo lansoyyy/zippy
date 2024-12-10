@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:zippy/screens/home_screen.dart';
 
 logout(BuildContext context, Widget navigationRoute) {
   return showDialog(

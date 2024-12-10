@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:zippy/screens/auth/signup_screen.dart';
 import 'package:zippy/screens/auth/signup_screen4.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
-import 'package:zippy/widgets/textfield_widget.dart';
 
 import '../../utils/const.dart';
 

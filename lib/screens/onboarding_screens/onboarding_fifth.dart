@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/onboarding_screens/onboarding_six.dart';
-import 'package:zippy/screens/onboarding_screens/onboarding_third.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
