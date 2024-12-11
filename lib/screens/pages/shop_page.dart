@@ -18,7 +18,8 @@ class _ShopPageState extends State<ShopPage> {
   List<Map<String, dynamic>> menuItems = [];
   List<Map<String, dynamic>> selectedItems = [];
 
-  int basketCount = 0;
+  // int basketCount = 0;
+  int get basketCount => selectedItems.length;
 
   @override
   void initState() {
@@ -59,8 +60,7 @@ class _ShopPageState extends State<ShopPage> {
 
   void addToCart(Map<String, dynamic> item) {
     setState(() {
-      basketCount++;
-      selectedItems.add(item); // Add item to selectedItems list
+      selectedItems.add(item);
     });
   }
 
@@ -102,21 +102,24 @@ class _ShopPageState extends State<ShopPage> {
                     ),
                     Row(
                       children: [
-                        // TextWidget(
-                        //   text: 'Cart',
-                        //   fontSize: 15,
-                        //   color: secondary,
-                        //   fontFamily: 'Medium',
-                        // ),
                         const SizedBox(
                           width: 10,
                         ),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
                                 builder: (context) => ReviewPage(
-                                    selectedItems:
-                                        selectedItems))); // Pass selectedItems to ReviewPage
+                                  selectedItems: selectedItems,
+                                  basketCount: basketCount,
+                                  onUpdateCart: (updatedItems) {
+                                    setState(() {
+                                      selectedItems = updatedItems;
+                                    });
+                                  },
+                                ),
+                              ),
+                            );
                           },
                           child: Image.asset(
                             'assets/images/cart.png',
@@ -274,130 +277,139 @@ class _ShopPageState extends State<ShopPage> {
             const SizedBox(
               height: 10,
             ),
-            ...menuItems.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Card(
-                        elevation: 3,
-                        child: Container(
-                          width: 100,
-                          height: 112.5,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(
-                                item['imageUrl'] ?? '',
-                              ),
-                            ),
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: secondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Card(
-                        elevation: 3,
-                        child: Container(
-                          width: 210,
-                          height: 112.5,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: secondary,
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                height: 33,
-                                decoration: const BoxDecoration(
-                                  color: secondary,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(
-                                      7.5,
-                                    ),
-                                    topRight: Radius.circular(
-                                      7.5,
-                                    ),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: TextWidget(
-                                    text: item['name'] ??
-                                        'Loading...', // Ensure the name field matches your database
-                                    fontSize: 15,
-                                    fontFamily: 'Bold',
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              TextWidget(
-                                text: item['description'] ??
-                                    'No description available', // Ensure the description field matches your database
-                                fontSize: 12,
-                                fontFamily: 'Medium',
-                                color: Colors.black,
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 10, right: 10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    TextWidget(
-                                      text:
-                                          '₱ ${item['price']?.toString() ?? '0.00'}',
-                                      fontSize: 15,
-                                      fontFamily: 'Bold',
-                                      color: secondary,
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        addToCart(item);
-                                      },
-                                      child: Row(
-                                        children: [
-                                          TextWidget(
-                                            text: 'Add to Cart',
-                                            fontSize: 15,
-                                            fontFamily: 'Bold',
-                                            color: secondary,
+            menuItems.isNotEmpty
+                ? Column(
+                    children: menuItems
+                        .map((item) => Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Card(
+                                    elevation: 3,
+                                    child: Container(
+                                      width: 100,
+                                      height: 112.5,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: NetworkImage(
+                                            item['imageUrl'] ?? '',
                                           ),
-                                          const Icon(
-                                            Icons.arrow_right_alt_outlined,
-                                            color: secondary,
+                                        ),
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: secondary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  Card(
+                                    elevation: 3,
+                                    child: Container(
+                                      width: 210,
+                                      height: 112.5,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: secondary,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: double.infinity,
+                                            height: 33,
+                                            decoration: const BoxDecoration(
+                                              color: secondary,
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(7.5),
+                                                topRight: Radius.circular(7.5),
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: TextWidget(
+                                                text: item['name'] ??
+                                                    'Loading...',
+                                                fontSize: 15,
+                                                fontFamily: 'Bold',
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          TextWidget(
+                                            text: item['description'] ??
+                                                'No description available',
+                                            fontSize: 12,
+                                            fontFamily: 'Medium',
+                                            color: Colors.black,
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10, right: 10),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                TextWidget(
+                                                  text:
+                                                      '₱ ${item['price']?.toString() ?? '0.00'}',
+                                                  fontSize: 15,
+                                                  fontFamily: 'Bold',
+                                                  color: secondary,
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    addToCart(item);
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      TextWidget(
+                                                        text: 'Add to Cart',
+                                                        fontSize: 15,
+                                                        fontFamily: 'Bold',
+                                                        color: secondary,
+                                                      ),
+                                                      const Icon(
+                                                        Icons
+                                                            .arrow_right_alt_outlined,
+                                                        color: secondary,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                            ))
+                        .toList(),
+                  )
+                : Center(
+                    child: TextWidget(
+                      text: 'No menu items available',
+                      fontSize: 16,
+                      fontFamily: 'Medium',
+                      color: Colors.grey,
+                    ),
                   ),
-                )),
           ],
         ),
       ),

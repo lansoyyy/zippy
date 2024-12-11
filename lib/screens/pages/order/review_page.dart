@@ -6,8 +6,15 @@ import 'package:zippy/widgets/textfield_widget.dart';
 
 class ReviewPage extends StatefulWidget {
   final List<Map<String, dynamic>> selectedItems;
+  final int basketCount;
+  final Function(List<Map<String, dynamic>>) onUpdateCart;
 
-  const ReviewPage({super.key, required this.selectedItems});
+  const ReviewPage({
+    super.key,
+    required this.selectedItems,
+    required this.basketCount,
+    required this.onUpdateCart,
+  });
 
   @override
   State<ReviewPage> createState() => _ReviewPageState();
@@ -22,15 +29,11 @@ class _ReviewPageState extends State<ReviewPage> {
     super.initState();
     itemCounts = {};
     for (var item in widget.selectedItems) {
-      double price = double.tryParse(item['price'].toString()) ??
-          0.0; // Ensure price is a double
+      double price = double.tryParse(item['price'].toString()) ?? 0.0;
       if (itemCounts.containsKey(item['name'])) {
         itemCounts[item['name']]!['count']++;
       } else {
-        itemCounts[item['name']] = {
-          'price': price,
-          'count': 1,
-        };
+        itemCounts[item['name']] = {'price': price, 'count': 1};
       }
     }
   }
@@ -38,15 +41,27 @@ class _ReviewPageState extends State<ReviewPage> {
   void addItem(String name) {
     setState(() {
       itemCounts[name]!['count']++;
+      widget.selectedItems
+          .add({'name': name, 'price': itemCounts[name]!['price']});
+      widget.onUpdateCart(widget.selectedItems); // Notify ShopPage
     });
   }
 
   void removeItem(String name) {
     setState(() {
-      if (itemCounts[name]!['count'] > 1) {
+      if (itemCounts.containsKey(name) && itemCounts[name]!['count'] > 0) {
         itemCounts[name]!['count']--;
-      } else {
-        itemCounts.remove(name);
+
+        final index =
+            widget.selectedItems.indexWhere((item) => item['name'] == name);
+        if (index != -1) {
+          widget.selectedItems.removeAt(index);
+        }
+
+        if (itemCounts[name]!['count'] == 0) {
+          itemCounts.remove(name);
+        }
+        widget.onUpdateCart(widget.selectedItems);
       }
     });
   }
@@ -159,14 +174,14 @@ class _ReviewPageState extends State<ReviewPage> {
                               children: [
                                 IconButton(
                                   iconSize: 20,
-                                  onPressed: () => addItem(itemName),
-                                  icon: const Icon(Icons.add),
+                                  onPressed: () => removeItem(itemName),
+                                  icon: const Icon(Icons.remove),
                                   color: Colors.white,
                                 ),
                                 IconButton(
                                   iconSize: 20,
-                                  onPressed: () => removeItem(itemName),
-                                  icon: const Icon(Icons.remove),
+                                  onPressed: () => addItem(itemName),
+                                  icon: const Icon(Icons.add),
                                   color: Colors.white,
                                 ),
                                 IconButton(
@@ -174,6 +189,10 @@ class _ReviewPageState extends State<ReviewPage> {
                                   onPressed: () {
                                     setState(() {
                                       itemCounts.remove(itemName);
+                                      widget.selectedItems.removeWhere(
+                                          (item) => item['name'] == itemName);
+                                      widget.onUpdateCart(widget
+                                          .selectedItems); // Notify ShopPage
                                     });
                                   },
                                   icon: const Icon(Icons.delete),
