@@ -42,20 +42,34 @@ class _ShopPageState extends State<ShopPage> {
     });
   }
 
+  bool isLoading = true; // Add a loading state
+
   Future<void> fetchMenuItems() async {
-    CollectionReference menuCollection =
-        FirebaseFirestore.instance.collection('Menu');
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-    QuerySnapshot querySnapshot =
-        await menuCollection.where('uid', isEqualTo: widget.merchantId).get();
+      CollectionReference menuCollection =
+          FirebaseFirestore.instance.collection('Menu');
 
-    final filteredData = querySnapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
+      QuerySnapshot querySnapshot =
+          await menuCollection.where('uid', isEqualTo: widget.merchantId).get();
 
-    setState(() {
-      menuItems = filteredData;
-    });
+      final filteredData = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      setState(() {
+        menuItems = filteredData;
+      });
+    } catch (error) {
+      print("Error fetching menu items: $error");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void addToCart(Map<String, dynamic> item) {
@@ -66,352 +80,365 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: secondary,
+        ),
+      );
+    }
+
+    if (menuItems.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: secondary,
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 25, 20, 0),
-              child: SafeArea(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 25, 20, 0),
+            child: SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.arrow_back_ios_new,
+                          color: secondary,
+                          size: 18,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        TextWidget(
+                          text: 'Back',
+                          fontSize: 15,
+                          color: secondary,
+                          fontFamily: 'Medium',
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ReviewPage(
+                                selectedItems: selectedItems,
+                                basketCount: basketCount,
+                                onUpdateCart: (updatedItems) {
+                                  setState(() {
+                                    selectedItems = updatedItems;
+                                  });
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                        child: Image.asset(
+                          'assets/images/cart.png',
+                          height: 20,
+                          width: 20,
+                        ),
+                      ),
+                      if (basketCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 52,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 14,
+                              minHeight: 14,
+                            ),
+                            child: Text(
+                              '$basketCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Card(
+            child: Container(
+              width: 320,
+              height: 160,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: secondary),
+                borderRadius: BorderRadius.circular(
+                  10,
+                ),
+                image: const DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage(
+                    'assets/images/Rectangle 38.png',
+                  ),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10, right: 15),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Icon(
+                        Icons.favorite,
+                        color: Colors.white,
+                        size: 35,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: 36,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(
+                          7.5,
+                        ),
+                        bottomRight: Radius.circular(
+                          7.5,
+                        ),
+                      ),
+                      color: secondary,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 15, right: 15),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: secondary,
-                            size: 18,
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
                           TextWidget(
-                            text: 'Back',
+                            text: merchants[0]['businessName'] ?? 'Loading...',
                             fontSize: 15,
-                            color: secondary,
-                            fontFamily: 'Medium',
+                            fontFamily: 'Bold',
+                            color: Colors.white,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextWidget(
+                                text: '4.5',
+                                fontSize: 14,
+                                fontFamily: 'Regular',
+                                color: Colors.white,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              const Icon(
+                                Icons.star_rate_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    Row(
-                      children: [
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ReviewPage(
-                                  selectedItems: selectedItems,
-                                  basketCount: basketCount,
-                                  onUpdateCart: (updatedItems) {
-                                    setState(() {
-                                      selectedItems = updatedItems;
-                                    });
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                          child: Image.asset(
-                            'assets/images/cart.png',
-                            height: 20,
-                            width: 20,
-                          ),
-                        ),
-                        if (basketCount > 0)
-                          Positioned(
-                            right: 8,
-                            top: 52,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 14,
-                                minHeight: 14,
-                              ),
-                              child: Text(
-                                '$basketCount',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            Card(
-              child: Container(
-                width: 320,
-                height: 160,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: secondary),
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ),
-                  image: const DecorationImage(
-                    fit: BoxFit.cover,
-                    image: AssetImage(
-                      'assets/images/Rectangle 38.png',
-                    ),
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              for (int i = 0; i < shopCategories.length; i++)
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 10, right: 15),
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                          size: 35,
-                        ),
-                      ),
+                    TextWidget(
+                      text: shopCategories[i],
+                      fontSize: 15,
+                      fontFamily: 'Medium',
+                      color: secondary,
                     ),
-                    Container(
-                      width: double.infinity,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(
-                            7.5,
+                    i == 0
+                        ? const Icon(
+                            Icons.circle,
+                            color: secondary,
+                            size: 15,
+                          )
+                        : const SizedBox(
+                            height: 15,
                           ),
-                          bottomRight: Radius.circular(
-                            7.5,
-                          ),
-                        ),
-                        color: secondary,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 15, right: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            TextWidget(
-                              text:
-                                  merchants[0]['businessName'] ?? 'Loading...',
-                              fontSize: 15,
-                              fontFamily: 'Bold',
-                              color: Colors.white,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextWidget(
-                                  text: '4.5',
-                                  fontSize: 14,
-                                  fontFamily: 'Regular',
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                const Icon(
-                                  Icons.star_rate_rounded,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
                 ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: menuItems
+                    .map((item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Card(
+                                elevation: 3,
+                                child: Container(
+                                  width: 100,
+                                  height: 112.5,
+                                  decoration: BoxDecoration(
+                                    image: item['imageUrl'] != null
+                                        ? DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: NetworkImage(
+                                              item['imageUrl'],
+                                            ),
+                                          )
+                                        : null,
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: secondary,
+                                    ),
+                                  ),
+                                  child: item['imageUrl'] == null
+                                      ? const Center(
+                                          child: CircularProgressIndicator(
+                                            color: secondary,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Card(
+                                elevation: 3,
+                                child: Container(
+                                  width: 210,
+                                  height: 112.5,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: secondary,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: double.infinity,
+                                        height: 33,
+                                        decoration: const BoxDecoration(
+                                          color: secondary,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(7.5),
+                                            topRight: Radius.circular(7.5),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: TextWidget(
+                                            text: item['name'] ?? 'Loading...',
+                                            fontSize: 15,
+                                            fontFamily: 'Bold',
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      TextWidget(
+                                        text: item['description'] ??
+                                            'No description available',
+                                        fontSize: 12,
+                                        fontFamily: 'Medium',
+                                        color: Colors.black,
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 10, right: 10),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            TextWidget(
+                                              text:
+                                                  '₱ ${item['price']?.toString() ?? '0.00'}',
+                                              fontSize: 15,
+                                              fontFamily: 'Bold',
+                                              color: secondary,
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                addToCart(item);
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  TextWidget(
+                                                    text: 'Add to Cart',
+                                                    fontSize: 15,
+                                                    fontFamily: 'Bold',
+                                                    color: secondary,
+                                                  ),
+                                                  const Icon(
+                                                    Icons
+                                                        .arrow_right_alt_outlined,
+                                                    color: secondary,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ))
+                    .toList(),
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for (int i = 0; i < shopCategories.length; i++)
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      TextWidget(
-                        text: shopCategories[i],
-                        fontSize: 15,
-                        fontFamily: 'Medium',
-                        color: secondary,
-                      ),
-                      i == 0
-                          ? const Icon(
-                              Icons.circle,
-                              color: secondary,
-                              size: 15,
-                            )
-                          : const SizedBox(
-                              height: 15,
-                            ),
-                    ],
-                  ),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            menuItems.isNotEmpty
-                ? Column(
-                    children: menuItems
-                        .map((item) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Card(
-                                    elevation: 3,
-                                    child: Container(
-                                      width: 100,
-                                      height: 112.5,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: NetworkImage(
-                                            item['imageUrl'] ?? '',
-                                          ),
-                                        ),
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: secondary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Card(
-                                    elevation: 3,
-                                    child: Container(
-                                      width: 210,
-                                      height: 112.5,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: secondary,
-                                        ),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            width: double.infinity,
-                                            height: 33,
-                                            decoration: const BoxDecoration(
-                                              color: secondary,
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(7.5),
-                                                topRight: Radius.circular(7.5),
-                                              ),
-                                            ),
-                                            child: Center(
-                                              child: TextWidget(
-                                                text: item['name'] ??
-                                                    'Loading...',
-                                                fontSize: 15,
-                                                fontFamily: 'Bold',
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          TextWidget(
-                                            text: item['description'] ??
-                                                'No description available',
-                                            fontSize: 12,
-                                            fontFamily: 'Medium',
-                                            color: Colors.black,
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 10, right: 10),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                TextWidget(
-                                                  text:
-                                                      '₱ ${item['price']?.toString() ?? '0.00'}',
-                                                  fontSize: 15,
-                                                  fontFamily: 'Bold',
-                                                  color: secondary,
-                                                ),
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    addToCart(item);
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      TextWidget(
-                                                        text: 'Add to Cart',
-                                                        fontSize: 15,
-                                                        fontFamily: 'Bold',
-                                                        color: secondary,
-                                                      ),
-                                                      const Icon(
-                                                        Icons
-                                                            .arrow_right_alt_outlined,
-                                                        color: secondary,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ))
-                        .toList(),
-                  )
-                : Center(
-                    child: TextWidget(
-                      text: 'No menu items available',
-                      fontSize: 16,
-                      fontFamily: 'Medium',
-                      color: Colors.grey,
-                    ),
-                  ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
