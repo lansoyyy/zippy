@@ -22,7 +22,17 @@ class ReviewPage extends StatefulWidget {
 
 class _ReviewPageState extends State<ReviewPage> {
   final remarks = TextEditingController();
-  late Map<String, Map<String, dynamic>> itemCounts;
+  // late Map<String, Map<String, dynamic>> itemCounts;
+  Map<String, dynamic> itemCounts = {};
+
+  double totalPrice = 0;
+
+  void calculateTotalPrice() {
+    setState(() {
+      totalPrice = itemCounts.entries.fold(
+          0, (sum, entry) => sum + entry.value['price'] * entry.value['count']);
+    });
+  }
 
   @override
   void initState() {
@@ -36,6 +46,7 @@ class _ReviewPageState extends State<ReviewPage> {
         itemCounts[item['name']] = {'price': price, 'count': 1};
       }
     }
+    calculateTotalPrice();
   }
 
   void addItem(String name) {
@@ -44,6 +55,7 @@ class _ReviewPageState extends State<ReviewPage> {
       widget.selectedItems
           .add({'name': name, 'price': itemCounts[name]!['price']});
       widget.onUpdateCart(widget.selectedItems); // Notify ShopPage
+      calculateTotalPrice();
     });
   }
 
@@ -63,6 +75,7 @@ class _ReviewPageState extends State<ReviewPage> {
         }
         widget.onUpdateCart(widget.selectedItems);
       }
+      calculateTotalPrice();
     });
   }
 
@@ -212,7 +225,7 @@ class _ReviewPageState extends State<ReviewPage> {
               height: 10,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20),
+              padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -225,8 +238,8 @@ class _ReviewPageState extends State<ReviewPage> {
                   Center(
                     child: Card(
                       child: Container(
-                        width: 320,
-                        height: 160,
+                        width: 340,
+                        height: 180,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(color: secondary),
@@ -495,7 +508,7 @@ class _ReviewPageState extends State<ReviewPage> {
                         color: secondary,
                       ),
                       TextWidget(
-                        text: '₱ 1495.00',
+                        text: '₱ ${totalPrice.toStringAsFixed(2)}',
                         fontSize: 15,
                         fontFamily: 'Regular',
                         color: secondary,
@@ -566,7 +579,7 @@ class _ReviewPageState extends State<ReviewPage> {
                         color: secondary,
                       ),
                       TextWidget(
-                        text: '₱ 800.00',
+                        text: '₱ ${totalPrice.toStringAsFixed(2)}',
                         fontSize: 20,
                         fontFamily: 'Bold',
                         color: secondary,

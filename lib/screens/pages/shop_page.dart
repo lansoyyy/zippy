@@ -84,6 +84,7 @@ class _ShopPageState extends State<ShopPage> {
       return const Center(
         child: CircularProgressIndicator(
           color: secondary,
+          backgroundColor: Colors.transparent,
         ),
       );
     }
@@ -92,6 +93,7 @@ class _ShopPageState extends State<ShopPage> {
       return const Center(
         child: CircularProgressIndicator(
           color: secondary,
+          backgroundColor: Colors.transparent,
         ),
       );
     }
