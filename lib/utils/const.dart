@@ -1,6 +1,4 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-
-// String userId = FirebaseAuth.instance.currentUser!.uid;
+String userId = 'pqaYFzkCd4TkFbEsQ133C16MFxA3';
 
 String logo = 'assets/images/logo.png';
 String label = 'assets/images/label.png';
