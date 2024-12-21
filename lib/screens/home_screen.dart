@@ -8,6 +8,7 @@ import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
+import '../utils/const.dart';
 import 'pages/shop_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,11 +25,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> merchants = [];
+  Map<String, dynamic>? userData;
+  // String userId = 'pqaYFzkCd4TkFbEsQ133C16MFxA3';
 
   @override
   void initState() {
     super.initState();
     fetchMerchants();
+    fetchUser();
   }
 
   Future<void> fetchMerchants() async {
@@ -42,6 +46,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       merchants = allData;
+    });
+  }
+
+  Future<void> fetchUser() async {
+    DocumentReference userDoc =
+        FirebaseFirestore.instance.collection('Users').doc(userId);
+
+    DocumentSnapshot docSnapshot = await userDoc.get();
+    final data = docSnapshot.data() as Map<String, dynamic>;
+
+    setState(() {
+      userData = data;
     });
   }
 
@@ -83,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextWidget(
-                          text: 'Hi! Paula, Welcome Back!',
+                          text: 'Hi! ${userData!['name']}, Welcome Back!',
                           fontSize: 22,
                           fontFamily: 'Bold',
                           color: Colors.white,

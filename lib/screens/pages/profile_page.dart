@@ -1,13 +1,92 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/button_widget.dart';
+import 'package:zippy/widgets/toast_widget.dart';
 
 import '../../utils/colors.dart';
 import '../../widgets/text_widget.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  Map<String, dynamic>? userData;
+  File? _image;
+  String? profileImage;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUser();
+  }
+
+  Future<void> fetchUser() async {
+    try {
+      DocumentReference userDoc =
+          FirebaseFirestore.instance.collection('Users').doc(userId);
+
+      DocumentSnapshot docSnapshot = await userDoc.get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          userData = data;
+          profileImage = userData?[
+              'profileImage']; // Assuming 'profileImage' is the key for the image URL
+        });
+      } else {
+        print("User document not found");
+      }
+    } catch (e) {
+      print("Error fetching user: $e");
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+
+      try {
+        User? user = _auth.currentUser;
+
+        if (user != null) {
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child('profile_images')
+              .child('${user.uid}.jpg');
+
+          await ref.putFile(_image!);
+
+          final url = await ref.getDownloadURL();
+
+          await FirebaseFirestore.instance
+              .collection('Riders')
+              .doc(user.uid)
+              .update({'profile': url});
+
+          showToast('Profile Image Updated');
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,14 +159,14 @@ class ProfilePage extends StatelessWidget {
                         color: secondary,
                       ),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(5.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
                       child: CircleAvatar(
                         minRadius: 75,
                         maxRadius: 75,
-                        backgroundImage: AssetImage(
-                          'assets/images/sample_avatar.png',
-                        ),
+                        backgroundImage: profileImage != null
+                            ? NetworkImage(profileImage!)
+                            : null,
                       ),
                     ),
                   ),
@@ -99,8 +178,12 @@ class ProfilePage extends StatelessWidget {
                       height: 40,
                       decoration: const BoxDecoration(
                           shape: BoxShape.circle, color: secondary),
-                      child: const Icon(
-                        Icons.camera_alt_rounded,
+                      child: IconButton(
+                        onPressed: () {
+                          _pickImage();
+                          setState(() {});
+                        },
+                        icon: const Icon(Icons.camera_alt_rounded),
                         color: Colors.white,
                       ),
                     ),
@@ -110,7 +193,7 @@ class ProfilePage extends StatelessWidget {
             ),
             Center(
               child: TextWidget(
-                text: 'Paula Baresco',
+                text: '${userData!['name']}' ?? '....',
                 fontSize: 28,
                 color: secondary,
                 fontFamily: 'Bold',
@@ -181,7 +264,7 @@ class ProfilePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   TextWidget(
-                    text: 'Paula.baresco@gmail.com',
+                    text: '${userData!['email']}' ?? '....',
                     fontSize: 14,
                     color: secondary,
                     fontFamily: 'Medium',
@@ -190,7 +273,7 @@ class ProfilePage extends StatelessWidget {
                     width: 25,
                   ),
                   TextWidget(
-                    text: '+6399 9999 9999',
+                    text: '${userData!['number']}' ?? '....',
                     fontSize: 14,
                     color: secondary,
                     fontFamily: 'Medium',
@@ -216,7 +299,7 @@ class ProfilePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 30, right: 30),
               child: TextWidget(
-                text: 'January 01, 2000',
+                text: '${userData!['bday']}' ?? '....',
                 fontSize: 14,
                 color: secondary,
                 fontFamily: 'Medium',
@@ -282,7 +365,7 @@ class ProfilePage extends StatelessWidget {
                         fontFamily: 'Regular',
                       ),
                       TextWidget(
-                        text: '999 Home Street, House Avenue ',
+                        text: '${userData!['homeAddress']}' ?? '....',
                         fontSize: 14,
                         color: secondary,
                         fontFamily: 'Medium',
@@ -319,7 +402,7 @@ class ProfilePage extends StatelessWidget {
                         fontFamily: 'Regular',
                       ),
                       TextWidget(
-                        text: '999 Work Street, Office Avenue, 2nd Floor ',
+                        text: '${userData!['officeAddress']}' ?? '....',
                         fontSize: 14,
                         color: secondary,
                         fontFamily: 'Medium',
@@ -359,8 +442,7 @@ class ProfilePage extends StatelessWidget {
                         width: 250,
                         child: TextWidget(
                           align: TextAlign.start,
-                          text:
-                              '999 Friend Street, Friend Building, 2nd Floor, Room 111',
+                          text: '${userData!['homeAddress']}' ?? '....',
                           fontSize: 14,
                           color: secondary,
                           fontFamily: 'Medium',
