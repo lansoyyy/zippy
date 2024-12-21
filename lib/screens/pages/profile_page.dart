@@ -38,18 +38,18 @@ class _ProfilePageState extends State<ProfilePage> {
           FirebaseFirestore.instance.collection('Users').doc(userId);
 
       DocumentSnapshot docSnapshot = await userDoc.get();
+
       if (docSnapshot.exists) {
         final data = docSnapshot.data() as Map<String, dynamic>;
         setState(() {
           userData = data;
-          profileImage = userData?[
-              'profileImage']; // Assuming 'profileImage' is the key for the image URL
+          profileImage = data['profile'];
         });
       } else {
-        print("User document not found");
+        showToast('User data not found.');
       }
     } catch (e) {
-      print("Error fetching user: $e");
+      print("Error fetching user data: $e");
     }
   }
 
@@ -63,27 +63,27 @@ class _ProfilePageState extends State<ProfilePage> {
       });
 
       try {
-        User? user = _auth.currentUser;
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('profile_images')
+            .child('$userId.jpg');
 
-        if (user != null) {
-          final ref = FirebaseStorage.instance
-              .ref()
-              .child('profile_images')
-              .child('${user.uid}.jpg');
+        await ref.putFile(_image!);
 
-          await ref.putFile(_image!);
+        final url = await ref.getDownloadURL();
 
-          final url = await ref.getDownloadURL();
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(userId)
+            .update({'profile': url});
 
-          await FirebaseFirestore.instance
-              .collection('Riders')
-              .doc(user.uid)
-              .update({'profile': url});
+        setState(() {
+          profileImage = url;
+        });
 
-          showToast('Profile Image Updated');
-        }
+        showToast('Profile Image Updated');
       } catch (e) {
-        print(e);
+        print("Error uploading image: $e");
       }
     }
   }
@@ -166,7 +166,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         maxRadius: 75,
                         backgroundImage: profileImage != null
                             ? NetworkImage(profileImage!)
-                            : null,
+                            : const AssetImage(
+                                    'assets/images/Group 121 (2).png')
+                                as ImageProvider,
                       ),
                     ),
                   ),

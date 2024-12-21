@@ -7,6 +7,7 @@ import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/text_widget.dart';
+import 'package:zippy/widgets/toast_widget.dart';
 
 import '../utils/const.dart';
 import 'pages/shop_page.dart';
@@ -18,7 +19,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 
   static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
+    target: LatLng(14.5995, 120.9842),
     zoom: 14.4746,
   );
 }
@@ -26,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> merchants = [];
   Map<String, dynamic>? userData;
+  String? profileImage;
   // String userId = 'pqaYFzkCd4TkFbEsQ133C16MFxA3';
 
   @override
@@ -50,15 +52,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchUser() async {
-    DocumentReference userDoc =
-        FirebaseFirestore.instance.collection('Users').doc(userId);
+    try {
+      DocumentReference userDoc =
+          FirebaseFirestore.instance.collection('Users').doc(userId);
 
-    DocumentSnapshot docSnapshot = await userDoc.get();
-    final data = docSnapshot.data() as Map<String, dynamic>;
-
-    setState(() {
-      userData = data;
-    });
+      userDoc.snapshots().listen((docSnapshot) {
+        if (docSnapshot.exists) {
+          final data = docSnapshot.data() as Map<String, dynamic>;
+          setState(() {
+            userData = data;
+            profileImage = data['profile'];
+          });
+        } else {
+          showToast('User data not found.');
+        }
+      });
+    } catch (e) {
+      print("Error fetching user data: $e");
+    }
   }
 
   @override
@@ -111,12 +122,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => const ProfilePage()),
                             );
                           },
-                          child: const CircleAvatar(
+                          child: CircleAvatar(
                             maxRadius: 25,
                             minRadius: 25,
-                            backgroundImage: AssetImage(
-                              'assets/images/sample_avatar.png',
-                            ),
+                            backgroundImage: profileImage != null
+                                ? NetworkImage(profileImage!)
+                                : const AssetImage(
+                                        'assets/images/Group 121 (2).png')
+                                    as ImageProvider,
                           ),
                         ),
                       ],
