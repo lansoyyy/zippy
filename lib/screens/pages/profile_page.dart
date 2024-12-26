@@ -25,6 +25,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? userData;
   File? _image;
   String? profileImage;
+  bool isEditing = false;
+  TextEditingController nameController = TextEditingController();
 
   @override
   void initState() {
@@ -44,12 +46,30 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           userData = data;
           profileImage = data['profile'];
+          nameController.text = data['name'];
         });
       } else {
         showToast('User data not found.');
       }
     } catch (e) {
       print("Error fetching user data: $e");
+    }
+  }
+
+  Future<void> updateName() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId)
+          .update({'name': nameController.text});
+      setState(() {
+        userData!['name'] = nameController.text;
+        isEditing = false;
+      });
+      showToast('Name updated successfully.');
+    } catch (e) {
+      print("Error updating name: $e");
+      showToast('Failed to update name.');
     }
   }
 
@@ -194,12 +214,56 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             Center(
-              child: TextWidget(
-                text: '${userData!['name']}' ?? '....',
-                fontSize: 28,
-                color: secondary,
-                fontFamily: 'Bold',
-              ),
+              child: isEditing
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 200,
+                          child: TextField(
+                            controller: nameController,
+                            style: const TextStyle(
+                              color: secondary,
+                              fontSize: 28,
+                              fontFamily: 'Bold',
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.check, color: Colors.green),
+                          onPressed: updateName, // Confirm update
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.cancel, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              isEditing = false;
+                              nameController.text =
+                                  userData!['name']; // Revert changes
+                            });
+                          },
+                        ),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextWidget(
+                          text: '${userData?['name']}' ?? '....',
+                          fontSize: 28,
+                          color: secondary,
+                          fontFamily: 'Bold',
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: secondary),
+                          onPressed: () {
+                            setState(() {
+                              isEditing = true;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
             ),
             const SizedBox(
               height: 10,
