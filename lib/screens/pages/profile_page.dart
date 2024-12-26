@@ -26,7 +26,17 @@ class _ProfilePageState extends State<ProfilePage> {
   File? _image;
   String? profileImage;
   bool isEditing = false;
+  bool isEditingEmail = false;
+  bool isEditingNumber = false;
+  bool isEditingBday = false;
+  bool isEditingHome = false;
+  bool isEditingOffice = false;
   TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController numberController = TextEditingController();
+  TextEditingController bdayController = TextEditingController();
+  TextEditingController homeController = TextEditingController();
+  TextEditingController officeController = TextEditingController();
 
   @override
   void initState() {
@@ -105,6 +115,91 @@ class _ProfilePageState extends State<ProfilePage> {
       } catch (e) {
         print("Error uploading image: $e");
       }
+    }
+  }
+
+  Future<void> updateEmail() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId)
+          .update({'email': emailController.text});
+      setState(() {
+        userData!['email'] = emailController.text;
+        isEditingEmail = false;
+      });
+      showToast('Email updated successfully.');
+    } catch (e) {
+      print("Error updating email: $e");
+      showToast('Failed to update email.');
+    }
+  }
+
+  Future<void> updateNumber() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId)
+          .update({'number': numberController.text});
+      setState(() {
+        userData!['number'] = numberController.text;
+        isEditingNumber = false;
+      });
+      showToast('Number updated successfully.');
+    } catch (e) {
+      print("Error updating number: $e");
+      showToast('Failed to update number.');
+    }
+  }
+
+  Future<void> updateBday() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId)
+          .update({'bday': bdayController.text});
+      setState(() {
+        userData!['bday'] = bdayController.text;
+        isEditingBday = false;
+      });
+      showToast('Number updated successfully.');
+    } catch (e) {
+      print("Error updating number: $e");
+      showToast('Failed to update number.');
+    }
+  }
+
+  Future<void> updateHome() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId)
+          .update({'homeAddress': homeController.text});
+      setState(() {
+        userData!['homeAddress'] = homeController.text;
+        isEditingHome = false;
+      });
+      showToast('Number updated successfully.');
+    } catch (e) {
+      print("Error updating number: $e");
+      showToast('Failed to update number.');
+    }
+  }
+
+  Future<void> updateOffice() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId)
+          .update({'officeAddress': officeController.text});
+      setState(() {
+        userData!['officeAddress'] = officeController.text;
+        isEditingOffice = false;
+      });
+      showToast('Number updated successfully.');
+    } catch (e) {
+      print("Error updating number: $e");
+      showToast('Failed to update number.');
     }
   }
 
@@ -221,6 +316,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         SizedBox(
                           width: 200,
                           child: TextField(
+                            decoration:
+                                const InputDecoration(border: InputBorder.none),
                             controller: nameController,
                             style: const TextStyle(
                               color: secondary,
@@ -290,7 +387,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       TextWidget(
                         text: 'Edit',
                         fontSize: 14,
-                        color: Colors.white,
+                        color: secondary,
                         fontFamily: 'Medium',
                       ),
                     ],
@@ -329,21 +426,141 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  TextWidget(
-                    text: '${userData!['email']}' ?? '....',
-                    fontSize: 14,
-                    color: secondary,
-                    fontFamily: 'Medium',
-                  ),
-                  const SizedBox(
-                    width: 25,
-                  ),
-                  TextWidget(
-                    text: '${userData!['number']}' ?? '....',
-                    fontSize: 14,
-                    color: secondary,
-                    fontFamily: 'Medium',
-                  ),
+                  isEditingEmail
+                      ? Row(
+                          children: [
+                            SizedBox(
+                              width: 80,
+                              child: TextField(
+                                decoration: const InputDecoration(
+                                    border: InputBorder.none),
+                                controller: emailController,
+                                style: const TextStyle(
+                                  color: secondary,
+                                  fontSize: 12,
+                                  fontFamily: 'Medium',
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.check,
+                                    color: Colors.green,
+                                    size: 20,
+                                  ),
+                                  onPressed:
+                                      updateEmail, // Confirm email update
+                                  padding:
+                                      EdgeInsets.zero, // Remove default padding
+                                  constraints:
+                                      const BoxConstraints(), // Remove default constraints
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                    size: 17,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      isEditingEmail = false;
+                                      emailController.text =
+                                          userData!['email']; // Revert changes
+                                    });
+                                  },
+                                  padding:
+                                      EdgeInsets.zero, // Remove default padding
+                                  constraints:
+                                      const BoxConstraints(), // Remove default constraints
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            TextWidget(
+                              text: '${userData?['email']}' ?? '....',
+                              fontSize: 14,
+                              color: secondary,
+                              fontFamily: 'Medium',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit,
+                                  color: secondary, size: 17),
+                              onPressed: () {
+                                setState(() {
+                                  isEditingEmail = true;
+                                  emailController.text = userData!['email'];
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                  const SizedBox(width: 15),
+                  isEditingNumber
+                      ? Row(
+                          children: [
+                            SizedBox(
+                              width: 80,
+                              child: TextField(
+                                decoration: const InputDecoration(
+                                    border: InputBorder.none),
+                                controller: numberController,
+                                style: const TextStyle(
+                                  color: secondary,
+                                  fontSize: 14,
+                                  fontFamily: 'Medium',
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.check,
+                                color: Colors.green,
+                                size: 20,
+                              ),
+                              onPressed: updateNumber, // Confirm number update
+                            ),
+                            const Padding(padding: EdgeInsets.zero),
+                            IconButton(
+                              icon: const Icon(Icons.cancel,
+                                  color: Colors.red, size: 17),
+                              onPressed: () {
+                                setState(() {
+                                  isEditingNumber = false;
+                                  numberController.text =
+                                      userData!['number']; // Revert changes
+                                });
+                              },
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            TextWidget(
+                              text: '${userData?['number']}' ?? '....',
+                              fontSize: 14,
+                              color: secondary,
+                              fontFamily: 'Medium',
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.edit,
+                                color: secondary,
+                                size: 17,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isEditingNumber = true;
+                                  numberController.text = userData!['number'];
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                 ],
               ),
             ),
@@ -363,14 +580,70 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
-              child: TextWidget(
-                text: '${userData!['bday']}' ?? '....',
-                fontSize: 14,
-                color: secondary,
-                fontFamily: 'Medium',
-              ),
-            ),
+                padding: const EdgeInsets.only(left: 30, right: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    isEditingBday
+                        ? Row(
+                            children: [
+                              SizedBox(
+                                width: 80,
+                                child: TextField(
+                                  decoration: const InputDecoration(
+                                      border: InputBorder.none),
+                                  controller: bdayController,
+                                  style: const TextStyle(
+                                    color: secondary,
+                                    fontSize: 14,
+                                    fontFamily: 'Medium',
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.check,
+                                  color: Colors.green,
+                                  size: 20,
+                                ),
+                                onPressed: updateBday, // Confirm bday update
+                              ),
+                              const Padding(padding: EdgeInsets.zero),
+                              IconButton(
+                                icon: const Icon(Icons.cancel,
+                                    color: Colors.red, size: 17),
+                                onPressed: () {
+                                  setState(() {
+                                    isEditingBday = false;
+                                    bdayController.text =
+                                        userData!['bday']; // Revert changes
+                                  });
+                                },
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              TextWidget(
+                                text: '${userData?['bday']}' ?? '....',
+                                fontSize: 14,
+                                color: secondary,
+                                fontFamily: 'Medium',
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit,
+                                    color: secondary, size: 17),
+                                onPressed: () {
+                                  setState(() {
+                                    isEditingBday = true;
+                                    bdayController.text = userData!['bday'];
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                  ],
+                )),
             const SizedBox(
               height: 10,
             ),
@@ -396,7 +669,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       TextWidget(
                         text: 'Edit',
                         fontSize: 14,
-                        color: Colors.white,
+                        color: secondary,
                         fontFamily: 'Medium',
                       ),
                     ],
@@ -430,12 +703,69 @@ class _ProfilePageState extends State<ProfilePage> {
                         color: secondary,
                         fontFamily: 'Regular',
                       ),
-                      TextWidget(
-                        text: '${userData!['homeAddress']}' ?? '....',
-                        fontSize: 14,
-                        color: secondary,
-                        fontFamily: 'Medium',
-                      ),
+                      isEditingHome
+                          ? Row(
+                              children: [
+                                SizedBox(
+                                  width: 150,
+                                  child: TextField(
+                                    decoration: const InputDecoration(
+                                        border: InputBorder.none),
+                                    controller: homeController,
+                                    style: const TextStyle(
+                                      color: secondary,
+                                      fontSize: 14,
+                                      fontFamily: 'Medium',
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.check,
+                                    color: Colors.green,
+                                    size: 20,
+                                  ),
+                                  onPressed: updateHome, // Confirm home update
+                                ),
+                                const Padding(padding: EdgeInsets.zero),
+                                IconButton(
+                                  icon: const Icon(Icons.cancel,
+                                      color: Colors.red, size: 17),
+                                  onPressed: () {
+                                    setState(() {
+                                      isEditingHome = false;
+                                      homeController.text = userData![
+                                          'homeAddress']; // Revert changes
+                                    });
+                                  },
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                SizedBox(
+                                  width: 250,
+                                  child: TextWidget(
+                                    text:
+                                        '${userData!['homeAddress']}' ?? '....',
+                                    fontSize: 14,
+                                    color: secondary,
+                                    fontFamily: 'Medium',
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.edit,
+                                      color: secondary, size: 17),
+                                  onPressed: () {
+                                    setState(() {
+                                      isEditingHome = true;
+                                      homeController.text =
+                                          userData!['homeAddress'];
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
                     ],
                   ),
                 ],
@@ -467,12 +797,70 @@ class _ProfilePageState extends State<ProfilePage> {
                         color: secondary,
                         fontFamily: 'Regular',
                       ),
-                      TextWidget(
-                        text: '${userData!['officeAddress']}' ?? '....',
-                        fontSize: 14,
-                        color: secondary,
-                        fontFamily: 'Medium',
-                      ),
+                      isEditingOffice
+                          ? Row(
+                              children: [
+                                SizedBox(
+                                  width: 150,
+                                  child: TextField(
+                                    decoration: const InputDecoration(
+                                        border: InputBorder.none),
+                                    controller: officeController,
+                                    style: const TextStyle(
+                                      color: secondary,
+                                      fontSize: 14,
+                                      fontFamily: 'Medium',
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.check,
+                                    color: Colors.green,
+                                    size: 20,
+                                  ),
+                                  onPressed:
+                                      updateOffice, // Confirm office update
+                                ),
+                                const Padding(padding: EdgeInsets.zero),
+                                IconButton(
+                                  icon: const Icon(Icons.cancel,
+                                      color: Colors.red, size: 17),
+                                  onPressed: () {
+                                    setState(() {
+                                      isEditingOffice = false;
+                                      officeController.text = userData![
+                                          'officeAddress']; // Revert changes
+                                    });
+                                  },
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                SizedBox(
+                                  width: 250,
+                                  child: TextWidget(
+                                    text: '${userData!['officeAddress']}' ??
+                                        '....',
+                                    fontSize: 14,
+                                    color: secondary,
+                                    fontFamily: 'Medium',
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.edit,
+                                      color: secondary, size: 17),
+                                  onPressed: () {
+                                    setState(() {
+                                      isEditingOffice = true;
+                                      officeController.text =
+                                          userData!['officeAddress'];
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
                     ],
                   ),
                 ],
