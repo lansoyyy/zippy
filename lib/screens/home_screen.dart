@@ -19,8 +19,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 
   static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(14.5995, 120.9842),
-    zoom: 14.4746,
+    target: LatLng(8.484835468722583, 124.65671634715098),
+    zoom: 15,
   );
 }
 

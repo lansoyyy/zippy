@@ -206,6 +206,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                           (item) => item['name'] == itemName);
                                       widget.onUpdateCart(widget
                                           .selectedItems); // Notify ShopPage
+                                      calculateTotalPrice();
                                     });
                                   },
                                   icon: const Icon(Icons.delete),
