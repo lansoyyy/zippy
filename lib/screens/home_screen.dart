@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Container(
             width: double.infinity,
-            height: 265,
+            height: 280,
             decoration: const BoxDecoration(
               color: secondary,
               borderRadius: BorderRadius.only(
@@ -109,11 +109,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        TextWidget(
-                          text: 'Hi! ${userData!['name']}, Welcome Back!',
-                          fontSize: 22,
-                          fontFamily: 'Bold',
-                          color: Colors.white,
+                        SizedBox(
+                          width: 275,
+                          child: TextWidget(
+                            align: TextAlign.start,
+                            text: 'Hi! ${userData!['name']}, Welcome Back!',
+                            fontSize: 22,
+                            fontFamily: 'Bold',
+                            color: Colors.white,
+                          ),
                         ),
                         GestureDetector(
                           onTap: () {
@@ -256,11 +260,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Container(
                                       width: 64,
                                       height: 60,
-                                      decoration: const BoxDecoration(
+                                      decoration: BoxDecoration(
                                         image: DecorationImage(
                                           fit: BoxFit.cover,
-                                          image: AssetImage(
-                                            'assets/images/Rectangle 2.png',
+                                          image: NetworkImage(
+                                            merchant['img'],
                                           ),
                                         ),
                                       ),
@@ -272,11 +276,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        TextWidget(
-                                          text: merchant['businessName'] ??
-                                              'Unknown',
-                                          fontSize: 20,
-                                          fontFamily: 'Bold',
+                                        SizedBox(
+                                          width: 150,
+                                          child: TextWidget(
+                                            align: TextAlign.start,
+                                            text: merchant['businessName'] ??
+                                                'Unknown',
+                                            fontSize: 20,
+                                            fontFamily: 'Bold',
+                                          ),
                                         ),
                                         Row(
                                           children: [
@@ -285,12 +293,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                               color: secondary,
                                               size: 15,
                                             ),
-                                            TextWidget(
-                                              text: merchant['address'] ??
-                                                  'No address provided',
-                                              fontSize: 12,
-                                              fontFamily: 'Medium',
-                                              color: Colors.grey,
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            SizedBox(
+                                              width: 100,
+                                              child: TextWidget(
+                                                align: TextAlign.start,
+                                                text: merchant['address'] ??
+                                                    'No address provided',
+                                                fontSize: 12,
+                                                fontFamily: 'Medium',
+                                                color: Colors.grey,
+                                              ),
                                             ),
                                           ],
                                         ),

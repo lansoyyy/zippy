@@ -200,26 +200,72 @@ class _ShopPageState extends State<ShopPage> {
                 borderRadius: BorderRadius.circular(
                   10,
                 ),
-                image: const DecorationImage(
+                image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: AssetImage(
-                    'assets/images/Rectangle 38.png',
+                  image: NetworkImage(
+                    merchants[0]['img'],
                   ),
                 ),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10, right: 15),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Icon(
-                        Icons.favorite,
-                        color: Colors.white,
-                        size: 35,
-                      ),
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, right: 15),
+                    child: StreamBuilder<DocumentSnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc(userId)
+                            .snapshots(),
+                        builder: (context,
+                            AsyncSnapshot<DocumentSnapshot> snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(child: Text('Loading'));
+                          } else if (snapshot.hasError) {
+                            return const Center(
+                                child: Text('Something went wrong'));
+                          } else if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          dynamic data = snapshot.data;
+
+                          List favs = data['favorites'];
+                          return Align(
+                            alignment: Alignment.topRight,
+                            child: GestureDetector(
+                              onTap: () async {
+                                if (favs.contains(merchants[0]['uid'])) {
+                                  await FirebaseFirestore.instance
+                                      .collection('Users')
+                                      .doc(userId)
+                                      .update({
+                                    'favorites': FieldValue.arrayRemove(
+                                        [merchants[0]['uid']])
+                                  });
+                                } else {
+                                  await FirebaseFirestore.instance
+                                      .collection('Users')
+                                      .doc(userId)
+                                      .update({
+                                    'favorites': FieldValue.arrayUnion(
+                                        [merchants[0]['uid']])
+                                  });
+                                }
+                              },
+                              child: Icon(
+                                favs.contains(merchants[0]['uid'])
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: favs.contains(merchants[0]['uid'])
+                                    ? primary
+                                    : Colors.white,
+                                size: 35,
+                              ),
+                            ),
+                          );
+                        }),
                   ),
                   Container(
                     width: double.infinity,
@@ -251,7 +297,7 @@ class _ShopPageState extends State<ShopPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               TextWidget(
-                                text: '4.5',
+                                text: '${merchants[0]['ratings']}',
                                 fontSize: 14,
                                 fontFamily: 'Regular',
                                 color: Colors.white,

@@ -42,24 +42,37 @@ class SearchPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Row(
-                      children: [
-                        TextWidget(
-                          text: 'Cart',
-                          fontSize: 15,
-                          color: secondary,
-                          fontFamily: 'Medium',
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Image.asset(
-                          'assets/images/cart.png',
-                          height: 20,
-                          width: 20,
-                        ),
-                      ],
-                    ),
+                    const SizedBox(),
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     Navigator.of(context).push(
+                    //       MaterialPageRoute(
+                    //           builder: (context) => ReviewPage(
+                    //                 basketCount: 0,
+                    //                 selectedItems: const [],
+                    //                 onUpdateCart: (p0) {},
+                    //               )),
+                    //     );
+                    //   },
+                    //   child: Row(
+                    //     children: [
+                    //       TextWidget(
+                    //         text: 'Cart',
+                    //         fontSize: 15,
+                    //         color: secondary,
+                    //         fontFamily: 'Medium',
+                    //       ),
+                    //       const SizedBox(
+                    //         width: 10,
+                    //       ),
+                    //       Image.asset(
+                    //         'assets/images/cart.png',
+                    //         height: 20,
+                    //         width: 20,
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

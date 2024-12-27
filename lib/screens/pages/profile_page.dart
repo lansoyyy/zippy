@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:zippy/screens/pages/shop_page.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
@@ -907,161 +907,161 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            Center(
-              child: Container(
-                width: 320,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: secondary,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextWidget(
-                        text: 'Payment Methods',
-                        fontSize: 15,
-                        color: Colors.white,
-                        fontFamily: 'Medium',
-                      ),
-                      const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(
-                    gcash,
-                    width: 80,
-                    height: 25,
-                  ),
-                  TextWidget(
-                    text: '+639 9999 9999',
-                    fontSize: 12,
-                    color: secondary,
-                    fontFamily: 'Medium',
-                  ),
-                  Container(
-                    width: 60,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: secondary,
-                    ),
-                    child: Center(
-                      child: TextWidget(
-                        text: 'Unlink',
-                        fontSize: 10,
-                        color: Colors.white,
-                        fontFamily: 'Medium',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(
-                    paymaya,
-                    width: 80,
-                    height: 25,
-                  ),
-                  const SizedBox(),
-                  Container(
-                    width: 60,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: secondary,
-                      ),
-                    ),
-                    child: Center(
-                      child: TextWidget(
-                        text: 'Link',
-                        fontSize: 10,
-                        color: secondary,
-                        fontFamily: 'Medium',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        bpi,
-                        width: 25,
-                        height: 25,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      TextWidget(
-                        text: 'BPI',
-                        fontSize: 15,
-                        color: secondary,
-                      ),
-                    ],
-                  ),
-                  TextWidget(
-                    text: '123 1234 1234',
-                    fontSize: 12,
-                    color: secondary,
-                    fontFamily: 'Medium',
-                  ),
-                  Container(
-                    width: 60,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: secondary,
-                    ),
-                    child: Center(
-                      child: TextWidget(
-                        text: 'Unlink',
-                        fontSize: 10,
-                        color: Colors.white,
-                        fontFamily: 'Medium',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // const SizedBox(
+            //   height: 10,
+            // ),
+            // Center(
+            //   child: Container(
+            //     width: 320,
+            //     height: 40,
+            //     decoration: BoxDecoration(
+            //       color: secondary,
+            //       borderRadius: BorderRadius.circular(30),
+            //     ),
+            //     child: Padding(
+            //       padding: const EdgeInsets.only(left: 15, right: 15),
+            //       child: Row(
+            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //         children: [
+            //           TextWidget(
+            //             text: 'Payment Methods',
+            //             fontSize: 15,
+            //             color: Colors.white,
+            //             fontFamily: 'Medium',
+            //           ),
+            //           const Icon(
+            //             Icons.add,
+            //             color: Colors.white,
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 10,
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 30, right: 30),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Image.asset(
+            //         gcash,
+            //         width: 80,
+            //         height: 25,
+            //       ),
+            //       TextWidget(
+            //         text: '+639 9999 9999',
+            //         fontSize: 12,
+            //         color: secondary,
+            //         fontFamily: 'Medium',
+            //       ),
+            //       Container(
+            //         width: 60,
+            //         height: 18,
+            //         decoration: BoxDecoration(
+            //           borderRadius: BorderRadius.circular(20),
+            //           color: secondary,
+            //         ),
+            //         child: Center(
+            //           child: TextWidget(
+            //             text: 'Unlink',
+            //             fontSize: 10,
+            //             color: Colors.white,
+            //             fontFamily: 'Medium',
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 10,
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 30, right: 30),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Image.asset(
+            //         paymaya,
+            //         width: 80,
+            //         height: 25,
+            //       ),
+            //       const SizedBox(),
+            //       Container(
+            //         width: 60,
+            //         height: 18,
+            //         decoration: BoxDecoration(
+            //           borderRadius: BorderRadius.circular(20),
+            //           border: Border.all(
+            //             color: secondary,
+            //           ),
+            //         ),
+            //         child: Center(
+            //           child: TextWidget(
+            //             text: 'Link',
+            //             fontSize: 10,
+            //             color: secondary,
+            //             fontFamily: 'Medium',
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 10,
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 30, right: 30),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Row(
+            //         crossAxisAlignment: CrossAxisAlignment.center,
+            //         children: [
+            //           Image.asset(
+            //             bpi,
+            //             width: 25,
+            //             height: 25,
+            //           ),
+            //           const SizedBox(
+            //             width: 5,
+            //           ),
+            //           TextWidget(
+            //             text: 'BPI',
+            //             fontSize: 15,
+            //             color: secondary,
+            //           ),
+            //         ],
+            //       ),
+            //       TextWidget(
+            //         text: '123 1234 1234',
+            //         fontSize: 12,
+            //         color: secondary,
+            //         fontFamily: 'Medium',
+            //       ),
+            //       Container(
+            //         width: 60,
+            //         height: 18,
+            //         decoration: BoxDecoration(
+            //           borderRadius: BorderRadius.circular(20),
+            //           color: secondary,
+            //         ),
+            //         child: Center(
+            //           child: TextWidget(
+            //             text: 'Unlink',
+            //             fontSize: 10,
+            //             color: Colors.white,
+            //             fontFamily: 'Medium',
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             const SizedBox(
               height: 10,
             ),
@@ -1505,48 +1505,119 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
                   const SizedBox(
                     height: 20,
                   ),
-                  SizedBox(
-                    height: 375,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          for (int i = 0; i < 10; i++)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 15),
-                              child: Container(
-                                width: 320,
-                                height: 65,
-                                decoration: BoxDecoration(
-                                  color: secondary,
-                                  borderRadius: BorderRadius.circular(
-                                    20,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/Rectangle 40.png',
-                                      height: double.infinity,
-                                      width: 120,
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    TextWidget(
-                                      text: 'Bluebird Coffee',
-                                      fontSize: 20,
-                                      color: Colors.white,
-                                      fontFamily: 'Bold',
-                                    ),
-                                  ],
-                                ),
-                              ),
+                  StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('Users')
+                          .doc(userId)
+                          .snapshots(),
+                      builder:
+                          (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(child: Text('Loading'));
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Something went wrong'));
+                        } else if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        dynamic data = snapshot.data;
+
+                        List favs = data['favorites'];
+                        return SizedBox(
+                          height: 375,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                for (int i = 0; i < favs.length; i++)
+                                  StreamBuilder<DocumentSnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('Merchant')
+                                          .doc(favs[i])
+                                          .snapshots(),
+                                      builder: (context,
+                                          AsyncSnapshot<DocumentSnapshot>
+                                              snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return const Center(
+                                              child: Text('Loading'));
+                                        } else if (snapshot.hasError) {
+                                          return const Center(
+                                              child:
+                                                  Text('Something went wrong'));
+                                        } else if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        }
+                                        dynamic data = snapshot.data;
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 15),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ShopPage(
+                                                          merchantId: favs[i]),
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              width: 320,
+                                              height: 65,
+                                              decoration: BoxDecoration(
+                                                color: secondary,
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                  20,
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width: 120,
+                                                    height: double.infinity,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                              .only(
+                                                        topLeft:
+                                                            Radius.circular(20),
+                                                        bottomLeft:
+                                                            Radius.circular(20),
+                                                      ),
+                                                      image: DecorationImage(
+                                                          image: NetworkImage(
+                                                              data['img']),
+                                                          fit: BoxFit.cover),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  TextWidget(
+                                                    text: data['businessName'],
+                                                    fontSize: 20,
+                                                    color: Colors.white,
+                                                    fontFamily: 'Bold',
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                              ],
                             ),
-                        ],
-                      ),
-                    ),
-                  ),
+                          ),
+                        );
+                      }),
                   const SizedBox(
                     height: 20,
                   ),

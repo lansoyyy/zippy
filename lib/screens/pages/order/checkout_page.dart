@@ -80,11 +80,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        TextWidget(
-                          text: 'Hi! Paula, Welcome Back!',
-                          fontSize: 22,
-                          fontFamily: 'Bold',
-                          color: Colors.white,
+                        SizedBox(
+                          width: 275,
+                          child: TextWidget(
+                            align: TextAlign.start,
+                            text: 'Hi! Paula, Welcome Back!',
+                            fontSize: 22,
+                            fontFamily: 'Bold',
+                            color: Colors.white,
+                          ),
                         ),
                         GestureDetector(
                           onTap: () {

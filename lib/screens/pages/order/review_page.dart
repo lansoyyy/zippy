@@ -357,136 +357,109 @@ class _ReviewPageState extends State<ReviewPage> {
                   const SizedBox(
                     height: 5,
                   ),
-                  for (int i = 0; i < 2; i++)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Container(
-                        width: 320,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: secondary),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Radio(
-                              activeColor: secondary,
-                              value: i == 0 ? false : true,
-                              groupValue: false,
-                              onChanged: (value) {},
-                            ),
-                            Image.asset(
-                              i == 0
-                                  ? 'assets/images/image 5.png'
-                                  : 'assets/images/image 6.png',
-                              width: 80,
-                              height: 30,
-                            ),
-                            const SizedBox(
+                  // for (int i = 0; i < 2; i++)
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(bottom: 10),
+                  //     child: Container(
+                  //       width: 320,
+                  //       height: 45,
+                  //       decoration: BoxDecoration(
+                  //         borderRadius: BorderRadius.circular(10),
+                  //         border: Border.all(color: secondary),
+                  //       ),
+                  //       child: Row(
+                  //         mainAxisAlignment: MainAxisAlignment.start,
+                  //         crossAxisAlignment: CrossAxisAlignment.center,
+                  //         children: [
+                  //           Radio(
+                  //             activeColor: secondary,
+                  //             value: i == 0 ? false : true,
+                  //             groupValue: false,
+                  //             onChanged: (value) {},
+                  //           ),
+                  //           Image.asset(
+                  //             i == 0
+                  //                 ? 'assets/images/image 5.png'
+                  //                 : 'assets/images/image 6.png',
+                  //             width: 80,
+                  //             height: 30,
+                  //           ),
+                  //           const SizedBox(
+                  //             width: 10,
+                  //           ),
+                  //           Container(
+                  //             width: 50,
+                  //             height: 15,
+                  //             decoration: BoxDecoration(
+                  //               borderRadius: BorderRadius.circular(5),
+                  //               border: Border.all(
+                  //                 color: secondary,
+                  //               ),
+                  //             ),
+                  //             child: Center(
+                  //               child: TextWidget(
+                  //                 text: 'Link now',
+                  //                 fontSize: 8,
+                  //                 color: secondary,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //           const Expanded(
+                  //             child: SizedBox(
+                  //               width: 10,
+                  //             ),
+                  //           ),
+                  //           TextWidget(
+                  //             text: '+ 2% Transfer fee',
+                  //             fontSize: 12,
+                  //             color: secondary,
+                  //             fontFamily: 'Bold',
+                  //           ),
+                  //           const SizedBox(
+                  //             width: 10,
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // for (int i = 0; i < 2; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Container(
+                      width: 320,
+                      height: 45,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: secondary),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Radio(
+                            activeColor: secondary,
+                            value: true,
+                            groupValue: true,
+                            onChanged: (value) {},
+                          ),
+                          TextWidget(
+                            text: 'Cash on Delivery',
+                            fontSize: 15,
+                            color: secondary,
+                            fontFamily: 'Bold',
+                          ),
+                          const Expanded(
+                            child: SizedBox(
                               width: 10,
                             ),
-                            Container(
-                              width: 50,
-                              height: 15,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(
-                                  color: secondary,
-                                ),
-                              ),
-                              child: Center(
-                                child: TextWidget(
-                                  text: 'Link now',
-                                  fontSize: 8,
-                                  color: secondary,
-                                ),
-                              ),
-                            ),
-                            const Expanded(
-                              child: SizedBox(
-                                width: 10,
-                              ),
-                            ),
-                            TextWidget(
-                              text: '+ 2% Transfer fee',
-                              fontSize: 12,
-                              color: secondary,
-                              fontFamily: 'Bold',
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        ],
                       ),
                     ),
-                  for (int i = 0; i < 2; i++)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Container(
-                        width: 320,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: secondary),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Radio(
-                              activeColor: secondary,
-                              value: true,
-                              groupValue: false,
-                              onChanged: (value) {},
-                            ),
-                            i == 0
-                                ? Row(
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/clarity_bank-solid.png',
-                                        width: 25,
-                                        height: 25,
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      TextWidget(
-                                        text: 'Bank Transfer',
-                                        fontSize: 15,
-                                        color: secondary,
-                                        fontFamily: 'Bold',
-                                      ),
-                                    ],
-                                  )
-                                : TextWidget(
-                                    text: 'Cash on Delivery',
-                                    fontSize: 15,
-                                    color: secondary,
-                                    fontFamily: 'Bold',
-                                  ),
-                            const Expanded(
-                              child: SizedBox(
-                                width: 10,
-                              ),
-                            ),
-                            i != 0
-                                ? const SizedBox()
-                                : TextWidget(
-                                    text: '+ 2% Transfer fee',
-                                    fontSize: 12,
-                                    color: secondary,
-                                    fontFamily: 'Bold',
-                                  ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  ),
                   const SizedBox(
                     height: 10,
                   ),
