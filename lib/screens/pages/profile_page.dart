@@ -4,9 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_api_headers/google_api_headers.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart' as location;
 import 'package:image_picker/image_picker.dart';
 import 'package:zippy/screens/pages/shop_page.dart';
 import 'package:zippy/utils/const.dart';
+import 'package:zippy/utils/keys.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
@@ -703,69 +708,26 @@ class _ProfilePageState extends State<ProfilePage> {
                         color: secondary,
                         fontFamily: 'Regular',
                       ),
-                      isEditingHome
-                          ? Row(
-                              children: [
-                                SizedBox(
-                                  width: 150,
-                                  child: TextField(
-                                    decoration: const InputDecoration(
-                                        border: InputBorder.none),
-                                    controller: homeController,
-                                    style: const TextStyle(
-                                      color: secondary,
-                                      fontSize: 14,
-                                      fontFamily: 'Medium',
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.check,
-                                    color: Colors.green,
-                                    size: 20,
-                                  ),
-                                  onPressed: updateHome, // Confirm home update
-                                ),
-                                const Padding(padding: EdgeInsets.zero),
-                                IconButton(
-                                  icon: const Icon(Icons.cancel,
-                                      color: Colors.red, size: 17),
-                                  onPressed: () {
-                                    setState(() {
-                                      isEditingHome = false;
-                                      homeController.text = userData![
-                                          'homeAddress']; // Revert changes
-                                    });
-                                  },
-                                ),
-                              ],
-                            )
-                          : Row(
-                              children: [
-                                SizedBox(
-                                  width: 250,
-                                  child: TextWidget(
-                                    text:
-                                        '${userData!['homeAddress']}' ?? '....',
-                                    fontSize: 14,
-                                    color: secondary,
-                                    fontFamily: 'Medium',
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      color: secondary, size: 17),
-                                  onPressed: () {
-                                    setState(() {
-                                      isEditingHome = true;
-                                      homeController.text =
-                                          userData!['homeAddress'];
-                                    });
-                                  },
-                                ),
-                              ],
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 250,
+                            child: TextWidget(
+                              text: '${userData!['homeAddress']}' ?? '....',
+                              fontSize: 14,
+                              color: secondary,
+                              fontFamily: 'Medium',
                             ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit,
+                                color: secondary, size: 17),
+                            onPressed: () {
+                              editHome();
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],
@@ -797,70 +759,26 @@ class _ProfilePageState extends State<ProfilePage> {
                         color: secondary,
                         fontFamily: 'Regular',
                       ),
-                      isEditingOffice
-                          ? Row(
-                              children: [
-                                SizedBox(
-                                  width: 150,
-                                  child: TextField(
-                                    decoration: const InputDecoration(
-                                        border: InputBorder.none),
-                                    controller: officeController,
-                                    style: const TextStyle(
-                                      color: secondary,
-                                      fontSize: 14,
-                                      fontFamily: 'Medium',
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.check,
-                                    color: Colors.green,
-                                    size: 20,
-                                  ),
-                                  onPressed:
-                                      updateOffice, // Confirm office update
-                                ),
-                                const Padding(padding: EdgeInsets.zero),
-                                IconButton(
-                                  icon: const Icon(Icons.cancel,
-                                      color: Colors.red, size: 17),
-                                  onPressed: () {
-                                    setState(() {
-                                      isEditingOffice = false;
-                                      officeController.text = userData![
-                                          'officeAddress']; // Revert changes
-                                    });
-                                  },
-                                ),
-                              ],
-                            )
-                          : Row(
-                              children: [
-                                SizedBox(
-                                  width: 250,
-                                  child: TextWidget(
-                                    text: '${userData!['officeAddress']}' ??
-                                        '....',
-                                    fontSize: 14,
-                                    color: secondary,
-                                    fontFamily: 'Medium',
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      color: secondary, size: 17),
-                                  onPressed: () {
-                                    setState(() {
-                                      isEditingOffice = true;
-                                      officeController.text =
-                                          userData!['officeAddress'];
-                                    });
-                                  },
-                                ),
-                              ],
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 250,
+                            child: TextWidget(
+                              text: '${userData!['officeAddress']}' ?? '....',
+                              fontSize: 14,
+                              color: secondary,
+                              fontFamily: 'Medium',
                             ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit,
+                                color: secondary, size: 17),
+                            onPressed: () {
+                              editOffice();
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],
@@ -1628,5 +1546,79 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
         );
       },
     );
+  }
+
+  editHome() async {
+    location.Prediction? p = await PlacesAutocomplete.show(
+        mode: Mode.overlay,
+        context: context,
+        apiKey: kGoogleApiKey,
+        language: 'en',
+        strictbounds: false,
+        types: [""],
+        decoration: InputDecoration(
+            hintText: 'Search Address',
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(color: Colors.white))),
+        components: [location.Component(location.Component.country, "ph")]);
+
+    location.GoogleMapsPlaces places = location.GoogleMapsPlaces(
+        apiKey: kGoogleApiKey,
+        apiHeaders: await const GoogleApiHeaders().getHeaders());
+
+    location.PlacesDetailsResponse detail =
+        await places.getDetailsByPlaceId(p!.placeId!);
+
+    await FirebaseFirestore.instance.collection('Users').doc(userId).update({
+      'homeAddress': detail.result.name,
+      'homeLat': LatLng(detail.result.geometry!.location.lat,
+              detail.result.geometry!.location.lng)
+          .latitude,
+      'homeLng': LatLng(detail.result.geometry!.location.lat,
+              detail.result.geometry!.location.lng)
+          .longitude,
+    });
+
+    setState(() {
+      userData!['homeAddress'] = detail.result.name;
+    });
+  }
+
+  editOffice() async {
+    location.Prediction? p = await PlacesAutocomplete.show(
+        mode: Mode.overlay,
+        context: context,
+        apiKey: kGoogleApiKey,
+        language: 'en',
+        strictbounds: false,
+        types: [""],
+        decoration: InputDecoration(
+            hintText: 'Search Address',
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(color: Colors.white))),
+        components: [location.Component(location.Component.country, "ph")]);
+
+    location.GoogleMapsPlaces places = location.GoogleMapsPlaces(
+        apiKey: kGoogleApiKey,
+        apiHeaders: await const GoogleApiHeaders().getHeaders());
+
+    location.PlacesDetailsResponse detail =
+        await places.getDetailsByPlaceId(p!.placeId!);
+
+    await FirebaseFirestore.instance.collection('Users').doc(userId).update({
+      'officeAddress': detail.result.name,
+      'officeLat': LatLng(detail.result.geometry!.location.lat,
+              detail.result.geometry!.location.lng)
+          .latitude,
+      'officeLng': LatLng(detail.result.geometry!.location.lat,
+              detail.result.geometry!.location.lng)
+          .longitude,
+    });
+
+    setState(() {
+      userData!['officeAddress'] = detail.result.name;
+    });
   }
 }
