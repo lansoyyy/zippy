@@ -135,26 +135,29 @@ class _ShopPageState extends State<ShopPage> {
                       const SizedBox(
                         width: 10,
                       ),
-                      GestureDetector(
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => ReviewPage(
-                                selectedItems: selectedItems,
-                                basketCount: basketCount,
-                                onUpdateCart: (updatedItems) {
-                                  setState(() {
-                                    selectedItems = updatedItems;
-                                  });
-                                },
+                      Visibility(
+                        visible: selectedItems.isNotEmpty,
+                        child: GestureDetector(
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ReviewPage(
+                                  selectedItems: selectedItems,
+                                  basketCount: basketCount,
+                                  onUpdateCart: (updatedItems) {
+                                    setState(() {
+                                      selectedItems = updatedItems;
+                                    });
+                                  },
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        child: Image.asset(
-                          'assets/images/cart.png',
-                          height: 20,
-                          width: 20,
+                            );
+                          },
+                          child: Image.asset(
+                            'assets/images/cart.png',
+                            height: 20,
+                            width: 20,
+                          ),
                         ),
                       ),
                       if (basketCount > 0)
@@ -323,31 +326,34 @@ class _ShopPageState extends State<ShopPage> {
           const SizedBox(
             height: 10,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              for (int i = 0; i < shopCategories.length; i++)
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    TextWidget(
-                      text: shopCategories[i],
-                      fontSize: 15,
-                      fontFamily: 'Medium',
-                      color: secondary,
-                    ),
-                    i == 0
-                        ? const Icon(
-                            Icons.circle,
-                            color: secondary,
-                            size: 15,
-                          )
-                        : const SizedBox(
-                            height: 15,
-                          ),
-                  ],
-                ),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(left: 50),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                for (int i = 0; i < 1; i++)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      TextWidget(
+                        text: 'All',
+                        fontSize: 15,
+                        fontFamily: 'Medium',
+                        color: secondary,
+                      ),
+                      i == 0
+                          ? const Icon(
+                              Icons.circle,
+                              color: secondary,
+                              size: 15,
+                            )
+                          : const SizedBox(
+                              height: 15,
+                            ),
+                    ],
+                  ),
+              ],
+            ),
           ),
           const SizedBox(
             height: 10,

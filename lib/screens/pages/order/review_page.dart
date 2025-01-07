@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zippy/screens/pages/order/checkout_page.dart';
 import 'package:zippy/utils/colors.dart';
+import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/textfield_widget.dart';
 
@@ -78,6 +83,13 @@ class _ReviewPageState extends State<ReviewPage> {
       calculateTotalPrice();
     });
   }
+
+  bool isHome = true;
+
+  final Completer<GoogleMapController> _controller =
+      Completer<GoogleMapController>();
+
+  Set<Marker> markers = {};
 
   @override
   Widget build(BuildContext context) {
@@ -236,71 +248,294 @@ class _ReviewPageState extends State<ReviewPage> {
                     fontFamily: 'Bold',
                     color: secondary,
                   ),
-                  Center(
-                    child: Card(
-                      child: Container(
-                        width: 340,
-                        height: 180,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: secondary),
-                          borderRadius: BorderRadius.circular(
-                            10,
-                          ),
-                          image: const DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage(
-                              'assets/images/Rectangle 3.png',
+                  StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('Users')
+                          .doc(userId)
+                          .snapshots(),
+                      builder:
+                          (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(child: Text('Loading'));
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Something went wrong'));
+                        } else if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        dynamic data = snapshot.data;
+
+                        return Center(
+                          child: Card(
+                            child: Container(
+                              width: 340,
+                              height: 180,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: secondary),
+                                borderRadius: BorderRadius.circular(
+                                  10,
+                                ),
+                                // image: const DecorationImage(
+                                //   fit: BoxFit.cover,
+                                //   image: AssetImage(
+                                //     'assets/images/Rectangle 3.png',
+                                //   ),
+                                // ),
+                              ),
+                              child: Stack(
+                                children: [
+                                  Expanded(
+                                    child: GoogleMap(
+                                      zoomControlsEnabled: false,
+                                      mapType: MapType.normal,
+                                      initialCameraPosition: CameraPosition(
+                                        target: isHome
+                                            ? LatLng(data['homeLat'],
+                                                data['homeLng'])
+                                            : LatLng(data['officeLat'],
+                                                data['officeLng']),
+                                        zoom: 15,
+                                      ),
+                                      onMapCreated:
+                                          (GoogleMapController controller) {
+                                        _controller.complete(controller);
+                                      },
+                                      markers: markers.isEmpty
+                                          ? {
+                                              Marker(
+                                                position: LatLng(
+                                                    data['homeLat'],
+                                                    data['homeLng']),
+                                                markerId:
+                                                    const MarkerId('home'),
+                                                infoWindow: const InfoWindow(
+                                                  title: 'Home',
+                                                  snippet: 'Home Location',
+                                                ),
+                                              ),
+                                            }
+                                          : markers,
+                                    ),
+                                  ),
+                                  Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const SizedBox(),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 36,
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(
+                                              7.5,
+                                            ),
+                                            bottomRight: Radius.circular(
+                                              7.5,
+                                            ),
+                                          ),
+                                          color: secondary,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 15, right: 15),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                width: 250,
+                                                child: TextWidget(
+                                                  text: isHome
+                                                      ? data['homeAddress']
+                                                      : data['officeAddress'],
+                                                  fontSize: 15,
+                                                  maxLines: 1,
+                                                  fontFamily: 'Bold',
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  showBottomSheet(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return SizedBox(
+                                                        height: 200,
+                                                        width: double.infinity,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(12.0),
+                                                          child: Column(
+                                                            children: [
+                                                              Align(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .topRight,
+                                                                child:
+                                                                    IconButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                  icon:
+                                                                      const Icon(
+                                                                    Icons.close,
+                                                                    color: Colors
+                                                                        .red,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              ListTile(
+                                                                onTap:
+                                                                    () async {
+                                                                  final GoogleMapController
+                                                                      controller =
+                                                                      await _controller
+                                                                          .future;
+                                                                  await controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+                                                                      target: LatLng(
+                                                                          data[
+                                                                              'homeLat'],
+                                                                          data[
+                                                                              'homeLng']),
+                                                                      zoom:
+                                                                          18)));
+                                                                  setState(() {
+                                                                    isHome =
+                                                                        true;
+
+                                                                    markers
+                                                                        .clear();
+
+                                                                    markers.add(
+                                                                      Marker(
+                                                                        position: LatLng(
+                                                                            data['homeLat'],
+                                                                            data['homeLng']),
+                                                                        markerId:
+                                                                            const MarkerId('home'),
+                                                                        infoWindow:
+                                                                            const InfoWindow(
+                                                                          title:
+                                                                              'Home',
+                                                                          snippet:
+                                                                              'Home Location',
+                                                                        ),
+                                                                      ),
+                                                                    );
+                                                                  });
+
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                leading:
+                                                                    const Icon(
+                                                                  Icons.home,
+                                                                  color:
+                                                                      secondary,
+                                                                ),
+                                                                title:
+                                                                    TextWidget(
+                                                                  text: 'Home',
+                                                                  fontSize: 16,
+                                                                  fontFamily:
+                                                                      'Bold',
+                                                                  color:
+                                                                      secondary,
+                                                                ),
+                                                              ),
+                                                              ListTile(
+                                                                onTap:
+                                                                    () async {
+                                                                  final GoogleMapController
+                                                                      controller =
+                                                                      await _controller
+                                                                          .future;
+                                                                  await controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+                                                                      target: LatLng(
+                                                                          data[
+                                                                              'officeLat'],
+                                                                          data[
+                                                                              'officeLng']),
+                                                                      zoom:
+                                                                          18)));
+                                                                  setState(() {
+                                                                    isHome =
+                                                                        false;
+
+                                                                    markers
+                                                                        .clear();
+
+                                                                    markers.add(
+                                                                      Marker(
+                                                                        position: LatLng(
+                                                                            data['officeLat'],
+                                                                            data['officeLng']),
+                                                                        markerId:
+                                                                            const MarkerId('office'),
+                                                                        infoWindow:
+                                                                            const InfoWindow(
+                                                                          title:
+                                                                              'Work',
+                                                                          snippet:
+                                                                              'Work Location',
+                                                                        ),
+                                                                      ),
+                                                                    );
+                                                                  });
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                leading:
+                                                                    const Icon(
+                                                                  Icons.work,
+                                                                  color:
+                                                                      secondary,
+                                                                ),
+                                                                title:
+                                                                    TextWidget(
+                                                                  text: 'Work',
+                                                                  fontSize: 16,
+                                                                  fontFamily:
+                                                                      'Bold',
+                                                                  color:
+                                                                      secondary,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: TextWidget(
+                                                  text: 'Edit',
+                                                  fontSize: 14,
+                                                  fontFamily: 'Regular',
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const SizedBox(),
-                            Container(
-                              width: double.infinity,
-                              height: 36,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(
-                                    7.5,
-                                  ),
-                                  bottomRight: Radius.circular(
-                                    7.5,
-                                  ),
-                                ),
-                                color: secondary,
-                              ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15, right: 15),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    TextWidget(
-                                      text: '7th Avenue, 2nd St.',
-                                      fontSize: 15,
-                                      fontFamily: 'Bold',
-                                      color: Colors.white,
-                                    ),
-                                    TextWidget(
-                                      text: 'Edit',
-                                      fontSize: 14,
-                                      fontFamily: 'Regular',
-                                      color: Colors.white,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                        );
+                      }),
                   const SizedBox(
                     height: 10,
                   ),
