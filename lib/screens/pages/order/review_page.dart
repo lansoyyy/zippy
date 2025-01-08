@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zippy/screens/pages/order/checkout_page.dart';
+import 'package:zippy/services/add_order.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -15,6 +16,7 @@ class ReviewPage extends StatefulWidget {
   final Function(List<Map<String, dynamic>>) onUpdateCart;
   final double merchantLat;
   final double merchantLng;
+  final String merchantId;
 
   const ReviewPage(
       {super.key,
@@ -22,6 +24,7 @@ class ReviewPage extends StatefulWidget {
       required this.basketCount,
       required this.onUpdateCart,
       required this.merchantLat,
+      required this.merchantId,
       required this.merchantLng});
 
   @override
@@ -29,9 +32,9 @@ class ReviewPage extends StatefulWidget {
 }
 
 class _ReviewPageState extends State<ReviewPage> {
-  final remarks = TextEditingController();
+  final remarks = TextEditingController(text: '');
   final tip = TextEditingController(text: '0');
-  String tips = '';
+  String tips = '0';
   // late Map<String, Map<String, dynamic>> itemCounts;
   Map<String, dynamic> itemCounts = {};
 
@@ -835,6 +838,40 @@ class _ReviewPageState extends State<ReviewPage> {
                               Center(
                                 child: GestureDetector(
                                   onTap: () {
+                                    addOrder(
+                                        widget.selectedItems,
+                                        widget.merchantId,
+                                        isHome,
+                                        remarks.text,
+                                        int.parse(tips),
+                                        'Cash',
+                                        (((calculateDistance(
+                                                    isHome
+                                                        ? userData['homeLat']
+                                                        : userData['officeLat'],
+                                                    isHome
+                                                        ? userData['homeLng']
+                                                        : userData['officeLng'],
+                                                    widget.merchantLat,
+                                                    widget.merchantLng)) *
+                                                10) +
+                                            50),
+                                        ((((calculateDistance(
+                                                        isHome
+                                                            ? userData[
+                                                                'homeLat']
+                                                            : userData[
+                                                                'officeLat'],
+                                                        isHome
+                                                            ? userData[
+                                                                'homeLng']
+                                                            : userData[
+                                                                'officeLng'],
+                                                        widget.merchantLat,
+                                                        widget.merchantLng)) *
+                                                    10) +
+                                                50) +
+                                            int.parse(tips)));
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                           builder: (context) =>
