@@ -27,6 +27,7 @@ class TextFieldWidget extends StatefulWidget {
   late int? length;
 
   Widget? suffix;
+  Function(String)? onChanged;
 
   TextFieldWidget({
     super.key,
@@ -46,6 +47,7 @@ class TextFieldWidget extends StatefulWidget {
     this.enabled = true,
     this.color = Colors.black,
     this.radius = 100,
+    this.onChanged,
     this.hasValidator = true,
     this.textCapitalization = TextCapitalization.sentences,
     this.inputType = TextInputType.text,
@@ -65,6 +67,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
         width: widget.width,
         height: widget.height,
         child: TextFormField(
+          onChanged: widget.onChanged,
           maxLength: widget.length,
           enabled: widget.enabled,
           style: const TextStyle(

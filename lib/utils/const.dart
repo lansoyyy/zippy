@@ -1,3 +1,5 @@
+import 'dart:math';
+
 String userId = 'pqaYFzkCd4TkFbEsQ133C16MFxA3';
 
 String logo = 'assets/images/logo.png';
@@ -41,3 +43,21 @@ String groups = 'assets/images/groups.png';
 String gcash = 'assets/images/image 5.png';
 String paymaya = 'assets/images/image 6.png';
 String bpi = 'assets/images/clarity_bank-solid.png';
+
+double calculateDistance(lat1, lon1, lat2, lon2) {
+  var p = 0.017453292519943295;
+  var c = cos;
+  var a = 0.5 -
+      c((lat2 - lat1) * p) / 2 +
+      c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+  return 12742 * asin(sqrt(a));
+}
+
+double calculateTravelTimeInMinutes(double distance, double speed) {
+  double travelTimeInSeconds = calculateTravelTime(distance, speed);
+  return travelTimeInSeconds / 60.0;
+}
+
+double calculateTravelTime(double distance, double speed) {
+  return distance / speed;
+}

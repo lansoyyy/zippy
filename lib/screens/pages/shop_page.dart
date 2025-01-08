@@ -142,6 +142,8 @@ class _ShopPageState extends State<ShopPage> {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ReviewPage(
+                                  merchantLng: merchants[0]['lng'],
+                                  merchantLat: merchants[0]['lat'],
                                   selectedItems: selectedItems,
                                   basketCount: basketCount,
                                   onUpdateCart: (updatedItems) {
