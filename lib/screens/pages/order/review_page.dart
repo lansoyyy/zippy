@@ -753,20 +753,38 @@ class _ReviewPageState extends State<ReviewPage> {
                     const SizedBox(
                       height: 5,
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextWidget(
+                          text: 'Subtotal',
+                          fontSize: 18,
+                          fontFamily: 'Bold',
+                          color: secondary,
+                        ),
+                        TextWidget(
+                          text: '₱ ${totalPrice.toStringAsFixed(2)}',
+                          fontSize: 18,
+                          fontFamily: 'Bold',
+                          color: secondary,
+                        ),
+                      ],
+                    ),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextWidget(
                           text: 'Tip',
-                          fontSize: 15,
-                          fontFamily: 'Regular',
+                          fontSize: 18,
+                          fontFamily: 'Bold',
                           color: secondary,
                         ),
                         TextWidget(
-                          text: '₱ ${tip.text}.00',
-                          fontSize: 15,
-                          fontFamily: 'Regular',
+                          text:
+                              '₱ ${(double.tryParse(tips) ?? 0).toStringAsFixed(2)}',
+                          fontSize: 18,
+                          fontFamily: 'Bold',
                           color: secondary,
                         ),
                       ],
@@ -797,15 +815,15 @@ class _ReviewPageState extends State<ReviewPage> {
                                 children: [
                                   TextWidget(
                                     text: 'Delivery fee',
-                                    fontSize: 15,
-                                    fontFamily: 'Regular',
+                                    fontSize: 18,
+                                    fontFamily: 'Bold',
                                     color: secondary,
                                   ),
                                   TextWidget(
                                     text:
                                         '₱ ${(((calculateDistance(isHome ? userData['homeLat'] : userData['officeLat'], isHome ? userData['homeLng'] : userData['officeLng'], widget.merchantLat, widget.merchantLng)) * 10) + 50).toStringAsFixed(2)}',
-                                    fontSize: 15,
-                                    fontFamily: 'Regular',
+                                    fontSize: 18,
+                                    fontFamily: 'Bold',
                                     color: secondary,
                                   ),
                                 ],
@@ -825,7 +843,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                   ),
                                   TextWidget(
                                     text:
-                                        '₱ ${((((calculateDistance(isHome ? userData['homeLat'] : userData['officeLat'], isHome ? userData['homeLng'] : userData['officeLng'], widget.merchantLat, widget.merchantLng)) * 10) + 50) + int.parse(tips)).toStringAsFixed(2)}',
+                                        '₱ ${(totalPrice + (double.tryParse(tips) ?? 0) + (((calculateDistance(isHome ? userData['homeLat'] : userData['officeLat'], isHome ? userData['homeLng'] : userData['officeLng'], widget.merchantLat, widget.merchantLng)) * 10) + 50)).toStringAsFixed(2)}',
                                     fontSize: 20,
                                     fontFamily: 'Bold',
                                     color: secondary,
