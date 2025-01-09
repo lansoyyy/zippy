@@ -35,7 +35,11 @@ class _ShopPageState extends State<ShopPage> {
     QuerySnapshot querySnapshot = await merchantsCollection.get();
     final allData = querySnapshot.docs
         .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
+        .where(
+      (element) {
+        return element['uid'] == widget.merchantId;
+      },
+    ).toList();
 
     setState(() {
       merchants = allData;
