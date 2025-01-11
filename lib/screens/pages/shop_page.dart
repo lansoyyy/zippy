@@ -146,6 +146,7 @@ class _ShopPageState extends State<ShopPage> {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ReviewPage(
+                                  merchantName: merchants[0]['businessName'],
                                   merchantId: merchants[0]['uid'],
                                   merchantLng: merchants[0]['lng'],
                                   merchantLat: merchants[0]['lat'],

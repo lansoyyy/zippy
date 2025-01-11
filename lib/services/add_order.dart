@@ -4,6 +4,9 @@ import 'package:zippy/utils/const.dart';
 Future addOrder(
   items,
   merchantId,
+  merchantName,
+  deliveryAdd,
+  subtotal,
   isHome,
   remarks,
   tip,
@@ -16,6 +19,9 @@ Future addOrder(
   final json = {
     'userId': userId,
     'merchantId': merchantId,
+    'merchantName': merchantName,
+    'deliveryAdd': deliveryAdd,
+    'subtotal': subtotal,
     'items': items,
     'isHome': isHome,
     'remarks': remarks,

@@ -17,6 +17,7 @@ class ReviewPage extends StatefulWidget {
   final double merchantLat;
   final double merchantLng;
   final String merchantId;
+  final String merchantName;
 
   const ReviewPage(
       {super.key,
@@ -25,7 +26,8 @@ class ReviewPage extends StatefulWidget {
       required this.onUpdateCart,
       required this.merchantLat,
       required this.merchantId,
-      required this.merchantLng});
+      required this.merchantLng,
+      required this.merchantName});
 
   @override
   State<ReviewPage> createState() => _ReviewPageState();
@@ -856,40 +858,39 @@ class _ReviewPageState extends State<ReviewPage> {
                               Center(
                                 child: GestureDetector(
                                   onTap: () {
+                                    double deliveryFee = ((calculateDistance(
+                                                isHome
+                                                    ? userData['homeLat']
+                                                    : userData['officeLat'],
+                                                isHome
+                                                    ? userData['homeLng']
+                                                    : userData['officeLng'],
+                                                widget.merchantLat,
+                                                widget.merchantLng) *
+                                            10) +
+                                        50);
+
+                                    double tipValue = double.parse(tips);
+
+                                    double total =
+                                        (totalPrice) + tipValue + deliveryFee;
+
                                     addOrder(
-                                        widget.selectedItems,
-                                        widget.merchantId,
-                                        isHome,
-                                        remarks.text,
-                                        int.parse(tips),
-                                        'Cash',
-                                        (((calculateDistance(
-                                                    isHome
-                                                        ? userData['homeLat']
-                                                        : userData['officeLat'],
-                                                    isHome
-                                                        ? userData['homeLng']
-                                                        : userData['officeLng'],
-                                                    widget.merchantLat,
-                                                    widget.merchantLng)) *
-                                                10) +
-                                            50),
-                                        ((((calculateDistance(
-                                                        isHome
-                                                            ? userData[
-                                                                'homeLat']
-                                                            : userData[
-                                                                'officeLat'],
-                                                        isHome
-                                                            ? userData[
-                                                                'homeLng']
-                                                            : userData[
-                                                                'officeLng'],
-                                                        widget.merchantLat,
-                                                        widget.merchantLng)) *
-                                                    10) +
-                                                50) +
-                                            int.parse(tips)));
+                                      widget.selectedItems,
+                                      widget.merchantId,
+                                      widget.merchantName,
+                                      isHome
+                                          ? userData['homeAddress']
+                                          : userData['officeAddress'],
+                                      totalPrice.toStringAsFixed(1),
+                                      isHome,
+                                      remarks.text,
+                                      tipValue.toStringAsFixed(2),
+                                      'Cash',
+                                      deliveryFee.toStringAsFixed(2),
+                                      total.toStringAsFixed(2),
+                                    );
+
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                           builder: (context) =>
