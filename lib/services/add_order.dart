@@ -6,13 +6,13 @@ Future addOrder(
   merchantId,
   merchantName,
   deliveryAdd,
-  subtotal,
+  double subtotal, //
   isHome,
   remarks,
-  tip,
+  tip, //
   mop,
-  deliveryFee,
-  total,
+  double deliveryFee, //
+  double total, //
 ) async {
   final docUser = FirebaseFirestore.instance.collection('Orders').doc();
 

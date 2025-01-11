@@ -882,13 +882,13 @@ class _ReviewPageState extends State<ReviewPage> {
                                       isHome
                                           ? userData['homeAddress']
                                           : userData['officeAddress'],
-                                      totalPrice.toStringAsFixed(1),
+                                      totalPrice,
                                       isHome,
                                       remarks.text,
-                                      tipValue.toStringAsFixed(2),
+                                      tipValue,
                                       'Cash',
-                                      deliveryFee.toStringAsFixed(2),
-                                      total.toStringAsFixed(2),
+                                      deliveryFee,
+                                      total,
                                     );
 
                                     Navigator.of(context).pushReplacement(
