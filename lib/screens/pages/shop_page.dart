@@ -57,8 +57,10 @@ class _ShopPageState extends State<ShopPage> {
       CollectionReference menuCollection =
           FirebaseFirestore.instance.collection('Menu');
 
-      QuerySnapshot querySnapshot =
-          await menuCollection.where('uid', isEqualTo: widget.merchantId).get();
+      QuerySnapshot querySnapshot = await menuCollection
+          .where('availability', isEqualTo: 'Available')
+          .where('uid', isEqualTo: widget.merchantId)
+          .get();
 
       final filteredData = querySnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
