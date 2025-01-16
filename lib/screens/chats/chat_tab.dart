@@ -1,14 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:zippy/models/chat_model.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
 class ChatTab extends StatefulWidget {
-  bool? ingeneral;
-
-  ChatTab({
+  final dynamic driverId;
+  const ChatTab({
     super.key,
-    this.ingeneral = false,
+    required this.driverId,
   });
 
   @override
@@ -58,137 +58,166 @@ class _ChatTabState extends State<ChatTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 75,
-              color: secondary,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      minRadius: 27,
-                      maxRadius: 27,
-                      backgroundColor: grey,
+      body: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('Riders')
+              .doc(widget.driverId)
+              .snapshots(),
+          builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: Text('Loading'));
+            } else if (snapshot.hasError) {
+              return const Center(child: Text('Something went wrong'));
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            dynamic driverData = snapshot.data;
+            return SafeArea(
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 75,
+                    color: secondary,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 0, right: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                minRadius: 27,
+                                maxRadius: 27,
+                                backgroundImage:
+                                    NetworkImage(driverData['profileImage']),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextWidget(
+                                    text: driverData['name'],
+                                    fontSize: 18,
+                                    fontFamily: 'Bold',
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 175,
+                                    child: TextWidget(
+                                      text:
+                                          '${driverData['vehicleModel'] - driverData['plateNumber']}',
+                                      fontSize: 14,
+                                      fontFamily: 'Regular',
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            width: 50,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextWidget(
-                          text: 'ENGLISH 101',
-                          fontSize: 18,
-                          fontFamily: 'Bold',
+                  ),
+                  Expanded(
+                      child: ListView.builder(
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      return MessageWidget(message: messages[index]);
+                    },
+                  )),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        child: const Icon(
+                          Icons.camera_alt_outlined,
+                          size: 35,
                           color: primary,
                         ),
-                        SizedBox(
-                          width: 175,
-                          child: TextWidget(
-                            text: 'Fundamentals of english...',
-                            fontSize: 14,
-                            fontFamily: 'Regular',
-                            color: primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Expanded(
-                      child: SizedBox(
+                      ),
+                      const SizedBox(
                         width: 10,
                       ),
-                    ),
-                  ],
-                ),
+                      GestureDetector(
+                        child: const Icon(
+                          Icons.image_outlined,
+                          size: 35,
+                          color: primary,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      SizedBox(
+                        width: 275,
+                        height: 50,
+                        child: TextFormField(
+                          style: const TextStyle(
+                            fontFamily: 'Regular',
+                            fontSize: 14,
+                            color: primary,
+                          ),
+                          decoration: InputDecoration(
+                            disabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.transparent,
+                              ),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.transparent,
+                              ),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.transparent,
+                              ),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            filled: true,
+                            fillColor: grey.withOpacity(0.75),
+                            contentPadding:
+                                const EdgeInsets.fromLTRB(20.0, 0, 20.0, 0),
+                            hintStyle: const TextStyle(
+                              fontFamily: 'Regular',
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                            hintText: 'Write something...',
+                            border: InputBorder.none,
+                          ),
+                          controller: msg,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                ],
               ),
-            ),
-            Expanded(
-                child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return MessageWidget(message: messages[index]);
-              },
-            )),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  child: const Icon(
-                    Icons.camera_alt_outlined,
-                    size: 35,
-                    color: primary,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                GestureDetector(
-                  child: const Icon(
-                    Icons.image_outlined,
-                    size: 35,
-                    color: primary,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                SizedBox(
-                  width: 275,
-                  height: 50,
-                  child: TextFormField(
-                    style: const TextStyle(
-                      fontFamily: 'Regular',
-                      fontSize: 14,
-                      color: primary,
-                    ),
-                    decoration: InputDecoration(
-                      disabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      filled: true,
-                      fillColor: grey.withOpacity(0.75),
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(20.0, 0, 20.0, 0),
-                      hintStyle: const TextStyle(
-                        fontFamily: 'Regular',
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                      hintText: 'Write something...',
-                      border: InputBorder.none,
-                    ),
-                    controller: msg,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-          ],
-        ),
-      ),
+            );
+          }),
     );
   }
 }
