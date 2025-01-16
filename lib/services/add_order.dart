@@ -36,4 +36,6 @@ Future addOrder(
   };
 
   await docUser.set(json);
+
+  return docUser.id;
 }

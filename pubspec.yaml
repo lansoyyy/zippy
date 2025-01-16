@@ -45,6 +45,7 @@ dependencies:
   firebase_auth:
   image_picker: ^1.1.2
   flutter_google_places:
+  geolocator:
 
 dev_dependencies:
   flutter_test:

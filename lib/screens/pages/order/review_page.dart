@@ -857,7 +857,7 @@ class _ReviewPageState extends State<ReviewPage> {
                               ),
                               Center(
                                 child: GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
                                     double deliveryFee = ((calculateDistance(
                                                 isHome
                                                     ? userData['homeLat']
@@ -875,7 +875,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                     double total =
                                         (totalPrice) + tipValue + deliveryFee;
 
-                                    addOrder(
+                                    String orderId = await addOrder(
                                       widget.selectedItems,
                                       widget.merchantId,
                                       widget.merchantName,
@@ -893,8 +893,27 @@ class _ReviewPageState extends State<ReviewPage> {
 
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              const CheckoutPage()),
+                                          builder: (context) => CheckoutPage(
+                                                data: {
+                                                  'items': widget.selectedItems,
+                                                  'merchantId':
+                                                      widget.merchantId,
+                                                  'merchantName':
+                                                      widget.merchantName,
+                                                  'address': isHome
+                                                      ? userData['homeAddress']
+                                                      : userData[
+                                                          'officeAddress'],
+                                                  'subtotal': totalPrice,
+                                                  'isHome': isHome,
+                                                  'remarks': remarks.text,
+                                                  'tip': tipValue,
+                                                  'mop': 'Cash',
+                                                  'deliveryFee': deliveryFee,
+                                                  'total': total,
+                                                  'orderId': orderId,
+                                                },
+                                              )),
                                     );
                                   },
                                   child: Container(

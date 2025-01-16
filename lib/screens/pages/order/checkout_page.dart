@@ -12,7 +12,11 @@ import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  Map data;
+  CheckoutPage({
+    super.key,
+    required this.data,
+  });
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -29,7 +33,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String? profileImage;
   @override
   void initState() {
-    showDialogs();
+    // showDialogs();
     fetchUser();
     super.initState();
   }
