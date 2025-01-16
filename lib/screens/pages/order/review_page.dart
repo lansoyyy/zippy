@@ -319,8 +319,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                                   position: LatLng(
                                                       data['homeLat'],
                                                       data['homeLng']),
-                                                  markerId:
-                                                      const MarkerId('home'),
+                                                  markerId: MarkerId('home'),
                                                   infoWindow: const InfoWindow(
                                                     title: 'Home',
                                                     snippet: 'Home Location',
@@ -436,7 +435,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                                                               data['homeLat'],
                                                                               data['homeLng']),
                                                                           markerId:
-                                                                              const MarkerId('home'),
+                                                                              MarkerId('home'),
                                                                           infoWindow:
                                                                               const InfoWindow(
                                                                             title:
@@ -499,7 +498,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                                                               data['officeLat'],
                                                                               data['officeLng']),
                                                                           markerId:
-                                                                              const MarkerId('office'),
+                                                                              MarkerId('office'),
                                                                           infoWindow:
                                                                               const InfoWindow(
                                                                             title:
