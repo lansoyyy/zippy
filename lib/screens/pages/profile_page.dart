@@ -9,6 +9,7 @@ import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart' as location;
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:zippy/screens/pages/shop_page.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
@@ -1016,37 +1017,90 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(
               height: 10,
             ),
-            for (int i = 0; i < 3; i++)
-              Padding(
-                padding: const EdgeInsets.only(left: 30, right: 30, bottom: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextWidget(
-                      text: 'Bluebird Coffee',
-                      fontSize: 15,
-                      color: secondary,
-                      fontFamily: 'Bold',
-                    ),
-                    Column(
-                      children: [
-                        TextWidget(
-                          text: 'Total: ₱ 800.00',
-                          fontSize: 12,
-                          color: secondary,
-                          fontFamily: 'Medium',
-                        ),
-                        TextWidget(
-                          text: 'July 11, 2024 11:02 AM ',
-                          fontSize: 8,
-                          color: secondary,
-                          fontFamily: 'Regular',
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+            StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('Orders')
+                    .where('userId', isEqualTo: userId)
+                    .where('status', isEqualTo: 'Completed')
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError) {
+                    print(snapshot.error);
+                    return const Center(child: Text('Error'));
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.only(top: 50),
+                      child: Center(
+                          child: CircularProgressIndicator(
+                        color: Colors.black,
+                      )),
+                    );
+                  }
+
+                  final data = snapshot.requireData;
+                  return data.docs.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: Center(
+                            child: TextWidget(
+                              text: 'No Recent Transaction.',
+                              fontSize: 18,
+                              color: secondary,
+                              fontFamily: 'Bold',
+                            ),
+                          ),
+                        )
+                      : SizedBox(
+                          height: 100,
+                          width: double.infinity,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                for (int i = 0; i < data.docs.length; i++)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 30, right: 30, bottom: 5),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        TextWidget(
+                                          text: data.docs[i]['merchantName'],
+                                          fontSize: 15,
+                                          color: secondary,
+                                          fontFamily: 'Bold',
+                                        ),
+                                        Column(
+                                          children: [
+                                            TextWidget(
+                                              text:
+                                                  'Total: ₱ ${data.docs[i]['total'].toStringAsFixed(2)}',
+                                              fontSize: 12,
+                                              color: secondary,
+                                              fontFamily: 'Medium',
+                                            ),
+                                            TextWidget(
+                                              text: DateFormat.yMMMd()
+                                                  .add_jm()
+                                                  .format(data.docs[i]['date']
+                                                      .toDate()),
+                                              fontSize: 8,
+                                              color: secondary,
+                                              fontFamily: 'Regular',
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                              ],
+                            ),
+                          ),
+                        );
+                }),
+
             const SizedBox(
               height: 10,
             ),
