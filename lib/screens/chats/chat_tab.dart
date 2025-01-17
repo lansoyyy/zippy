@@ -1,290 +1,409 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:zippy/models/chat_model.dart';
-import 'package:zippy/utils/colors.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:zippy/services/add_message.dart';
+import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
 
-class ChatTab extends StatefulWidget {
-  final dynamic driverId;
-  const ChatTab({
-    super.key,
-    required this.driverId,
-  });
+import '../../utils/colors.dart';
 
+class ChatPage extends StatefulWidget {
+  final String driverId;
+  final String driverName;
+
+  const ChatPage({super.key, required this.driverId, required this.driverName});
   @override
-  State<ChatTab> createState() => _ChatTabState();
+  State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatTabState extends State<ChatTab> {
-  List<Message> messages = [
-    Message(
-      text: 'Hello!',
-      senderName: 'John Doe',
-      time: '10:00 AM',
-      isSentByMe: false,
-    ),
-    Message(
-      text: 'Hi there!',
-      senderName: 'Jane Smith',
-      time: '10:05 AM',
-      isSentByMe: true,
-    ),
-    Message(
-      text: 'How are you?',
-      senderName: 'John Doe',
-      time: '10:10 AM',
-      isSentByMe: false,
-    ),
-    Message(
-      text: 'I\'m good, thanks!',
-      senderName: 'Jane Smith',
-      time: '10:15 AM',
-      isSentByMe: true,
-    ),
-    Message(
-      text: 'What about you?',
-      senderName: 'John Doe',
-      time: '10:20 AM',
-      isSentByMe: false,
-    ),
-    Message(
-      text: 'I\'m doing well.',
-      senderName: 'Jane Smith',
-      time: '10:25 AM',
-      isSentByMe: true,
-    ),
-  ];
-  final msg = TextEditingController();
+class _ChatPageState extends State<ChatPage> {
+  @override
+  void initState() {
+    super.initState();
+    getUserData();
+    getDriverData();
+  }
+
+  final messageController = TextEditingController();
+
+  String message = '';
+
+  final ScrollController _scrollController = ScrollController();
+
+  bool executed = true;
+
+  String driverContactNumber = '';
+  String userName = '';
+  String userProfile = '';
+
+  bool hasLoaded = false;
+
+  getUserData() {
+    FirebaseFirestore.instance
+        .collection('Users')
+        .where('uid', isEqualTo: userId)
+        .get()
+        .then((QuerySnapshot querySnapshot) async {
+      for (var doc in querySnapshot.docs) {
+        setState(() {
+          userName = doc['name'];
+          userProfile = doc['profile'];
+        });
+      }
+    });
+  }
+
+  String driverProfile = '';
+
+  getDriverData() {
+    FirebaseFirestore.instance
+        .collection('Riders')
+        .where('uid', isEqualTo: widget.driverId)
+        .get()
+        .then((QuerySnapshot querySnapshot) async {
+      for (var doc in querySnapshot.docs) {
+        setState(() {
+          driverContactNumber = doc['number'];
+          driverProfile = doc['profileImage'];
+          hasLoaded = true;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Riders')
-              .doc(widget.driverId)
-              .snapshots(),
-          builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: Text('Loading'));
-            } else if (snapshot.hasError) {
-              return const Center(child: Text('Something went wrong'));
-            } else if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            dynamic driverData = snapshot.data;
-            return SafeArea(
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 75,
-                    color: secondary,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 0, right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(
-                              Icons.arrow_back_ios,
-                              color: Colors.white,
+    final Stream<DocumentSnapshot> chatData = FirebaseFirestore.instance
+        .collection('Messages')
+        .doc(userId + widget.driverId)
+        .snapshots();
+
+    return WillPopScope(
+      onWillPop: onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back)),
+          centerTitle: true,
+          foregroundColor: Colors.white,
+          backgroundColor: secondary,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                minRadius: 22,
+                maxRadius: 22,
+                backgroundImage: NetworkImage(driverProfile),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              TextWidget(
+                  text: widget.driverName, fontSize: 18, color: Colors.white),
+            ],
+          ),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                var text = 'tel:$driverContactNumber';
+                if (await canLaunch(text)) {
+                  await launch(text);
+                }
+              },
+              icon: const Icon(
+                Icons.call,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.white,
+        body: hasLoaded
+            ? SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StreamBuilder<DocumentSnapshot>(
+                        stream: chatData,
+                        builder: (context,
+                            AsyncSnapshot<DocumentSnapshot> snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(child: Text('Loading'));
+                          } else if (snapshot.hasError) {
+                            return const Center(
+                                child: Text('Something went wrong'));
+                          } else if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: SizedBox(
+                                    child: CircularProgressIndicator()));
+                          }
+
+                          try {
+                            dynamic data = snapshot.data;
+                            List messages = data['messages'] ?? [];
+                            return Expanded(
+                              child: SizedBox(
+                                child: ListView.builder(
+                                    itemCount: messages.isNotEmpty
+                                        ? messages.length
+                                        : 0,
+                                    controller: _scrollController,
+                                    itemBuilder: ((context, index) {
+                                      if (executed) {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((timeStamp) {
+                                          _scrollController.animateTo(
+                                              _scrollController
+                                                  .position.maxScrollExtent,
+                                              duration: const Duration(
+                                                  milliseconds: 500),
+                                              curve: Curves.easeOut);
+
+                                          setState(() {
+                                            executed = false;
+                                          });
+                                        });
+                                      }
+                                      return Row(
+                                        mainAxisAlignment:
+                                            messages[index]['sender'] == userId
+                                                ? MainAxisAlignment.end
+                                                : MainAxisAlignment.start,
+                                        children: [
+                                          messages[index]['sender'] != userId
+                                              ? Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 5),
+                                                  child: CircleAvatar(
+                                                    minRadius: 15,
+                                                    maxRadius: 15,
+                                                    backgroundImage:
+                                                        NetworkImage(
+                                                            driverProfile),
+                                                  ),
+                                                )
+                                              : const SizedBox(),
+                                          Column(
+                                            crossAxisAlignment: messages[index]
+                                                        ['sender'] ==
+                                                    userId
+                                                ? CrossAxisAlignment.end
+                                                : CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 10.0,
+                                                        horizontal: 10.0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 10.0,
+                                                        horizontal: 15.0),
+                                                decoration: BoxDecoration(
+                                                  color: secondary,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft:
+                                                        const Radius.circular(
+                                                            20.0),
+                                                    topRight:
+                                                        const Radius.circular(
+                                                            20.0),
+                                                    bottomLeft: messages[index]
+                                                                ['sender'] ==
+                                                            userId
+                                                        ? const Radius.circular(
+                                                            20.0)
+                                                        : const Radius.circular(
+                                                            0.0),
+                                                    bottomRight: messages[index]
+                                                                ['sender'] ==
+                                                            userId
+                                                        ? const Radius.circular(
+                                                            0.0)
+                                                        : const Radius.circular(
+                                                            20.0),
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  messages[index]['message'],
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16.0,
+                                                      fontFamily: 'QRegular'),
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment:
+                                                    Alignment.bottomRight,
+                                                child: Text(
+                                                  DateFormat.jm().format(
+                                                      messages[index]
+                                                              ['dateTime']
+                                                          .toDate()),
+                                                  style: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 11.0,
+                                                      fontFamily: 'QRegular'),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          messages[index]['sender'] == userId
+                                              ? Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          right: 5),
+                                                  child: CircleAvatar(
+                                                    minRadius: 15,
+                                                    maxRadius: 15,
+                                                    backgroundImage:
+                                                        NetworkImage(
+                                                      userProfile,
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(),
+                                        ],
+                                      );
+                                    })),
+                              ),
+                            );
+                          } catch (e) {
+                            return const Expanded(child: SizedBox());
+                          }
+                        }),
+                    Divider(
+                      color: grey,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 45,
+                              width: 240,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100)),
+                              child: TextFormField(
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                controller: messageController,
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(width: 1, color: grey),
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        width: 1, color: Colors.black),
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  hintText: 'Type a message',
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (value) {
+                                  message = value;
+                                },
+                              ),
                             ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                minRadius: 27,
-                                maxRadius: 27,
-                                backgroundImage:
-                                    NetworkImage(driverData['profileImage']),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            MaterialButton(
+                              elevation: 10,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100)),
+                              minWidth: 75,
+                              height: 45,
+                              color: secondary,
+                              onPressed: (() async {
+                                if (message != '') {
+                                  try {
+                                    await FirebaseFirestore.instance
+                                        .collection('Messages')
+                                        .doc(userId + widget.driverId)
+                                        .update({
+                                      'lastMessage': messageController.text,
+                                      'dateTime': DateTime.now(),
+                                      'seen': false,
+                                      'messages': FieldValue.arrayUnion([
+                                        {
+                                          'message': messageController.text,
+                                          'dateTime': DateTime.now(),
+                                          'sender': userId
+                                        },
+                                      ]),
+                                    });
+                                  } catch (e) {
+                                    addMessage(
+                                        widget.driverId,
+                                        messageController.text,
+                                        widget.driverName,
+                                        userName,
+                                        driverProfile,
+                                        userProfile);
+                                  }
+                                  _scrollController.animateTo(
+                                      _scrollController
+                                          .position.maxScrollExtent,
+                                      duration:
+                                          const Duration(milliseconds: 500),
+                                      curve: Curves.easeOut);
+                                  messageController.clear();
+                                  message = '';
+                                }
+                              }),
+                              child: const Icon(
+                                Icons.send,
+                                color: Colors.white,
                               ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  TextWidget(
-                                    text: driverData['name'],
-                                    fontSize: 18,
-                                    fontFamily: 'Bold',
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(
-                                    width: 175,
-                                    child: TextWidget(
-                                      text:
-                                          '${driverData['vehicleModel'] - driverData['plateNumber']}',
-                                      fontSize: 14,
-                                      fontFamily: 'Regular',
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            width: 50,
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                      child: ListView.builder(
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return MessageWidget(message: messages[index]);
-                    },
-                  )),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        child: const Icon(
-                          Icons.camera_alt_outlined,
-                          size: 35,
-                          color: primary,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      GestureDetector(
-                        child: const Icon(
-                          Icons.image_outlined,
-                          size: 35,
-                          color: primary,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      SizedBox(
-                        width: 275,
-                        height: 50,
-                        child: TextFormField(
-                          style: const TextStyle(
-                            fontFamily: 'Regular',
-                            fontSize: 14,
-                            color: primary,
-                          ),
-                          decoration: InputDecoration(
-                            disabledBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                              ),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                              ),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                              ),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            filled: true,
-                            fillColor: grey.withOpacity(0.75),
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(20.0, 0, 20.0, 0),
-                            hintStyle: const TextStyle(
-                              fontFamily: 'Regular',
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                            hintText: 'Write something...',
-                            border: InputBorder.none,
-                          ),
-                          controller: msg,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                ],
+                  ],
+                ),
+              )
+            : const Center(
+                child: CircularProgressIndicator(),
               ),
-            );
-          }),
+      ),
     );
   }
-}
 
-class MessageWidget extends StatelessWidget {
-  final Message message;
-
-  const MessageWidget({super.key, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (!message.isSentByMe)
-            CircleAvatar(
-              child: Text(message.senderName[0]),
-            ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: message.isSentByMe
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
-                Text(
-                  message.senderName,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontFamily: 'Bold'),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: message.isSentByMe ? Colors.blue : Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Text(
-                    message.text,
-                    style: TextStyle(
-                        color: message.isSentByMe ? Colors.white : Colors.black,
-                        fontFamily: 'Regular'),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  message.time,
-                  style: const TextStyle(
-                      fontSize: 12, color: Colors.grey, fontFamily: 'Regular'),
-                ),
-              ],
-            ),
+  Future<bool> onWillPop() async {
+    final shouldPop = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: const Text('Do you want to exit this conversation?'),
+        actions: <Widget>[
+          MaterialButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: TextWidget(text: 'No', fontSize: 12, color: grey),
           ),
-          const SizedBox(
-            width: 10,
+          MaterialButton(
+            onPressed: () => Navigator.of(context).pop,
+            child: TextWidget(text: 'Yes', fontSize: 14, color: Colors.black),
           ),
-          if (message.isSentByMe)
-            CircleAvatar(
-              child: Text(
-                message.senderName[0],
-                style: const TextStyle(fontFamily: 'Bold'),
-              ),
-            ),
         ],
       ),
     );
+
+    return shouldPop ?? false;
   }
 }
