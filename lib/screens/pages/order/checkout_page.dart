@@ -294,32 +294,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               const SizedBox(
                                 height: 20,
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  StreamBuilder<DocumentSnapshot>(
-                                      stream: FirebaseFirestore.instance
-                                          .collection('Riders')
-                                          .doc(widget.data['driverId'])
-                                          .snapshots(),
-                                      builder: (context,
-                                          AsyncSnapshot<DocumentSnapshot>
-                                              snapshot) {
-                                        if (!snapshot.hasData) {
-                                          return const Center(
-                                              child: Text('Loading'));
-                                        } else if (snapshot.hasError) {
-                                          return const Center(
-                                              child:
-                                                  Text('Something went wrong'));
-                                        } else if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return const Center(
-                                              child:
-                                                  CircularProgressIndicator());
-                                        }
-                                        dynamic driverData = snapshot.data;
-                                        return Card(
+                              StreamBuilder<DocumentSnapshot>(
+                                  stream: FirebaseFirestore.instance
+                                      .collection('Riders')
+                                      .doc('I7FTuyOuTNeo0xkCNjxfT0NBWxF3')
+                                      .snapshots(),
+                                  builder: (context,
+                                      AsyncSnapshot<DocumentSnapshot>
+                                          snapshot) {
+                                    if (!snapshot.hasData) {
+                                      return const Center(
+                                          child: Text('Loading'));
+                                    } else if (snapshot.hasError) {
+                                      return const Center(
+                                          child: Text('Something went wrong'));
+                                    } else if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    }
+                                    dynamic driverData = snapshot.data;
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Card(
                                           elevation: 3,
                                           color: Colors.white,
                                           shape: RoundedRectangleBorder(
@@ -335,43 +334,47 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                                 Icons.phone,
                                                 color: secondary,
                                               )),
-                                        );
-                                      }),
-                                  const SizedBox(
-                                    width: 15,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) => ChatTab(
-                                                  driverId:
-                                                      widget.data['driverId'],
-                                                )),
-                                      );
-                                    },
-                                    child: Container(
-                                      width: 240,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(50),
-                                        color: secondary,
-                                        border: Border.all(
-                                          color: secondary,
                                         ),
-                                      ),
-                                      child: Center(
-                                        child: TextWidget(
-                                          text: 'Open Chat',
-                                          fontSize: 20,
-                                          fontFamily: 'Bold',
-                                          color: Colors.white,
+                                        const SizedBox(
+                                          width: 15,
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChatPage(
+                                                        driverId:
+                                                            'I7FTuyOuTNeo0xkCNjxfT0NBWxF3',
+                                                        driverName: driverData[
+                                                            'number'],
+                                                      )),
+                                            );
+                                          },
+                                          child: Container(
+                                            width: 240,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              color: secondary,
+                                              border: Border.all(
+                                                color: secondary,
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: TextWidget(
+                                                text: 'Open Chat',
+                                                fontSize: 20,
+                                                fontFamily: 'Bold',
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
                             ],
                           ),
                         ),
