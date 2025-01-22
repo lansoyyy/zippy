@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/services/add_report.dart';
 import 'package:zippy/utils/colors.dart';
@@ -93,7 +94,12 @@ class _CompletedPageState extends State<CompletedPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 itemButton(Icons.download_sharp, 'Download'),
-                itemButton(Icons.share, 'Share'),
+                GestureDetector(
+                    onTap: () async {
+                      await Share.share(
+                          'Booked my order @ZIPPY!\nOrder ID: ${widget.data['orderId']}');
+                    },
+                    child: itemButton(Icons.share, 'Share')),
                 GestureDetector(
                     onTap: () {
                       report(context);
