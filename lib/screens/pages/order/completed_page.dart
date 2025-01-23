@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/services/add_report.dart';
+import 'package:zippy/services/add_review.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -116,9 +118,10 @@ class _CompletedPageState extends State<CompletedPage> {
                 color: secondary,
                 label: 'DONE',
                 onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  );
+                  showInitialRatingDialog();
+                  // Navigator.of(context).pushReplacement(
+                  //   MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  // );
                 },
               ),
             ),
@@ -286,6 +289,231 @@ class _CompletedPageState extends State<CompletedPage> {
                             explanation.text, widget.data);
                         Navigator.pop(context);
                         showToast('Report submitted!');
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  showInitialRatingDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/images/Subtract.png',
+                  width: 150,
+                  height: 150,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                TextWidget(
+                  text: 'Help us improve!',
+                  fontSize: 18,
+                  color: secondary,
+                  fontFamily: 'Bold',
+                ),
+                TextWidget(
+                  text: 'leave us a rating',
+                  fontSize: 12,
+                  color: Colors.black,
+                  fontFamily: 'Regular',
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (int i = 0; i < 5; i++)
+                      const Icon(
+                        Icons.star_border_rounded,
+                        size: 45,
+                      ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    showRatingDialog();
+                  },
+                  child: TextWidget(
+                    decoration: TextDecoration.underline,
+                    text: 'rate now',
+                    fontSize: 18,
+                    color: secondary,
+                    fontFamily: 'Bold',
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  double rider = 5;
+  double food = 5;
+  double experience = 5;
+
+  final comments = TextEditingController();
+
+  showRatingDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: TextWidget(
+                      text: 'Rating',
+                      fontSize: 24,
+                      color: secondary,
+                      fontFamily: 'Bold',
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  TextWidget(
+                    text: 'Rider',
+                    fontSize: 14,
+                    fontFamily: 'Bold',
+                    color: secondary,
+                  ),
+                  const Divider(
+                    color: secondary,
+                  ),
+                  RatingBar.builder(
+                    initialRating: rider,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: false,
+                    itemCount: 5,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: secondary,
+                    ),
+                    onRatingUpdate: (newRating) async {
+                      setState(() {
+                        rider = newRating;
+                      });
+                    },
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  TextWidget(
+                    text: 'Food',
+                    fontSize: 14,
+                    fontFamily: 'Bold',
+                    color: secondary,
+                  ),
+                  const Divider(
+                    color: secondary,
+                  ),
+                  RatingBar.builder(
+                    initialRating: food,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: false,
+                    itemCount: 5,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: secondary,
+                    ),
+                    onRatingUpdate: (newRating) async {
+                      setState(() {
+                        food = newRating;
+                      });
+                    },
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  TextWidget(
+                    text: 'Experience',
+                    fontSize: 14,
+                    fontFamily: 'Bold',
+                    color: secondary,
+                  ),
+                  const Divider(
+                    color: secondary,
+                  ),
+                  RatingBar.builder(
+                    initialRating: experience,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: false,
+                    itemCount: 5,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: secondary,
+                    ),
+                    onRatingUpdate: (newRating) async {
+                      setState(() {
+                        experience = newRating;
+                      });
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFieldWidget(
+                      width: double.infinity,
+                      radius: 10,
+                      borderColor: secondary,
+                      maxLine: 3,
+                      height: 100,
+                      label: 'Comments',
+                      controller: comments),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Center(
+                    child: ButtonWidget(
+                      width: 310,
+                      color: secondary,
+                      label: 'DONE',
+                      onPressed: () {
+                        addReview(
+                            rider,
+                            food,
+                            experience,
+                            comments.text,
+                            widget.data['orderId'],
+                            widget.data['riderId'],
+                            widget.data['merchantId']);
+                        Navigator.pop(context);
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const HomeScreen()),
+                        );
                       },
                     ),
                   ),

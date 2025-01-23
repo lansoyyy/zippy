@@ -319,7 +319,8 @@ class _ReviewPageState extends State<ReviewPage> {
                                                   position: LatLng(
                                                       data['homeLat'],
                                                       data['homeLng']),
-                                                  markerId: MarkerId('home'),
+                                                  markerId:
+                                                      const MarkerId('home'),
                                                   infoWindow: const InfoWindow(
                                                     title: 'Home',
                                                     snippet: 'Home Location',
@@ -435,7 +436,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                                                               data['homeLat'],
                                                                               data['homeLng']),
                                                                           markerId:
-                                                                              MarkerId('home'),
+                                                                              const MarkerId('home'),
                                                                           infoWindow:
                                                                               const InfoWindow(
                                                                             title:
@@ -498,7 +499,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                                                               data['officeLat'],
                                                                               data['officeLng']),
                                                                           markerId:
-                                                                              MarkerId('office'),
+                                                                              const MarkerId('office'),
                                                                           infoWindow:
                                                                               const InfoWindow(
                                                                             title:
@@ -894,6 +895,8 @@ class _ReviewPageState extends State<ReviewPage> {
                                       MaterialPageRoute(
                                           builder: (context) => CheckoutPage(
                                                 data: {
+                                                  'riderId':
+                                                      'I7FTuyOuTNeo0xkCNjxfT0NBWxF3',
                                                   'items': widget.selectedItems,
                                                   'merchantId':
                                                       widget.merchantId,

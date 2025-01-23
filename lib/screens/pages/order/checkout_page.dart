@@ -297,7 +297,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               StreamBuilder<DocumentSnapshot>(
                                   stream: FirebaseFirestore.instance
                                       .collection('Riders')
-                                      .doc('I7FTuyOuTNeo0xkCNjxfT0NBWxF3')
+                                      .doc(widget.data['riderId'])
                                       .snapshots(),
                                   builder: (context,
                                       AsyncSnapshot<DocumentSnapshot>
@@ -344,8 +344,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                               MaterialPageRoute(
                                                   builder: (context) =>
                                                       ChatPage(
-                                                        driverId:
-                                                            'I7FTuyOuTNeo0xkCNjxfT0NBWxF3',
+                                                        driverId: widget
+                                                            .data['riderId'],
                                                         driverName: driverData[
                                                             'number'],
                                                       )),
