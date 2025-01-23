@@ -273,15 +273,6 @@ packages:
     version: "2.0.22"
 =======
     version: "2.0.24"
-  flutter_rating_bar:
-    dependency: "direct main"
-    description:
-      name: flutter_rating_bar
-      sha256: d2af03469eac832c591a1eba47c91ecc871fe5708e69967073c043b2d775ed93
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.1"
->>>>>>> master
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -892,15 +883,6 @@ packages:
     version: "5.5.4"
 =======
     version: "5.10.0"
-  xdg_directories:
-    dependency: transitive
-    description:
-      name: xdg_directories
-      sha256: "7a3f37b05d989967cdddcbb571f1ea834867ae2faa29725fd085180e0883aa15"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
->>>>>>> master
 sdks:
   dart: ">=3.4.4 <4.0.0"
   flutter: ">=3.22.0"
