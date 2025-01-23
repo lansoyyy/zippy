@@ -46,6 +46,8 @@ dependencies:
   flutter_google_places:
   geolocator:
   url_launcher:
+  share_plus:
+  flutter_rating_bar:
 
 dev_dependencies:
   flutter_test:

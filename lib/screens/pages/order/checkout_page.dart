@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zippy/screens/chats/chat_tab.dart';
-import 'package:zippy/screens/home_screen.dart';
+import 'package:zippy/screens/pages/order/completed_page.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
@@ -488,9 +488,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 MaterialButton(
                   onPressed: () async {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                          builder: (context) => const HomeScreen()),
+                    await FirebaseFirestore.instance
+                        .collection('Orders')
+                        .doc(widget.data['orderId'])
+                        .update({'status': 'Completed'}).whenComplete(
+                      () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => CompletedPage(
+                                    data: widget.data,
+                                  )),
+                        );
+                      },
                     );
                   },
                   child: const Text(
