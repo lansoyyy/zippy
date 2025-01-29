@@ -89,14 +89,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
             }
             dynamic data = snapshot.data;
 
-            if (data['status'] == 'Accepted') {
+            if (data['status'] == 'Preparing') {
               WidgetsBinding.instance.addPostFrameCallback(
                 (timeStamp) {
                   showLoadingDialog('assets/images/Group 121 (1).png',
                       'Preparing your Treats', '15 to 20 minutes');
                 },
               );
-            } else if (data['status'] == 'Delivering') {
+            } else if (data['status'] == 'On the way') {
               Navigator.pop(context);
               WidgetsBinding.instance.addPostFrameCallback(
                 (timeStamp) {
@@ -246,7 +246,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     ),
                   ),
                   Visibility(
-                    visible: data['status'] == 'Delivering',
+                    visible: data['status'] == 'On the way',
                     child: Align(
                       alignment: Alignment.bottomCenter,
                       child: Container(
