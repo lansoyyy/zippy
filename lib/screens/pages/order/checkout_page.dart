@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zippy/screens/chats/chat_tab.dart';
@@ -9,6 +11,8 @@ import 'package:zippy/screens/pages/order/completed_page.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
+import 'package:zippy/utils/keys.dart';
+import 'package:zippy/utils/my_location.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
@@ -21,11 +25,6 @@ class CheckoutPage extends StatefulWidget {
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
-
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
@@ -35,8 +34,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   void initState() {
     // showDialogs();
-    fetchUser();
+
     super.initState();
+    determinePosition();
+    plotPloylines();
+    fetchUser().whenComplete(
+      () {
+        setState(() {
+          hasLoaded = true;
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> fetchUser() async {
@@ -71,321 +84,409 @@ class _CheckoutPageState extends State<CheckoutPage> {
     Navigator.pop(context);
   }
 
+  late Polyline _poly = const Polyline(polylineId: PolylineId('new'));
+
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+
+  plotPloylines() async {
+    Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) async {
+        DocumentReference userDoc = FirebaseFirestore.instance
+            .collection('Riders')
+            .doc(widget.data['riderId']);
+
+        userDoc.snapshots().listen((docSnapshot) async {
+          if (docSnapshot.exists) {
+            final data = docSnapshot.data() as Map<String, dynamic>;
+            await Geolocator.getCurrentPosition(
+                locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+            )).then(
+              (value) async {
+                PolylineResult result =
+                    await polylinePoints.getRouteBetweenCoordinates(
+                        kGoogleApiKey,
+                        PointLatLng(value.latitude, value.longitude),
+                        PointLatLng(data['lat'], data['lng']));
+                if (result.points.isNotEmpty) {
+                  polylineCoordinates = result.points
+                      .map((point) => LatLng(point.latitude, point.longitude))
+                      .toList();
+                }
+                setState(() {
+                  markers.clear();
+                  _poly = Polyline(
+                      color: Colors.red,
+                      polylineId: const PolylineId('route'),
+                      points: polylineCoordinates,
+                      width: 4);
+
+                  mylat = value.latitude;
+                  mylng = value.longitude;
+
+                  markers.add(Marker(
+                      draggable: true,
+                      icon: BitmapDescriptor.defaultMarker,
+                      markerId: const MarkerId("pickup"),
+                      position: LatLng(data['lat'], data['lng']),
+                      infoWindow: const InfoWindow(title: "Rider's Location")));
+                });
+              },
+            );
+          } else {
+            showToast('User data not found.');
+          }
+        });
+      },
+    );
+  }
+
+  double mylat = 0;
+  double mylng = 0;
+
+  bool hasLoaded = false;
+
+  Set<Marker> markers = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Orders')
-              .doc(widget.data['orderId'])
-              .snapshots(),
-          builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: Text('Loading'));
-            } else if (snapshot.hasError) {
-              return const Center(child: Text('Something went wrong'));
-            } else if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            dynamic data = snapshot.data;
+        body: hasLoaded
+            ? StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('Orders')
+                    .doc(widget.data['orderId'])
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: Text('Loading'));
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text('Something went wrong'));
+                  } else if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  dynamic data = snapshot.data;
 
-            if (data['status'] == 'Preparing') {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (timeStamp) {
-                  showLoadingDialog('assets/images/Group 121 (1).png',
-                      'Preparing your Treats', '15 to 20 minutes');
-                },
-              );
-            } else if (data['status'] == 'On the way') {
-              Navigator.pop(context);
-              WidgetsBinding.instance.addPostFrameCallback(
-                (timeStamp) {
-                  showLoadingDialog('assets/images/Group 121 (2).png',
-                      'Rider is ongoing on your location', '5 to 15 minutes');
-                },
-              );
-            }
-
-            return GestureDetector(
-              onTap: () {},
-              child: Stack(
-                children: [
-                  Expanded(
-                    child: GoogleMap(
-                      zoomControlsEnabled: false,
-                      mapType: MapType.normal,
-                      initialCameraPosition: CheckoutPage._kGooglePlex,
-                      onMapCreated: (GoogleMapController controller) {
-                        _controller.complete(controller);
+                  if (data['status'] == 'Preparing') {
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (timeStamp) {
+                        showLoadingDialog('assets/images/Group 121 (1).png',
+                            'Preparing your Treats', '15 to 20 minutes');
                       },
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: 280,
-                    decoration: const BoxDecoration(
-                      color: secondary,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(
-                          40,
-                        ),
-                        bottomRight: Radius.circular(
-                          40,
+                    );
+                  } else if (data['status'] == 'On the way') {
+                    Navigator.pop(context);
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (timeStamp) {
+                        showLoadingDialog(
+                            'assets/images/Group 121 (2).png',
+                            'Rider is ongoing on your location',
+                            '5 to 15 minutes');
+                      },
+                    );
+                  }
+
+                  return Stack(
+                    children: [
+                      Expanded(
+                        child: GoogleMap(
+                          polylines: {_poly},
+                          zoomControlsEnabled: false,
+                          mapType: MapType.normal,
+                          myLocationButtonEnabled: true,
+                          myLocationEnabled: true,
+                          markers: markers,
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(mylat, mylng),
+                            zoom: 14.4746,
+                          ),
+                          onMapCreated: (GoogleMapController controller) {
+                            _controller.complete(controller);
+                          },
                         ),
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              top: 25, left: 15, right: 15),
-                          child: SafeArea(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: 275,
-                                  child: TextWidget(
-                                    align: TextAlign.start,
-                                    text:
-                                        'Hi! ${userData!['name']}, Welcome Back!',
-                                    fontSize: 22,
-                                    fontFamily: 'Bold',
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const ProfilePage()),
-                                    );
-                                  },
-                                  child: CircleAvatar(
-                                    maxRadius: 25,
-                                    minRadius: 25,
-                                    backgroundImage: profileImage != null
-                                        ? NetworkImage(profileImage!)
-                                        : const AssetImage(
-                                                'assets/images/Group 121 (2).png')
-                                            as ImageProvider,
-                                  ),
-                                ),
-                              ],
+                      Container(
+                        width: double.infinity,
+                        height: 280,
+                        decoration: const BoxDecoration(
+                          color: secondary,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(
+                              40,
+                            ),
+                            bottomRight: Radius.circular(
+                              40,
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 15, right: 15, top: 15),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  showComplete();
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.search, color: Colors.black54),
-                                      SizedBox(width: 8.0),
-                                      Expanded(
-                                        child: TextField(
-                                          enabled: false,
-                                          decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              hintText:
-                                                  'What are you craving today?',
-                                              hintStyle: TextStyle(
-                                                fontFamily: 'Regular',
-                                                fontSize: 14,
-                                                color: Colors.black,
-                                              )),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20.0),
-                              GestureDetector(
-                                onTap: () {
-                                  showComplete();
-                                },
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 25, left: 15, right: 15),
+                              child: SafeArea(
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    _buildCravingOption(
-                                        Icons.fastfood_outlined, 'Food', true),
-                                    _buildCravingOption(
-                                        Icons.directions_car_filled_outlined,
-                                        'Ride',
-                                        false),
-                                    _buildCravingOption(
-                                        Icons.card_giftcard, 'Surprise', false),
-                                    _buildCravingOption(
-                                        Icons.local_shipping_outlined,
-                                        'Package',
-                                        false),
+                                    SizedBox(
+                                      width: 275,
+                                      child: TextWidget(
+                                        align: TextAlign.start,
+                                        text:
+                                            'Hi! ${userData!['name']}, Welcome Back!',
+                                        fontSize: 22,
+                                        fontFamily: 'Bold',
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const ProfilePage()),
+                                        );
+                                      },
+                                      child: CircleAvatar(
+                                        maxRadius: 25,
+                                        minRadius: 25,
+                                        backgroundImage: profileImage != null
+                                            ? NetworkImage(profileImage!)
+                                            : const AssetImage(
+                                                    'assets/images/Group 121 (2).png')
+                                                as ImageProvider,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Visibility(
-                    visible: data['status'] == 'On the way',
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        width: double.infinity,
-                        height: 140,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(25),
-                              topRight: Radius.circular(25)),
-                          color: Colors.white,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 15, right: 15, top: 15),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Image.asset(
-                                        icon,
-                                        height: 20,
-                                        width: 20,
+                                  GestureDetector(
+                                    onTap: () {
+                                      showComplete();
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
                                       ),
-                                      const SizedBox(
-                                        width: 10,
+                                      child: const Row(
+                                        children: [
+                                          Icon(Icons.search,
+                                              color: Colors.black54),
+                                          SizedBox(width: 8.0),
+                                          Expanded(
+                                            child: TextField(
+                                              enabled: false,
+                                              decoration: InputDecoration(
+                                                  border: InputBorder.none,
+                                                  hintText:
+                                                      'What are you craving today?',
+                                                  hintStyle: TextStyle(
+                                                    fontFamily: 'Regular',
+                                                    fontSize: 14,
+                                                    color: Colors.black,
+                                                  )),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      TextWidget(
-                                          text: 'arriving in 20-30 minutes',
-                                          fontSize: 12),
-                                    ],
+                                    ),
                                   ),
-                                  TextWidget(
-                                    text:
-                                        'Total: ₱${widget.data['total'].toStringAsFixed(2)}',
-                                    fontSize: 15,
-                                    fontFamily: 'Bold',
+                                  const SizedBox(height: 20.0),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showComplete();
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        _buildCravingOption(
+                                            Icons.fastfood_outlined,
+                                            'Food',
+                                            true),
+                                        _buildCravingOption(
+                                            Icons
+                                                .directions_car_filled_outlined,
+                                            'Ride',
+                                            false),
+                                        _buildCravingOption(Icons.card_giftcard,
+                                            'Surprise', false),
+                                        _buildCravingOption(
+                                            Icons.local_shipping_outlined,
+                                            'Package',
+                                            false),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              StreamBuilder<DocumentSnapshot>(
-                                  stream: FirebaseFirestore.instance
-                                      .collection('Riders')
-                                      .doc(widget.data['riderId'])
-                                      .snapshots(),
-                                  builder: (context,
-                                      AsyncSnapshot<DocumentSnapshot>
-                                          snapshot) {
-                                    if (!snapshot.hasData) {
-                                      return const Center(
-                                          child: Text('Loading'));
-                                    } else if (snapshot.hasError) {
-                                      return const Center(
-                                          child: Text('Something went wrong'));
-                                    } else if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    }
-                                    dynamic driverData = snapshot.data;
-                                    return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Card(
-                                          elevation: 3,
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(100),
+                            )
+                          ],
+                        ),
+                      ),
+                      Visibility(
+                        visible: data['status'] == 'On the way',
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                            width: double.infinity,
+                            height: 140,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(25),
+                                  topRight: Radius.circular(25)),
+                              color: Colors.white,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Image.asset(
+                                            icon,
+                                            height: 20,
+                                            width: 20,
                                           ),
-                                          child: IconButton(
-                                              onPressed: () async {
-                                                await launchUrlString(
-                                                    'tel:${driverData['number']}');
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          TextWidget(
+                                              text: 'arriving in 20-30 minutes',
+                                              fontSize: 12),
+                                        ],
+                                      ),
+                                      TextWidget(
+                                        text:
+                                            'Total: ₱${widget.data['total'].toStringAsFixed(2)}',
+                                        fontSize: 15,
+                                        fontFamily: 'Bold',
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  StreamBuilder<DocumentSnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('Riders')
+                                          .doc(widget.data['riderId'])
+                                          .snapshots(),
+                                      builder: (context,
+                                          AsyncSnapshot<DocumentSnapshot>
+                                              snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return const Center(
+                                              child: Text('Loading'));
+                                        } else if (snapshot.hasError) {
+                                          return const Center(
+                                              child:
+                                                  Text('Something went wrong'));
+                                        } else if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        }
+                                        dynamic driverData = snapshot.data;
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Card(
+                                              elevation: 3,
+                                              color: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                              ),
+                                              child: IconButton(
+                                                  onPressed: () async {
+                                                    await launchUrlString(
+                                                        'tel:${driverData['number']}');
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.phone,
+                                                    color: secondary,
+                                                  )),
+                                            ),
+                                            const SizedBox(
+                                              width: 15,
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ChatPage(
+                                                            driverId:
+                                                                widget.data[
+                                                                    'riderId'],
+                                                            driverName:
+                                                                driverData[
+                                                                    'number'],
+                                                          )),
+                                                );
                                               },
-                                              icon: const Icon(
-                                                Icons.phone,
-                                                color: secondary,
-                                              )),
-                                        ),
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ChatPage(
-                                                        driverId: widget
-                                                            .data['riderId'],
-                                                        driverName: driverData[
-                                                            'number'],
-                                                      )),
-                                            );
-                                          },
-                                          child: Container(
-                                            width: 240,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              color: secondary,
-                                              border: Border.all(
-                                                color: secondary,
+                                              child: Container(
+                                                width: 240,
+                                                height: 50,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                  color: secondary,
+                                                  border: Border.all(
+                                                    color: secondary,
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: TextWidget(
+                                                    text: 'Open Chat',
+                                                    fontSize: 20,
+                                                    fontFamily: 'Bold',
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                            child: Center(
-                                              child: TextWidget(
-                                                text: 'Open Chat',
-                                                fontSize: 20,
-                                                fontFamily: 'Bold',
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
-                            ],
+                                          ],
+                                        );
+                                      }),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-    );
+                    ],
+                  );
+                })
+            : const Center(
+                child: CircularProgressIndicator(
+                  color: secondary,
+                ),
+              ));
   }
 
   showLoadingDialog(String image, String caption, String duration) {
