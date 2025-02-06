@@ -1,6 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/services/add_report.dart';
 import 'package:zippy/services/add_review.dart';
@@ -95,7 +100,11 @@ class _CompletedPageState extends State<CompletedPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                itemButton(Icons.download_sharp, 'Download'),
+                GestureDetector(
+                    onTap: () {
+                      showDownload();
+                    },
+                    child: itemButton(Icons.download_sharp, 'Download')),
                 GestureDetector(
                     onTap: () async {
                       await Share.share(
@@ -299,6 +308,298 @@ class _CompletedPageState extends State<CompletedPage> {
         );
       },
     );
+  }
+
+  ScreenshotController screenshotController = ScreenshotController();
+
+  WidgetsToImageController controller = WidgetsToImageController();
+
+  void downloadImage() async {
+    try {
+      // Capture the widget as an image using the screenshotController
+      Uint8List? bytes = await screenshotController.capture();
+
+      if (bytes != null) {
+        // Save the image to the gallery or storage
+        final result = await ImageGallerySaver.saveImage(bytes);
+
+        if (result['isSuccess']) {
+          print("Image saved to gallery!");
+        } else {
+          print("Failed to save image: ${result['errorMessage']}");
+        }
+      } else {
+        print("Failed to capture the widget as an image.");
+      }
+    } catch (e) {
+      print("Error saving image: $e");
+    }
+  }
+
+  showDownload() {
+    showDialog(
+        barrierDismissible: true,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Row(
+              children: [
+                TextWidget(
+                    text: "Order Details",
+                    fontSize: 25,
+                    fontFamily: "Bold",
+                    color: secondary),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Screenshot(
+                controller: screenshotController,
+                child: WidgetsToImage(
+                  controller: controller,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextWidget(
+                              text: "Reference Code: ",
+                              fontSize: 18,
+                              fontFamily: "Bold",
+                              color: black),
+                          TextWidget(
+                              text: '${widget.data['orderId'] ?? 'N/A'}',
+                              fontSize: 20,
+                              fontFamily: "Bold",
+                              color: secondary),
+                          const Divider(
+                            color: secondary,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextWidget(
+                              text: "Shop: ",
+                              fontSize: 18,
+                              fontFamily: "Bold",
+                              color: black),
+                          TextWidget(
+                              text: '${widget.data['merchantName'] ?? 'N/A'}',
+                              fontSize: 20,
+                              fontFamily: "Bold",
+                              color: secondary),
+                          const Divider(
+                            color: secondary,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          TextWidget(
+                              text: "Address: ",
+                              fontSize: 18,
+                              fontFamily: "Bold",
+                              color: black),
+                          TextWidget(
+                              align: TextAlign.start,
+                              text: '${widget.data['address'] ?? 'N/A'}',
+                              fontSize: 20,
+                              fontFamily: "Bold",
+                              color: secondary),
+                          const Divider(
+                            color: secondary,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextWidget(
+                              text: "Order List: ",
+                              fontSize: 23,
+                              fontFamily: "Bold",
+                              color: secondary),
+                          Column(
+                            children: widget.data['items'] != null
+                                ? (widget.data['items'] as List<dynamic>)
+                                    .fold<Map<String, int>>({}, (acc, order) {
+                                      acc.update(
+                                          order['name'], (value) => value + 1,
+                                          ifAbsent: () => 1);
+                                      return acc;
+                                    })
+                                    .entries
+                                    .map((entry) {
+                                      final order = widget.data['items']
+                                          .firstWhere((item) =>
+                                              item['name'] == entry.key);
+                                      final totalPrice =
+                                          (order['price'] as num) * entry.value;
+                                      return Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          TextWidget(
+                                              text:
+                                                  'x${entry.value} ${entry.key} ',
+                                              fontSize: 20,
+                                              fontFamily: "Bold",
+                                              color: black),
+                                          TextWidget(
+                                              text: totalPrice != ''
+                                                  ? '₱ ${totalPrice.toStringAsFixed(2)}'
+                                                  : 'N/A',
+                                              fontSize: 20,
+                                              fontFamily: "Bold",
+                                              color: secondary),
+                                        ],
+                                      );
+                                    })
+                                    .toList()
+                                : [
+                                    TextWidget(
+                                        text: 'No order details available',
+                                        fontSize: 18,
+                                        fontFamily: "Medium",
+                                        color: black)
+                                  ],
+                          ),
+                          const Divider(
+                            color: secondary,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextWidget(
+                                  text: "Payment: ",
+                                  fontSize: 18,
+                                  fontFamily: "Bold",
+                                  color: black),
+                              TextWidget(
+                                  text: '${widget.data['mop'] ?? 'N/A'}',
+                                  fontSize: 20,
+                                  fontFamily: "Bold",
+                                  color: secondary),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextWidget(
+                                  text: 'Subtotal: ',
+                                  fontSize: 20,
+                                  fontFamily: "Bold",
+                                  color: black),
+                              TextWidget(
+                                  text: widget.data['subtotal'] != null
+                                      ? '₱${(widget.data['subtotal'] as num).toStringAsFixed(2)}'
+                                      : 'N/A',
+                                  fontSize: 20,
+                                  fontFamily: "Bold",
+                                  color: secondary),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextWidget(
+                                  text: "Delivery Fee: ",
+                                  fontSize: 20,
+                                  fontFamily: "Bold",
+                                  color: black),
+                              TextWidget(
+                                  text: widget.data['deliveryFee'] != null
+                                      ? '₱${(widget.data['deliveryFee'] as num).toStringAsFixed(2)}'
+                                      : 'N/A',
+                                  fontSize: 20,
+                                  fontFamily: "Bold",
+                                  color: secondary),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextWidget(
+                                  text: "Tip: ",
+                                  fontSize: 20,
+                                  fontFamily: "Bold",
+                                  color: black),
+                              TextWidget(
+                                  text: widget.data['tip'] != null
+                                      ? '₱${(widget.data['tip'] as num).toStringAsFixed(2)}'
+                                      : 'N/A',
+                                  fontSize: 20,
+                                  fontFamily: "Bold",
+                                  color: secondary),
+                            ],
+                          ),
+                          const Divider(
+                            color: secondary,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextWidget(
+                                  text: "Amount to pay: ",
+                                  fontSize: 20,
+                                  fontFamily: "Bold",
+                                  color: black),
+                              TextWidget(
+                                text: widget.data['total'] != null
+                                    ? '₱${(widget.data['total'] as num).toStringAsFixed(2)}'
+                                    : 'N/A',
+                                fontSize: 20,
+                                fontFamily: "Bold",
+                                color: secondary,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 35, vertical: 10),
+                    decoration: BoxDecoration(
+                        color: secondary,
+                        border: Border.all(color: Colors.white, width: 1),
+                        borderRadius: BorderRadius.circular(100)),
+                    child: GestureDetector(
+                      onTap: () {
+                        downloadImage();
+                        Navigator.of(context).pop();
+                      },
+                      child: TextWidget(
+                        text: 'Download',
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontFamily: "Medium",
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
   }
 
   showInitialRatingDialog() {

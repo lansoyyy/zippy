@@ -517,48 +517,46 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget showLoadingDialog(String image, String caption, String duration) {
-    return Card(
-      child: SizedBox(
-        height: 320,
-        width: 300,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TextWidget(
-              text: 'Please wait...',
-              fontSize: 20,
-              fontFamily: 'Bold',
-              color: secondary,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Image.asset(
-              image,
-              height: 160,
-              width: 160,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextWidget(
-              text: caption,
-              fontSize: 20,
-              fontFamily: 'Bold',
-              color: secondary,
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            TextWidget(
-              text: duration,
-              fontSize: 15,
-              fontFamily: 'Regular',
-              color: secondary,
-            ),
-          ],
-        ),
+    return SizedBox(
+      height: 320,
+      width: 300,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          TextWidget(
+            text: 'Please wait...',
+            fontSize: 20,
+            fontFamily: 'Bold',
+            color: secondary,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Image.asset(
+            image,
+            height: 160,
+            width: 160,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          TextWidget(
+            text: caption,
+            fontSize: 20,
+            fontFamily: 'Bold',
+            color: secondary,
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          TextWidget(
+            text: duration,
+            fontSize: 15,
+            fontFamily: 'Regular',
+            color: secondary,
+          ),
+        ],
       ),
     );
   }
