@@ -189,14 +189,31 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           _buildCravingOption(
                               Icons.fastfood_outlined, 'Food', true),
-                          _buildCravingOption(
-                              Icons.directions_car_filled_outlined,
-                              'Ride',
-                              false),
-                          _buildCravingOption(
-                              Icons.card_giftcard, 'Surprise', false),
-                          _buildCravingOption(
-                              Icons.local_shipping_outlined, 'Package', false),
+                          GestureDetector(
+                            onTap: () {
+                              showToast('Coming soon.');
+                            },
+                            child: _buildCravingOption(
+                                Icons.directions_car_filled_outlined,
+                                'Ride',
+                                false),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              showToast('Coming soon.');
+                            },
+                            child: _buildCravingOption(
+                                Icons.card_giftcard, 'Surprise', false),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              showToast('Coming soon.');
+                            },
+                            child: _buildCravingOption(
+                                Icons.local_shipping_outlined,
+                                'Package',
+                                false),
+                          ),
                         ],
                       ),
                     ],
