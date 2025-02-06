@@ -49,6 +49,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   void dispose() {
+    mapController!.dispose();
     super.dispose();
   }
 
@@ -115,6 +116,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       .map((point) => LatLng(point.latitude, point.longitude))
                       .toList();
                 }
+
+                mapController!.animateCamera(CameraUpdate.newLatLngZoom(
+                    LatLng(data['lat'], data['lng']), 18.0));
                 setState(() {
                   markers.clear();
                   _poly = Polyline(
@@ -149,6 +153,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool hasLoaded = false;
 
   Set<Marker> markers = {};
+
+  GoogleMapController? mapController;
 
   @override
   Widget build(BuildContext context) {
@@ -204,6 +210,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             zoom: 14.4746,
                           ),
                           onMapCreated: (GoogleMapController controller) {
+                            mapController = controller;
                             _controller.complete(controller);
                           },
                         ),
@@ -589,18 +596,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 MaterialButton(
                   onPressed: () async {
-                    await FirebaseFirestore.instance
-                        .collection('Orders')
-                        .doc(widget.data['orderId'])
-                        .update({'status': 'Completed'}).whenComplete(
-                      () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                              builder: (context) => CompletedPage(
-                                    data: widget.data,
-                                  )),
-                        );
-                      },
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                          builder: (context) => CompletedPage(
+                                data: widget.data,
+                              )),
                     );
                   },
                   child: const Text(
