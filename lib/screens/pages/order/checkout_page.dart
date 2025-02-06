@@ -13,6 +13,7 @@ import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
 import 'package:zippy/utils/my_location.dart';
+import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
@@ -176,48 +177,58 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   }
                   dynamic data = snapshot.data;
 
-                  if (data['status'] == 'Preparing') {
-                    WidgetsBinding.instance.addPostFrameCallback(
-                      (timeStamp) {
-                        showLoadingDialog('assets/images/Group 121 (1).png',
-                            'Preparing your Treats', '15 to 20 minutes');
-                      },
-                    );
-                  } else if (data['status'] == 'On the way') {
-                    Navigator.pop(context);
-                    WidgetsBinding.instance.addPostFrameCallback(
-                      (timeStamp) {
-                        showLoadingDialog(
-                            'assets/images/Group 121 (2).png',
-                            'Rider is ongoing on your location',
-                            '5 to 15 minutes');
-                      },
-                    );
-                  }
+                  // if (data['status'] == 'Preparing') {
+                  //   WidgetsBinding.instance.addPostFrameCallback(
+                  //     (timeStamp) {
+                  //       showLoadingDialog('assets/images/Group 121 (1).png',
+                  //           'Preparing your Treats', '15 to 20 minutes');
+                  //     },
+                  //   );
+                  // } else if (data['status'] == 'On the way') {
+                  //   Navigator.pop(context);
+                  //   WidgetsBinding.instance.addPostFrameCallback(
+                  //     (timeStamp) {
+                  //       showLoadingDialog(
+                  //           'assets/images/Group 121 (2).png',
+                  //           'Rider is ongoing on your location',
+                  //           '5 to 15 minutes');
+                  //     },
+                  //   );
+                  // }
 
                   return Stack(
                     children: [
-                      Expanded(
-                        child: GoogleMap(
-                          polylines: {_poly},
-                          zoomControlsEnabled: false,
-                          mapType: MapType.normal,
-                          myLocationButtonEnabled: true,
-                          myLocationEnabled: true,
-                          markers: markers,
-                          initialCameraPosition: CameraPosition(
-                            target: LatLng(mylat, mylng),
-                            zoom: 14.4746,
-                          ),
-                          onMapCreated: (GoogleMapController controller) {
-                            mapController = controller;
-                            _controller.complete(controller);
-                          },
-                        ),
-                      ),
+                      data['status'] == 'Preparing'
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 200),
+                              child: Center(
+                                child: showLoadingDialog(
+                                    'assets/images/Group 121 (1).png',
+                                    'Preparing your Treats',
+                                    '15 to 20 minutes'),
+                              ),
+                            )
+                          : Expanded(
+                              child: GoogleMap(
+                                polylines: {_poly},
+                                zoomControlsEnabled: false,
+                                mapType: MapType.normal,
+                                myLocationButtonEnabled: true,
+                                myLocationEnabled: true,
+                                markers: markers,
+                                initialCameraPosition: CameraPosition(
+                                  target: LatLng(mylat, mylng),
+                                  zoom: 14.4746,
+                                ),
+                                onMapCreated: (GoogleMapController controller) {
+                                  mapController = controller;
+                                  _controller.complete(controller);
+                                },
+                              ),
+                            ),
                       Container(
                         width: double.infinity,
-                        height: 280,
+                        height: data['status'] == 'On the way' ? 200 : 280,
                         decoration: const BoxDecoration(
                           color: secondary,
                           borderRadius: BorderRadius.only(
@@ -243,8 +254,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       width: 275,
                                       child: TextWidget(
                                         align: TextAlign.start,
-                                        text:
-                                            'Hi! ${userData!['name']}, Welcome Back!',
+                                        text: data['status'] == 'On the way'
+                                            ? 'Awaiting delivery..'
+                                            : data['status'] == 'Preparing'
+                                                ? 'Awaiting order..'
+                                                : 'Order pending...',
                                         fontSize: 22,
                                         fontFamily: 'Bold',
                                         color: Colors.white,
@@ -272,77 +286,83 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 ),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 15, right: 15, top: 15),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      showComplete();
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0),
-                                      decoration: BoxDecoration(
+                            data['status'] == 'On the way'
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: Center(
+                                      child: ButtonWidget(
                                         color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                      child: const Row(
-                                        children: [
-                                          Icon(Icons.search,
-                                              color: Colors.black54),
-                                          SizedBox(width: 8.0),
-                                          Expanded(
-                                            child: TextField(
-                                              enabled: false,
-                                              decoration: InputDecoration(
-                                                  border: InputBorder.none,
-                                                  hintText:
-                                                      'What are you craving today?',
-                                                  hintStyle: TextStyle(
-                                                    fontFamily: 'Regular',
-                                                    fontSize: 14,
-                                                    color: Colors.black,
-                                                  )),
-                                            ),
-                                          ),
-                                        ],
+                                        textColor: secondary,
+                                        label: 'Order delivered',
+                                        onPressed: () {
+                                          showComplete();
+                                        },
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 20.0),
-                                  GestureDetector(
-                                    onTap: () {
-                                      showComplete();
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 15, right: 15, top: 15),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        _buildCravingOption(
-                                            Icons.fastfood_outlined,
-                                            'Food',
-                                            true),
-                                        _buildCravingOption(
-                                            Icons
-                                                .directions_car_filled_outlined,
-                                            'Ride',
-                                            false),
-                                        _buildCravingOption(Icons.card_giftcard,
-                                            'Surprise', false),
-                                        _buildCravingOption(
-                                            Icons.local_shipping_outlined,
-                                            'Package',
-                                            false),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                          child: const Row(
+                                            children: [
+                                              Icon(Icons.search,
+                                                  color: Colors.black54),
+                                              SizedBox(width: 8.0),
+                                              Expanded(
+                                                child: TextField(
+                                                  enabled: false,
+                                                  decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      hintText:
+                                                          'What are you craving today?',
+                                                      hintStyle: TextStyle(
+                                                        fontFamily: 'Regular',
+                                                        fontSize: 14,
+                                                        color: Colors.black,
+                                                      )),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20.0),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            _buildCravingOption(
+                                                Icons.fastfood_outlined,
+                                                'Food',
+                                                true),
+                                            _buildCravingOption(
+                                                Icons
+                                                    .directions_car_filled_outlined,
+                                                'Ride',
+                                                false),
+                                            _buildCravingOption(
+                                                Icons.card_giftcard,
+                                                'Surprise',
+                                                false),
+                                            _buildCravingOption(
+                                                Icons.local_shipping_outlined,
+                                                'Package',
+                                                false),
+                                          ],
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            )
+                                  )
                           ],
                         ),
                       ),
@@ -496,56 +516,50 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ));
   }
 
-  showLoadingDialog(String image, String caption, String duration) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          child: SizedBox(
-            height: 320,
-            width: 240,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                TextWidget(
-                  text: 'Please wait...',
-                  fontSize: 20,
-                  fontFamily: 'Bold',
-                  color: secondary,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Image.asset(
-                  image,
-                  height: 160,
-                  width: 160,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                TextWidget(
-                  text: caption,
-                  fontSize: 20,
-                  fontFamily: 'Bold',
-                  color: secondary,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                TextWidget(
-                  text: duration,
-                  fontSize: 15,
-                  fontFamily: 'Regular',
-                  color: secondary,
-                ),
-              ],
+  Widget showLoadingDialog(String image, String caption, String duration) {
+    return Card(
+      child: SizedBox(
+        height: 320,
+        width: 300,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TextWidget(
+              text: 'Please wait...',
+              fontSize: 20,
+              fontFamily: 'Bold',
+              color: secondary,
             ),
-          ),
-        );
-      },
+            const SizedBox(
+              height: 10,
+            ),
+            Image.asset(
+              image,
+              height: 160,
+              width: 160,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextWidget(
+              text: caption,
+              fontSize: 20,
+              fontFamily: 'Bold',
+              color: secondary,
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            TextWidget(
+              text: duration,
+              fontSize: 15,
+              fontFamily: 'Regular',
+              color: secondary,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -596,11 +610,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 MaterialButton(
                   onPressed: () async {
-                    Navigator.of(context).pushReplacement(
+                    Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
                           builder: (context) => CompletedPage(
                                 data: widget.data,
                               )),
+                      (route) => false,
                     );
                   },
                   child: const Text(

@@ -510,9 +510,10 @@ class _CompletedPageState extends State<CompletedPage> {
                             widget.data['riderId'],
                             widget.data['merchantId']);
                         Navigator.pop(context);
-                        Navigator.of(context).pushReplacement(
+                        Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => const HomeScreen()),
+                          (route) => false,
                         );
                       },
                     ),

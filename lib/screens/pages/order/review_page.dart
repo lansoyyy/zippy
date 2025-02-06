@@ -891,7 +891,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                       total,
                                     );
 
-                                    Navigator.of(context).pushReplacement(
+                                    Navigator.of(context).pushAndRemoveUntil(
                                       MaterialPageRoute(
                                           builder: (context) => CheckoutPage(
                                                 data: {
@@ -916,6 +916,9 @@ class _ReviewPageState extends State<ReviewPage> {
                                                   'orderId': orderId,
                                                 },
                                               )),
+                                      (route) {
+                                        return false;
+                                      },
                                     );
                                   },
                                   child: Container(
