@@ -560,26 +560,7 @@ class _ReviewPageState extends State<ReviewPage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextWidget(
-                          text: 'Address:',
-                          fontSize: 20,
-                          fontFamily: 'Bold',
-                          color: secondary,
-                        ),
-                        const SizedBox(
-                          width: 15,
-                        ),
-                        TextWidget(
-                          text: '999 Blk. 11 Lot 9 7th Avenue, 22nd Street',
-                          fontSize: 12,
-                          fontFamily: 'Regular',
-                          color: secondary,
-                        ),
-                      ],
-                    ),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -855,93 +836,158 @@ class _ReviewPageState extends State<ReviewPage> {
                               const SizedBox(
                                 height: 20,
                               ),
-                              Center(
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    double deliveryFee = ((calculateDistance(
-                                                isHome
-                                                    ? userData['homeLat']
-                                                    : userData['officeLat'],
-                                                isHome
-                                                    ? userData['homeLng']
-                                                    : userData['officeLng'],
+                              StreamBuilder<QuerySnapshot>(
+                                  stream: FirebaseFirestore.instance
+                                      .collection('Riders')
+                                      .where('isActive', isEqualTo: true)
+                                      .snapshots(),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                                    if (snapshot.hasError) {
+                                      print(snapshot.error);
+                                      return const Center(child: Text('Error'));
+                                    }
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Padding(
+                                        padding: EdgeInsets.only(top: 50),
+                                        child: Center(
+                                            child: CircularProgressIndicator(
+                                          color: Colors.black,
+                                        )),
+                                      );
+                                    }
+
+                                    final data = snapshot.requireData;
+                                    final sortedData =
+                                        List<QueryDocumentSnapshot>.from(
+                                            data.docs);
+
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((timeStamp) {
+                                      sortedData.sort((a, b) {
+                                        nearestDriverId = data.docs.first.id;
+                                        final double lat1 = a['lat'];
+                                        final double long1 = a['lng'];
+                                        final double lat2 = b['lat'];
+                                        final double long2 = b['lng'];
+
+                                        final double distance1 =
+                                            calculateDistance(
                                                 widget.merchantLat,
-                                                widget.merchantLng) *
-                                            10) +
-                                        50);
+                                                widget.merchantLng,
+                                                lat1,
+                                                long1);
+                                        final double distance2 =
+                                            calculateDistance(
+                                                widget.merchantLat,
+                                                widget.merchantLng,
+                                                lat2,
+                                                long2);
 
-                                    double tipValue = double.parse(tips);
+                                        return distance1.compareTo(distance2);
+                                      });
+                                    });
+                                    return Center(
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          double deliveryFee =
+                                              ((calculateDistance(
+                                                          isHome
+                                                              ? userData[
+                                                                  'homeLat']
+                                                              : userData[
+                                                                  'officeLat'],
+                                                          isHome
+                                                              ? userData[
+                                                                  'homeLng']
+                                                              : userData[
+                                                                  'officeLng'],
+                                                          widget.merchantLat,
+                                                          widget.merchantLng) *
+                                                      10) +
+                                                  50);
 
-                                    double total =
-                                        (totalPrice) + tipValue + deliveryFee;
+                                          double tipValue = double.parse(tips);
 
-                                    String orderId = await addOrder(
-                                      widget.selectedItems,
-                                      widget.merchantId,
-                                      widget.merchantName,
-                                      isHome
-                                          ? userData['homeAddress']
-                                          : userData['officeAddress'],
-                                      totalPrice,
-                                      isHome,
-                                      remarks.text,
-                                      tipValue,
-                                      'Cash',
-                                      deliveryFee,
-                                      total,
-                                    );
+                                          double total = (totalPrice) +
+                                              tipValue +
+                                              deliveryFee;
 
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                      MaterialPageRoute(
-                                          builder: (context) => CheckoutPage(
-                                                data: {
-                                                  'riderId':
-                                                      'I7FTuyOuTNeo0xkCNjxfT0NBWxF3',
-                                                  'items': widget.selectedItems,
-                                                  'merchantId':
-                                                      widget.merchantId,
-                                                  'merchantName':
-                                                      widget.merchantName,
-                                                  'address': isHome
-                                                      ? userData['homeAddress']
-                                                      : userData[
-                                                          'officeAddress'],
-                                                  'subtotal': totalPrice,
-                                                  'isHome': isHome,
-                                                  'remarks': remarks.text,
-                                                  'tip': tipValue,
-                                                  'mop': 'Cash',
-                                                  'deliveryFee': deliveryFee,
-                                                  'total': total,
-                                                  'orderId': orderId,
-                                                },
-                                              )),
-                                      (route) {
-                                        return false;
-                                      },
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 280,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(50),
-                                      color: secondary,
-                                      border: Border.all(
-                                        color: secondary,
+                                          String orderId = await addOrder(
+                                              widget.selectedItems,
+                                              widget.merchantId,
+                                              widget.merchantName,
+                                              isHome
+                                                  ? userData['homeAddress']
+                                                  : userData['officeAddress'],
+                                              totalPrice,
+                                              isHome,
+                                              remarks.text,
+                                              tipValue,
+                                              'Cash',
+                                              deliveryFee,
+                                              total,
+                                              sortedData.first.id);
+
+                                          Navigator.of(context)
+                                              .pushAndRemoveUntil(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CheckoutPage(
+                                                      data: {
+                                                        'riderId':
+                                                            sortedData.first.id,
+                                                        'items': widget
+                                                            .selectedItems,
+                                                        'merchantId':
+                                                            widget.merchantId,
+                                                        'merchantName':
+                                                            widget.merchantName,
+                                                        'address': isHome
+                                                            ? userData[
+                                                                'homeAddress']
+                                                            : userData[
+                                                                'officeAddress'],
+                                                        'subtotal': totalPrice,
+                                                        'isHome': isHome,
+                                                        'remarks': remarks.text,
+                                                        'tip': tipValue,
+                                                        'mop': 'Cash',
+                                                        'deliveryFee':
+                                                            deliveryFee,
+                                                        'total': total,
+                                                        'orderId': orderId,
+                                                      },
+                                                    )),
+                                            (route) {
+                                              return false;
+                                            },
+                                          );
+                                        },
+                                        child: Container(
+                                          width: 280,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(50),
+                                            color: secondary,
+                                            border: Border.all(
+                                              color: secondary,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: TextWidget(
+                                              text: 'Checkout',
+                                              fontSize: 20,
+                                              fontFamily: 'Bold',
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    child: Center(
-                                      child: TextWidget(
-                                        text: 'Checkout',
-                                        fontSize: 20,
-                                        fontFamily: 'Bold',
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                                    );
+                                  }),
                             ],
                           );
                         }),
@@ -956,4 +1002,6 @@ class _ReviewPageState extends State<ReviewPage> {
           ),
         ));
   }
+
+  String nearestDriverId = '';
 }

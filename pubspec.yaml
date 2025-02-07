@@ -54,7 +54,6 @@ dependencies:
   widgets_to_image:
   image_gallery_saver:
   screenshot:
-  file_picker: ^4.5.1
 
 dev_dependencies:
   flutter_test:
