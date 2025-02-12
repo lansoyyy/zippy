@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/auth/login_screen.dart';
 import 'package:zippy/screens/auth/signup_screen2.dart';
@@ -21,6 +23,37 @@ class _SignupScreenState extends State<SignupScreen> {
   final address = TextEditingController();
   final otp = TextEditingController();
   final number = TextEditingController();
+
+  bool hasSent = false;
+  int countdown = 10;
+  Timer? timer;
+
+  void startCountdown() {
+    setState(() {
+      hasSent = true;
+      countdown = 10;
+    });
+
+    timer?.cancel();
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      if (countdown > 0) {
+        setState(() {
+          countdown--;
+        });
+      } else {
+        t.cancel();
+        setState(() {
+          hasSent = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel(); // Cancel timer when the screen is disposed
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,11 +159,22 @@ class _SignupScreenState extends State<SignupScreen> {
                       padding:
                           const EdgeInsets.only(right: 10, top: 10, bottom: 10),
                       child: ButtonWidget(
+                        color: number.text.length != 10
+                            ? Colors.grey
+                            : hasSent
+                                ? Colors.grey
+                                : secondary,
                         height: 10,
                         width: 75,
                         fontSize: 12,
-                        label: 'Get OTP',
-                        onPressed: () {},
+                        label: hasSent ? 'Resend OTP ($countdown)' : 'Get OTP',
+                        onPressed: number.text.length != 10
+                            ? () {}
+                            : hasSent
+                                ? () {
+                                    print('+63${number.text}');
+                                  }
+                                : startCountdown, // Disable button if countdown is running
                       ),
                     ),
                     height: 80,
