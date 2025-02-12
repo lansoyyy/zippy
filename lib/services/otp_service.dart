@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'package:zippy/utils/keys.dart';
 
-void sendSms() async {
+void sendSms(String number, String otp) async {
   const String url = 'https://ws-v2.txtbox.com/messaging/v1/sms/push';
 
   Map<String, String> headers = {
@@ -9,8 +9,8 @@ void sendSms() async {
   };
 
   Map<String, String> body = {
-    'message': '123',
-    'number': '09639530422',
+    'message': '$otp is your OTP. Do not share it.',
+    'number': number,
   };
 
   try {

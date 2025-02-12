@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/auth/login_screen.dart';
-import 'package:zippy/screens/auth/signup_screen2.dart';
+import 'package:zippy/screens/auth/signup_screen4.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -124,6 +124,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     hint: 'MM/DD/YYYY',
                     borderColor: secondary,
                     label: 'Birthday',
+                    inputType: TextInputType.datetime,
                     controller: bday,
                     suffix: IconButton(
                         onPressed: () {},
@@ -196,7 +197,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                            builder: (context) => const SignupScreen2()),
+                            builder: (context) => const SignupScreen4()),
                       );
                     },
                   ),

@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/auth/signup_screen.dart';
 import 'package:zippy/screens/home_screen.dart';
+import 'package:zippy/services/otp_service.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/textfield_widget.dart';
+import 'package:zippy/widgets/toast_widget.dart';
 
 import '../../utils/const.dart';
 
@@ -25,8 +28,17 @@ class _LoginScreenState extends State<LoginScreen> {
   int countdown = 10; // Initial countdown value
   Timer? timer;
 
+  Random random = Random();
+
+  String otpValue = '';
+
   void startCountdown() {
+    int sixDigitNumber = random.nextInt(900000) + 100000;
+
+    sendSms('0${number.text}', sixDigitNumber.toString());
+
     setState(() {
+      otpValue = sixDigitNumber.toString();
       hasSent = true;
       countdown = 10;
     });
@@ -132,9 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: number.text.length != 10
                             ? () {}
                             : hasSent
-                                ? () {
-                                    print('+63${number.text}');
-                                  }
+                                ? () {}
                                 : startCountdown, // Disable button if countdown is running
                       ),
                     ),
@@ -145,20 +155,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     label: 'Enter OTP',
                     controller: otp,
                     hint: 'Enter 6-digit Code',
+                    onChanged: (p0) {
+                      setState(() {
+                        otp.text = p0;
+                      });
+                    },
                   ),
                   const SizedBox(height: 10),
                   ButtonWidget(
                     height: 50,
                     width: 320,
                     fontSize: 20,
+                    color: otp.text.length != 6 ? Colors.grey : secondary,
                     label: 'Log in',
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const HomeScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: otp.text.length != 6
+                        ? () {}
+                        : () {
+                            if (otp.text == otpValue) {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) => const HomeScreen(),
+                                ),
+                              );
+                            } else {
+                              showToast('Invalid OTP!');
+                            }
+                          },
                   ),
                   const SizedBox(height: 30),
                   // Row(
