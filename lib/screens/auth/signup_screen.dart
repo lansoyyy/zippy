@@ -142,7 +142,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   TextFieldWidget(
                     height: 80,
-                    length: 9,
+                    length: 10,
                     inputType: TextInputType.number,
                     prefix: TextWidget(
                       text: '+63',
