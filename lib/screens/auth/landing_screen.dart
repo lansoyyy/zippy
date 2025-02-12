@@ -36,6 +36,7 @@ class LandingScreen extends StatelessWidget {
               color: Colors.white,
               label: 'Get Started',
               onPressed: () {
+                // sendSms();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );

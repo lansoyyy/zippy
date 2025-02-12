@@ -120,49 +120,49 @@ class _SignupScreen2State extends State<SignupScreen2> {
                   const SizedBox(
                     height: 30,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                          width: 110,
-                          child: Divider(
-                            color: secondary,
-                          )),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5, right: 5),
-                        child: TextWidget(
-                          text: 'or sign up with',
-                          fontSize: 12,
-                          color: secondary,
-                        ),
-                      ),
-                      const SizedBox(
-                          width: 110,
-                          child: Divider(
-                            color: secondary,
-                          )),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (int i = 1; i < socials.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5, right: 5),
-                          child: Image.asset(
-                            socials[i],
-                            width: 54,
-                            height: 54,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     const SizedBox(
+                  //         width: 110,
+                  //         child: Divider(
+                  //           color: secondary,
+                  //         )),
+                  //     Padding(
+                  //       padding: const EdgeInsets.only(left: 5, right: 5),
+                  //       child: TextWidget(
+                  //         text: 'or sign up with',
+                  //         fontSize: 12,
+                  //         color: secondary,
+                  //       ),
+                  //     ),
+                  //     const SizedBox(
+                  //         width: 110,
+                  //         child: Divider(
+                  //           color: secondary,
+                  //         )),
+                  //   ],
+                  // ),
+                  // const SizedBox(
+                  //   height: 20,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     for (int i = 1; i < socials.length; i++)
+                  //       Padding(
+                  //         padding: const EdgeInsets.only(left: 5, right: 5),
+                  //         child: Image.asset(
+                  //           socials[i],
+                  //           width: 54,
+                  //           height: 54,
+                  //         ),
+                  //       ),
+                  //   ],
+                  // ),
+                  // const SizedBox(
+                  //   height: 20,
+                  // ),
                   TextWidget(
                     text: 'Already have an account ?',
                     fontSize: 14,

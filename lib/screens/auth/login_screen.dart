@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/auth/signup_screen.dart';
 import 'package:zippy/screens/home_screen.dart';
@@ -18,6 +20,38 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final number = TextEditingController();
   final otp = TextEditingController();
+
+  bool hasSent = false;
+  int countdown = 10; // Initial countdown value
+  Timer? timer;
+
+  void startCountdown() {
+    setState(() {
+      hasSent = true;
+      countdown = 10;
+    });
+
+    timer?.cancel(); // Cancel any existing timer before starting a new one
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      if (countdown > 0) {
+        setState(() {
+          countdown--;
+        });
+      } else {
+        t.cancel();
+        setState(() {
+          hasSent = false; // Allow resending OTP
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel(); // Cancel timer when the screen is disposed
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,17 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(
-                    height: 50,
-                  ),
-                  Image.asset(
-                    logo,
-                    width: 191,
-                    height: 80,
-                  ),
-                  const SizedBox(
-                    height: 12.5,
-                  ),
+                  const SizedBox(height: 50),
+                  Image.asset(logo, width: 191, height: 80),
+                  const SizedBox(height: 12.5),
                   TextWidget(
                     text: 'Hi! Welcome',
                     fontSize: 25,
@@ -53,33 +79,26 @@ class _LoginScreenState extends State<LoginScreen> {
             width: double.infinity,
             height: 450,
             decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(
-                    30,
-                  ),
-                  topRight: Radius.circular(
-                    30,
-                  ),
-                )),
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+            ),
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 40,
-                  ),
+                  const SizedBox(height: 40),
                   TextWidget(
                     text: 'Log in',
                     fontSize: 32,
                     color: secondary,
                     fontFamily: 'Medium',
                   ),
-                  const SizedBox(
-                    height: 25,
-                  ),
+                  const SizedBox(height: 25),
                   TextFieldWidget(
                     height: 80,
-                    length: 9,
+                    length: 10,
                     inputType: TextInputType.number,
                     prefix: TextWidget(
                       text: '+63',
@@ -90,17 +109,33 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderColor: secondary,
                     label: 'Mobile Number',
                     controller: number,
+                    onChanged: (p0) {
+                      setState(() {
+                        number.text = p0;
+                      });
+                    },
                   ),
                   TextFieldWidget(
                     suffix: Padding(
                       padding:
                           const EdgeInsets.only(right: 10, top: 10, bottom: 10),
                       child: ButtonWidget(
+                        color: number.text.length != 10
+                            ? Colors.grey
+                            : hasSent
+                                ? Colors.grey
+                                : secondary,
                         height: 10,
                         width: 75,
                         fontSize: 12,
-                        label: 'Get OTP',
-                        onPressed: () {},
+                        label: hasSent ? 'Resend OTP ($countdown)' : 'Get OTP',
+                        onPressed: number.text.length != 10
+                            ? () {}
+                            : hasSent
+                                ? () {
+                                    print('+63${number.text}');
+                                  }
+                                : startCountdown, // Disable button if countdown is running
                       ),
                     ),
                     height: 80,
@@ -111,9 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: otp,
                     hint: 'Enter 6-digit Code',
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   ButtonWidget(
                     height: 50,
                     width: 320,
@@ -122,70 +155,58 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                            builder: (context) => const HomeScreen()),
+                          builder: (context) => const HomeScreen(),
+                        ),
                       );
                     },
                   ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                          width: 110,
-                          child: Divider(
-                            color: secondary,
-                          )),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5, right: 5),
-                        child: TextWidget(
-                          text: 'or log in with',
-                          fontSize: 12,
-                          color: secondary,
-                        ),
-                      ),
-                      const SizedBox(
-                          width: 110,
-                          child: Divider(
-                            color: secondary,
-                          )),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (int i = 0; i < socials.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5, right: 5),
-                          child: Image.asset(
-                            socials[i],
-                            width: 54,
-                            height: 54,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 30),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     const SizedBox(
+                  //         width: 110, child: Divider(color: secondary)),
+                  //     Padding(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 5),
+                  //       child: TextWidget(
+                  //         text: 'or log in with',
+                  //         fontSize: 12,
+                  //         color: secondary,
+                  //       ),
+                  //     ),
+                  //     const SizedBox(
+                  //         width: 110, child: Divider(color: secondary)),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 20),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     for (int i = 0; i < socials.length; i++)
+                  //       Padding(
+                  //         padding: const EdgeInsets.symmetric(horizontal: 5),
+                  //         child: Image.asset(
+                  //           socials[i],
+                  //           width: 54,
+                  //           height: 54,
+                  //         ),
+                  //       ),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 20),
                   TextWidget(
                     text: 'Don’t have an account ?',
                     fontSize: 14,
                     color: Colors.grey,
                     fontFamily: 'Medium',
                   ),
-                  const SizedBox(
-                    height: 2.5,
-                  ),
+                  const SizedBox(height: 2.5),
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                            builder: (context) => const SignupScreen()),
+                          builder: (context) => const SignupScreen(),
+                        ),
                       );
                     },
                     child: TextWidget(
@@ -195,9 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontFamily: 'Bold',
                     ),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
