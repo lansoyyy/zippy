@@ -360,6 +360,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.3"
+  get:
+    dependency: transitive
+    description:
+      name: get
+      sha256: "0b18d1664c4d6d6ee8f4fb6bb9bca296f97b0f8046c3eeb159aa5acd0c4280f1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.7.0"
+  get_storage:
+    dependency: "direct main"
+    description:
+      name: get_storage
+      sha256: "39db1fffe779d0c22b3a744376e86febe4ade43bf65e06eab5af707dc84185a2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   google_api_headers:
     dependency: transitive
     description:

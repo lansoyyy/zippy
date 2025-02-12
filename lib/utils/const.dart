@@ -1,6 +1,6 @@
 import 'dart:math';
 
-String userId = 'pqaYFzkCd4TkFbEsQ133C16MFxA3';
+String userId = '';
 
 String logo = 'assets/images/logo.png';
 String label = 'assets/images/label.png';

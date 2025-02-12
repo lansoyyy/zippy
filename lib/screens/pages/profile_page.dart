@@ -10,10 +10,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart' as location;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:zippy/screens/auth/login_screen.dart';
 import 'package:zippy/screens/pages/shop_page.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
 import 'package:zippy/widgets/button_widget.dart';
+import 'package:zippy/widgets/logout_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
 import '../../utils/colors.dart';
@@ -246,22 +248,27 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                    Row(
-                      children: [
-                        TextWidget(
-                          text: 'Logout',
-                          fontSize: 15,
-                          color: secondary,
-                          fontFamily: 'Medium',
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        const Icon(
-                          Icons.logout,
-                          color: secondary,
-                        ),
-                      ],
+                    GestureDetector(
+                      onTap: () {
+                        logout(context, const LoginScreen());
+                      },
+                      child: Row(
+                        children: [
+                          TextWidget(
+                            text: 'Logout',
+                            fontSize: 15,
+                            color: secondary,
+                            fontFamily: 'Medium',
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          const Icon(
+                            Icons.logout,
+                            color: secondary,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

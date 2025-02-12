@@ -54,6 +54,7 @@ dependencies:
   widgets_to_image:
   image_gallery_saver:
   screenshot:
+  get_storage:
 
 dev_dependencies:
   flutter_test:

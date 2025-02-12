@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:zippy/screens/auth/signup_screen.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/services/otp_service.dart';
@@ -31,6 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Random random = Random();
 
   String otpValue = '';
+
+  final box = GetStorage();
 
   void startCountdown() {
     int sixDigitNumber = random.nextInt(900000) + 100000;
@@ -171,15 +175,33 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: otp.text.length != 6
                         ? () {}
                         : () {
-                            if (otp.text == otpValue) {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (context) => const HomeScreen(),
-                                ),
-                              );
-                            } else {
-                              showToast('Invalid OTP!');
-                            }
+                            FirebaseFirestore.instance
+                                .collection('Users')
+                                .where('number', isEqualTo: '0${number.text}')
+                                .get()
+                                .then((QuerySnapshot querySnapshot) {
+                              if (querySnapshot.docs.isNotEmpty) {
+                                if (otp.text == otpValue) {
+                                  box.write(
+                                      'uid', querySnapshot.docs.first['uid']);
+
+                                  setState(() {
+                                    userId = querySnapshot.docs.first['uid'];
+                                  });
+
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) => const HomeScreen(),
+                                    ),
+                                  );
+                                } else {
+                                  showToast('Invalid OTP!');
+                                }
+                              } else {
+                                showToast(
+                                    'Your number is not associated with an account!');
+                              }
+                            });
                           },
                   ),
                   const SizedBox(height: 30),

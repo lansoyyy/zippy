@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:zippy/screens/auth/login_screen.dart';
 
 logout(BuildContext context, Widget navigationRoute) {
+  final box = GetStorage();
   return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -24,10 +27,13 @@ logout(BuildContext context, Widget navigationRoute) {
               ),
               MaterialButton(
                 onPressed: () async {
-                  // Navigator.of(context).pushReplacement(
-                  //   MaterialPageRoute(
-                  //       builder: (context) => const LoginScreen()),
-                  // );
+                  box.write('uid', '');
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
+                    (route) => false,
+                  );
                 },
                 child: const Text(
                   'Continue',
