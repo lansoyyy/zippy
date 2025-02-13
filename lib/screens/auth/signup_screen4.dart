@@ -1,9 +1,16 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:zippy/screens/auth/login_screen.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
+import 'package:zippy/widgets/toast_widget.dart';
 
 import '../../utils/const.dart';
 
@@ -89,14 +96,23 @@ class _SignupScreen4State extends State<SignupScreen4> {
                           height: 226,
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 15),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
                         child: Center(
-                          child: Icon(
-                            Icons.account_circle,
-                            color: Colors.white,
-                            size: 200,
-                          ),
+                          child: imageURL == ''
+                              ? const Icon(
+                                  Icons.account_circle,
+                                  color: Colors.white,
+                                  size: 200,
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.only(top: 12.5),
+                                  child: CircleAvatar(
+                                    minRadius: 90,
+                                    maxRadius: 90,
+                                    backgroundImage: NetworkImage(imageURL),
+                                  ),
+                                ),
                         ),
                       ),
                     ],
@@ -107,39 +123,49 @@ class _SignupScreen4State extends State<SignupScreen4> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Container(
-                        width: 155,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          border: Border.all(
-                            color: secondary,
+                      GestureDetector(
+                        onTap: () {
+                          uploadPicture('camera');
+                        },
+                        child: Container(
+                          width: 155,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            border: Border.all(
+                              color: secondary,
+                            ),
                           ),
-                        ),
-                        child: Center(
-                          child: TextWidget(
-                            text: 'Take a Photo',
-                            fontSize: 20,
-                            fontFamily: 'Bold',
-                            color: secondary,
+                          child: Center(
+                            child: TextWidget(
+                              text: 'Take a Photo',
+                              fontSize: 20,
+                              fontFamily: 'Bold',
+                              color: secondary,
+                            ),
                           ),
                         ),
                       ),
-                      Container(
-                        width: 155,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          border: Border.all(
-                            color: secondary,
+                      GestureDetector(
+                        onTap: () {
+                          uploadPicture('gallery');
+                        },
+                        child: Container(
+                          width: 155,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            border: Border.all(
+                              color: secondary,
+                            ),
                           ),
-                        ),
-                        child: Center(
-                          child: TextWidget(
-                            text: 'Upload',
-                            fontSize: 20,
-                            fontFamily: 'Bold',
-                            color: secondary,
+                          child: Center(
+                            child: TextWidget(
+                              text: 'Upload',
+                              fontSize: 20,
+                              fontFamily: 'Bold',
+                              color: secondary,
+                            ),
                           ),
                         ),
                       ),
@@ -156,9 +182,10 @@ class _SignupScreen4State extends State<SignupScreen4> {
                         fontSize: 20,
                         label: 'Continue',
                         onPressed: () {
-                          Navigator.of(context).pushReplacement(
+                          Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
-                                builder: (context) => const LoginScreen()),
+                                builder: (context) => const HomeScreen()),
+                            (route) => false,
                           );
                         },
                       ),
@@ -169,9 +196,10 @@ class _SignupScreen4State extends State<SignupScreen4> {
                         padding: const EdgeInsets.only(right: 30),
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.of(context).pushReplacement(
+                            Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
-                                  builder: (context) => const LoginScreen()),
+                                  builder: (context) => const HomeScreen()),
+                              (route) => false,
                             );
                           },
                           child: Row(
@@ -206,5 +234,79 @@ class _SignupScreen4State extends State<SignupScreen4> {
         ],
       ),
     );
+  }
+
+  late String fileName = '';
+
+  late File imageFile;
+
+  late String imageURL = '';
+
+  Future<void> uploadPicture(String inputSource) async {
+    final picker = ImagePicker();
+    XFile pickedImage;
+    try {
+      pickedImage = (await picker.pickImage(
+          source: inputSource == 'camera'
+              ? ImageSource.camera
+              : ImageSource.gallery,
+          maxWidth: 1920))!;
+
+      fileName = path.basename(pickedImage.path);
+      imageFile = File(pickedImage.path);
+
+      try {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) => const Padding(
+            padding: EdgeInsets.only(left: 30, right: 30),
+            child: AlertDialog(
+                title: Row(
+              children: [
+                CircularProgressIndicator(
+                  color: Colors.black,
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Text(
+                  'Loading . . .',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'QRegular'),
+                ),
+              ],
+            )),
+          ),
+        );
+
+        await firebase_storage.FirebaseStorage.instance
+            .ref('Pictures/$fileName')
+            .putFile(imageFile);
+        imageURL = await firebase_storage.FirebaseStorage.instance
+            .ref('Pictures/$fileName')
+            .getDownloadURL();
+
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(userId)
+            .update({'profile': imageURL});
+
+        setState(() {});
+
+        Navigator.of(context).pop();
+        showToast('Image uploaded!');
+      } on firebase_storage.FirebaseException catch (error) {
+        if (kDebugMode) {
+          print(error);
+        }
+      }
+    } catch (err) {
+      if (kDebugMode) {
+        print(err);
+      }
+    }
   }
 }

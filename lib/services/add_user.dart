@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Future<String?> addUser({
+Future addUser({
   required String name,
   required String email,
   required String bday,
@@ -19,34 +19,29 @@ Future<String?> addUser({
   List<String>? notifications = const [],
   List<String>? favorites = const [], // Added favorites parameter
 }) async {
-  try {
-    final docUser = FirebaseFirestore.instance.collection('Users').doc();
+  final docUser = FirebaseFirestore.instance.collection('Users').doc();
 
-    final json = {
-      'uid': docUser.id,
-      'name': name,
-      'email': email,
-      'bday': bday,
-      'number': number,
-      'home': home,
-      'homeAddress': homeAddress,
-      'homeLat': homeLat,
-      'homeLng': homeLng,
-      'officeAddress': officeAddress,
-      'officeLat': officeLat,
-      'officeLng': officeLng,
-      'profile': profile,
-      'isActive': isActive,
-      'isVerified': isVerified,
-      'history': history ?? [],
-      'notifications': notifications ?? [],
-      'favorites': favorites ?? [],
-    };
+  final json = {
+    'uid': docUser.id,
+    'name': name,
+    'email': email,
+    'bday': bday,
+    'number': number,
+    'home': home,
+    'homeAddress': homeAddress,
+    'homeLat': homeLat,
+    'homeLng': homeLng,
+    'officeAddress': officeAddress,
+    'officeLat': officeLat,
+    'officeLng': officeLng,
+    'profile': profile,
+    'isActive': isActive,
+    'isVerified': isVerified,
+    'history': history ?? [],
+    'notifications': notifications ?? [],
+    'favorites': favorites ?? [],
+  };
 
-    await docUser.set(json);
-    return docUser.id;
-  } catch (e) {
-    print("Error adding user: $e");
-    return null;
-  }
+  await docUser.set(json);
+  return docUser.id;
 }

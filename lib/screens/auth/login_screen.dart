@@ -23,49 +23,70 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final number = TextEditingController();
-  final otp = TextEditingController();
+  final TextEditingController _numberController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
 
-  bool hasSent = false;
-  int countdown = 10; // Initial countdown value
-  Timer? timer;
+  bool _hasSentOtp = false;
+  int _countdown = 10; // Initial countdown value
+  Timer? _timer;
 
-  Random random = Random();
+  final Random _random = Random();
+  String _otpValue = '';
+  final _box = GetStorage();
 
-  String otpValue = '';
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel timer when the screen is disposed
+    _numberController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
 
-  final box = GetStorage();
+  void _startCountdown() {
+    final sixDigitNumber = _random.nextInt(900000) + 100000;
 
-  void startCountdown() {
-    int sixDigitNumber = random.nextInt(900000) + 100000;
-
-    sendSms('0${number.text}', sixDigitNumber.toString());
+    sendSms('0${_numberController.text}', sixDigitNumber.toString());
 
     setState(() {
-      otpValue = sixDigitNumber.toString();
-      hasSent = true;
-      countdown = 10;
+      _otpValue = sixDigitNumber.toString();
+      _hasSentOtp = true;
+      _countdown = 10;
     });
 
-    timer?.cancel(); // Cancel any existing timer before starting a new one
-    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
-      if (countdown > 0) {
-        setState(() {
-          countdown--;
-        });
+    _timer?.cancel(); // Cancel any existing timer before starting a new one
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      if (_countdown > 0) {
+        setState(() => _countdown--);
       } else {
         t.cancel();
-        setState(() {
-          hasSent = false; // Allow resending OTP
-        });
+        setState(() => _hasSentOtp = false); // Allow resending OTP
       }
     });
   }
 
-  @override
-  void dispose() {
-    timer?.cancel(); // Cancel timer when the screen is disposed
-    super.dispose();
+  Future<void> _login() async {
+    if (_otpController.text != _otpValue) {
+      showToast('Invalid OTP!');
+      return;
+    }
+
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('Users')
+        .where('number', isEqualTo: _numberController.text)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      showToast('Your number is not associated with an account!');
+      return;
+    }
+
+    final userDoc = querySnapshot.docs.first;
+    _box.write('uid', userDoc['uid']);
+    setState(() => userId = userDoc['uid']);
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
   }
 
   @override
@@ -75,198 +96,150 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Column(
         children: [
           Expanded(
-            child: SizedBox(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50),
-                  Image.asset(logo, width: 191, height: 80),
-                  const SizedBox(height: 12.5),
-                  TextWidget(
-                    text: 'Hi! Welcome',
-                    fontSize: 25,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-            ),
+            child: _buildWelcomeSection(),
           ),
-          Container(
-            width: double.infinity,
-            height: 450,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
-              ),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-                  TextWidget(
-                    text: 'Log in',
-                    fontSize: 32,
-                    color: secondary,
-                    fontFamily: 'Medium',
-                  ),
-                  const SizedBox(height: 25),
-                  TextFieldWidget(
-                    height: 80,
-                    length: 10,
-                    inputType: TextInputType.number,
-                    prefix: TextWidget(
-                      text: '+63',
-                      fontSize: 24,
-                      color: Colors.black,
-                      fontFamily: 'Medium',
-                    ),
-                    borderColor: secondary,
-                    label: 'Mobile Number',
-                    controller: number,
-                    onChanged: (p0) {
-                      setState(() {
-                        number.text = p0;
-                      });
-                    },
-                  ),
-                  TextFieldWidget(
-                    suffix: Padding(
-                      padding:
-                          const EdgeInsets.only(right: 10, top: 10, bottom: 10),
-                      child: ButtonWidget(
-                        color: number.text.length != 10
-                            ? Colors.grey
-                            : hasSent
-                                ? Colors.grey
-                                : secondary,
-                        height: 10,
-                        width: 75,
-                        fontSize: 12,
-                        label: hasSent ? 'Resend OTP ($countdown)' : 'Get OTP',
-                        onPressed: number.text.length != 10
-                            ? () {}
-                            : hasSent
-                                ? () {}
-                                : startCountdown, // Disable button if countdown is running
-                      ),
-                    ),
-                    height: 80,
-                    length: 6,
-                    inputType: TextInputType.number,
-                    borderColor: secondary,
-                    label: 'Enter OTP',
-                    controller: otp,
-                    hint: 'Enter 6-digit Code',
-                    onChanged: (p0) {
-                      setState(() {
-                        otp.text = p0;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  ButtonWidget(
-                    height: 50,
-                    width: 320,
-                    fontSize: 20,
-                    color: otp.text.length != 6 ? Colors.grey : secondary,
-                    label: 'Log in',
-                    onPressed: otp.text.length != 6
-                        ? () {}
-                        : () {
-                            FirebaseFirestore.instance
-                                .collection('Users')
-                                .where('number', isEqualTo: number.text)
-                                .get()
-                                .then((QuerySnapshot querySnapshot) {
-                              if (querySnapshot.docs.isNotEmpty) {
-                                if (otp.text == otpValue) {
-                                  box.write(
-                                      'uid', querySnapshot.docs.first['uid']);
+          _buildLoginForm(),
+        ],
+      ),
+    );
+  }
 
-                                  setState(() {
-                                    userId = querySnapshot.docs.first['uid'];
-                                  });
-
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) => const HomeScreen(),
-                                    ),
-                                  );
-                                } else {
-                                  showToast('Invalid OTP!');
-                                }
-                              } else {
-                                showToast(
-                                    'Your number is not associated with an account!');
-                              }
-                            });
-                          },
-                  ),
-                  const SizedBox(height: 30),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     const SizedBox(
-                  //         width: 110, child: Divider(color: secondary)),
-                  //     Padding(
-                  //       padding: const EdgeInsets.symmetric(horizontal: 5),
-                  //       child: TextWidget(
-                  //         text: 'or log in with',
-                  //         fontSize: 12,
-                  //         color: secondary,
-                  //       ),
-                  //     ),
-                  //     const SizedBox(
-                  //         width: 110, child: Divider(color: secondary)),
-                  //   ],
-                  // ),
-                  // const SizedBox(height: 20),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     for (int i = 0; i < socials.length; i++)
-                  //       Padding(
-                  //         padding: const EdgeInsets.symmetric(horizontal: 5),
-                  //         child: Image.asset(
-                  //           socials[i],
-                  //           width: 54,
-                  //           height: 54,
-                  //         ),
-                  //       ),
-                  //   ],
-                  // ),
-                  // const SizedBox(height: 20),
-                  TextWidget(
-                    text: 'Don’t have an account ?',
-                    fontSize: 14,
-                    color: Colors.grey,
-                    fontFamily: 'Medium',
-                  ),
-                  const SizedBox(height: 2.5),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const SignupScreen(),
-                        ),
-                      );
-                    },
-                    child: TextWidget(
-                      text: 'Create an Account',
-                      fontSize: 15,
-                      color: Colors.black,
-                      fontFamily: 'Bold',
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
+  Widget _buildWelcomeSection() {
+    return SizedBox(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 50),
+          Image.asset(logo, width: 191, height: 80),
+          const SizedBox(height: 12.5),
+          TextWidget(
+            text: 'Hi! Welcome',
+            fontSize: 25,
+            color: Colors.white,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLoginForm() {
+    return Container(
+      width: double.infinity,
+      height: 450,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            TextWidget(
+              text: 'Log in',
+              fontSize: 32,
+              color: secondary,
+              fontFamily: 'Medium',
+            ),
+            const SizedBox(height: 25),
+            _buildMobileNumberField(),
+            _buildOtpField(),
+            const SizedBox(height: 10),
+            _buildLoginButton(),
+            const SizedBox(height: 30),
+            _buildSignupPrompt(),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileNumberField() {
+    return TextFieldWidget(
+      height: 80,
+      length: 10,
+      inputType: TextInputType.number,
+      prefix: TextWidget(
+        text: '+63',
+        fontSize: 24,
+        color: Colors.black,
+        fontFamily: 'Medium',
+      ),
+      borderColor: secondary,
+      label: 'Mobile Number',
+      controller: _numberController,
+      onChanged: (value) => setState(() {}),
+    );
+  }
+
+  Widget _buildOtpField() {
+    return TextFieldWidget(
+      suffix: Padding(
+        padding: const EdgeInsets.only(right: 10, top: 10, bottom: 10),
+        child: ButtonWidget(
+          color: _numberController.text.length != 10 || _hasSentOtp
+              ? Colors.grey
+              : secondary,
+          height: 10,
+          width: 75,
+          fontSize: 12,
+          label: _hasSentOtp ? 'Resend OTP ($_countdown)' : 'Get OTP',
+          onPressed: _numberController.text.length != 10 || _hasSentOtp
+              ? () {}
+              : _startCountdown,
+        ),
+      ),
+      height: 80,
+      length: 6,
+      inputType: TextInputType.number,
+      borderColor: secondary,
+      label: 'Enter OTP',
+      controller: _otpController,
+      hint: 'Enter 6-digit Code',
+      onChanged: (value) => setState(() {}),
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return ButtonWidget(
+      height: 50,
+      width: 320,
+      fontSize: 20,
+      color: _otpController.text.length != 6 ? Colors.grey : secondary,
+      label: 'Log in',
+      onPressed: _otpController.text.length != 6 ? () {} : _login,
+    );
+  }
+
+  Widget _buildSignupPrompt() {
+    return Column(
+      children: [
+        TextWidget(
+          text: 'Don’t have an account ?',
+          fontSize: 14,
+          color: Colors.grey,
+          fontFamily: 'Medium',
+        ),
+        const SizedBox(height: 2.5),
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const SignupScreen(),
+              ),
+            );
+          },
+          child: TextWidget(
+            text: 'Create an Account',
+            fontSize: 15,
+            color: Colors.black,
+            fontFamily: 'Bold',
+          ),
+        ),
+      ],
     );
   }
 }
