@@ -203,133 +203,137 @@ class _ShopPageState extends State<ShopPage> {
           const SizedBox(
             height: 20,
           ),
-          Card(
-            child: Container(
-              width: 320,
-              height: 160,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: secondary),
-                borderRadius: BorderRadius.circular(
-                  10,
-                ),
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(
-                    merchants[0]['img'],
+          Padding(
+            padding: const EdgeInsets.only(left: 15, right: 15),
+            child: Card(
+              child: Container(
+                width: double.infinity,
+                height: 250,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: secondary),
+                  borderRadius: BorderRadius.circular(
+                    10,
+                  ),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: NetworkImage(
+                      merchants[0]['img'],
+                    ),
                   ),
                 ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, right: 15),
-                    child: StreamBuilder<DocumentSnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('Users')
-                            .doc(userId)
-                            .snapshots(),
-                        builder: (context,
-                            AsyncSnapshot<DocumentSnapshot> snapshot) {
-                          if (!snapshot.hasData) {
-                            return const Center(child: Text('Loading'));
-                          } else if (snapshot.hasError) {
-                            return const Center(
-                                child: Text('Something went wrong'));
-                          } else if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-                          dynamic data = snapshot.data;
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10, right: 15),
+                      child: StreamBuilder<DocumentSnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('Users')
+                              .doc(userId)
+                              .snapshots(),
+                          builder: (context,
+                              AsyncSnapshot<DocumentSnapshot> snapshot) {
+                            if (!snapshot.hasData) {
+                              return const Center(child: Text('Loading'));
+                            } else if (snapshot.hasError) {
+                              return const Center(
+                                  child: Text('Something went wrong'));
+                            } else if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+                            dynamic data = snapshot.data;
 
-                          List favs = data['favorites'];
-                          return Align(
-                            alignment: Alignment.topRight,
-                            child: GestureDetector(
-                              onTap: () async {
-                                if (favs.contains(merchants[0]['uid'])) {
-                                  await FirebaseFirestore.instance
-                                      .collection('Users')
-                                      .doc(userId)
-                                      .update({
-                                    'favorites': FieldValue.arrayRemove(
-                                        [merchants[0]['uid']])
-                                  });
-                                } else {
-                                  await FirebaseFirestore.instance
-                                      .collection('Users')
-                                      .doc(userId)
-                                      .update({
-                                    'favorites': FieldValue.arrayUnion(
-                                        [merchants[0]['uid']])
-                                  });
-                                }
-                              },
-                              child: Icon(
-                                favs.contains(merchants[0]['uid'])
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: favs.contains(merchants[0]['uid'])
-                                    ? primary
-                                    : Colors.white,
-                                size: 35,
+                            List favs = data['favorites'];
+                            return Align(
+                              alignment: Alignment.topRight,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  if (favs.contains(merchants[0]['uid'])) {
+                                    await FirebaseFirestore.instance
+                                        .collection('Users')
+                                        .doc(userId)
+                                        .update({
+                                      'favorites': FieldValue.arrayRemove(
+                                          [merchants[0]['uid']])
+                                    });
+                                  } else {
+                                    await FirebaseFirestore.instance
+                                        .collection('Users')
+                                        .doc(userId)
+                                        .update({
+                                      'favorites': FieldValue.arrayUnion(
+                                          [merchants[0]['uid']])
+                                    });
+                                  }
+                                },
+                                child: Icon(
+                                  favs.contains(merchants[0]['uid'])
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: favs.contains(merchants[0]['uid'])
+                                      ? primary
+                                      : Colors.white,
+                                  size: 35,
+                                ),
                               ),
+                            );
+                          }),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: 36,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(
+                            7.5,
+                          ),
+                          bottomRight: Radius.circular(
+                            7.5,
+                          ),
+                        ),
+                        color: secondary,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 15, right: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            TextWidget(
+                              text:
+                                  merchants[0]['businessName'] ?? 'Loading...',
+                              fontSize: 15,
+                              fontFamily: 'Bold',
+                              color: Colors.white,
                             ),
-                          );
-                        }),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: 36,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(
-                          7.5,
-                        ),
-                        bottomRight: Radius.circular(
-                          7.5,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextWidget(
+                                  text: '${merchants[0]['ratings']}',
+                                  fontSize: 14,
+                                  fontFamily: 'Regular',
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                const Icon(
+                                  Icons.star_rate_rounded,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      color: secondary,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 15, right: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          TextWidget(
-                            text: merchants[0]['businessName'] ?? 'Loading...',
-                            fontSize: 15,
-                            fontFamily: 'Bold',
-                            color: Colors.white,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextWidget(
-                                text: '${merchants[0]['ratings']}',
-                                fontSize: 14,
-                                fontFamily: 'Regular',
-                                color: Colors.white,
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              const Icon(
-                                Icons.star_rate_rounded,
-                                color: Colors.white,
-                                size: 18,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -380,8 +384,10 @@ class _ShopPageState extends State<ShopPage> {
                               Card(
                                 elevation: 3,
                                 child: Container(
-                                  width: 100,
-                                  height: 112.5,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.35,
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.35,
                                   decoration: BoxDecoration(
                                     image: item['imageUrl'] != null
                                         ? DecorationImage(
@@ -412,8 +418,10 @@ class _ShopPageState extends State<ShopPage> {
                               Card(
                                 elevation: 3,
                                 child: Container(
-                                  width: 210,
-                                  height: 112.5,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.55,
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.35,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),

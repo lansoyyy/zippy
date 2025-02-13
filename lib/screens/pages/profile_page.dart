@@ -250,7 +250,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        logout(context, const LoginScreen());
+                        _showLogoutDialog();
                       },
                       child: Row(
                         children: [
@@ -378,32 +378,35 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(
               height: 10,
             ),
-            Center(
-              child: Container(
-                width: 320,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: secondary,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextWidget(
-                        text: 'Personal Information',
-                        fontSize: 15,
-                        color: Colors.white,
-                        fontFamily: 'Medium',
-                      ),
-                      TextWidget(
-                        text: 'Edit',
-                        fontSize: 14,
-                        color: secondary,
-                        fontFamily: 'Medium',
-                      ),
-                    ],
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  decoration: BoxDecoration(
+                    color: secondary,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextWidget(
+                          text: 'Personal Information',
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontFamily: 'Medium',
+                        ),
+                        TextWidget(
+                          text: 'Edit',
+                          fontSize: 14,
+                          color: secondary,
+                          fontFamily: 'Medium',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -660,32 +663,35 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(
               height: 10,
             ),
-            Center(
-              child: Container(
-                width: 320,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: secondary,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextWidget(
-                        text: 'Saved Addresses',
-                        fontSize: 15,
-                        color: Colors.white,
-                        fontFamily: 'Medium',
-                      ),
-                      TextWidget(
-                        text: 'Edit',
-                        fontSize: 14,
-                        color: secondary,
-                        fontFamily: 'Medium',
-                      ),
-                    ],
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  decoration: BoxDecoration(
+                    color: secondary,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextWidget(
+                          text: 'Saved Addresses',
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontFamily: 'Medium',
+                        ),
+                        TextWidget(
+                          text: 'Edit',
+                          fontSize: 14,
+                          color: secondary,
+                          fontFamily: 'Medium',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -694,9 +700,9 @@ class _ProfilePageState extends State<ProfilePage> {
               height: 10,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
+              padding: const EdgeInsets.only(left: 15, right: 15),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset(
@@ -704,9 +710,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: 24,
                     height: 24,
                   ),
-                  const SizedBox(
-                    width: 5,
-                  ),
+                  // const SizedBox(
+                  //   width: 5,
+                  // ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -721,22 +727,22 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(
                             width: 250,
                             child: TextWidget(
+                              align: TextAlign.start,
                               text: '${userData!['homeAddress']}' ?? '....',
                               fontSize: 14,
                               color: secondary,
                               fontFamily: 'Medium',
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.edit,
-                                color: secondary, size: 17),
-                            onPressed: () {
-                              editHome();
-                            },
-                          ),
                         ],
                       ),
                     ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: secondary, size: 17),
+                    onPressed: () {
+                      editHome();
+                    },
                   ),
                 ],
               ),
@@ -745,9 +751,9 @@ class _ProfilePageState extends State<ProfilePage> {
               height: 10,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
+              padding: const EdgeInsets.only(left: 15, right: 15),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset(
@@ -772,22 +778,22 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(
                             width: 250,
                             child: TextWidget(
+                              align: TextAlign.start,
                               text: '${userData!['officeAddress']}' ?? '....',
                               fontSize: 14,
                               color: secondary,
                               fontFamily: 'Medium',
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.edit,
-                                color: secondary, size: 17),
-                            onPressed: () {
-                              editOffice();
-                            },
-                          ),
                         ],
                       ),
                     ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: secondary, size: 17),
+                    onPressed: () {
+                      editOffice();
+                    },
                   ),
                 ],
               ),
@@ -795,44 +801,44 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(
               height: 10,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    groups,
-                    width: 24,
-                    height: 24,
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextWidget(
-                        text: 'Sarah’s House',
-                        fontSize: 10,
-                        color: secondary,
-                        fontFamily: 'Regular',
-                      ),
-                      SizedBox(
-                        width: 250,
-                        child: TextWidget(
-                          align: TextAlign.start,
-                          text: '${userData!['homeAddress']}' ?? '....',
-                          fontSize: 14,
-                          color: secondary,
-                          fontFamily: 'Medium',
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 30, right: 30),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.start,
+            //     crossAxisAlignment: CrossAxisAlignment.center,
+            //     children: [
+            //       Image.asset(
+            //         groups,
+            //         width: 24,
+            //         height: 24,
+            //       ),
+            //       const SizedBox(
+            //         width: 5,
+            //       ),
+            //       Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           TextWidget(
+            //             text: 'Sarah’s House',
+            //             fontSize: 10,
+            //             color: secondary,
+            //             fontFamily: 'Regular',
+            //           ),
+            //           SizedBox(
+            //             width: 250,
+            //             child: TextWidget(
+            //               align: TextAlign.start,
+            //               text: '${userData!['homeAddress']}' ?? '....',
+            //               fontSize: 14,
+            //               color: secondary,
+            //               fontFamily: 'Medium',
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
             // const SizedBox(
             //   height: 10,
             // ),
@@ -991,32 +997,35 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(
               height: 10,
             ),
-            Center(
-              child: Container(
-                width: 320,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: secondary,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextWidget(
-                        text: 'Recent Transactions',
-                        fontSize: 15,
-                        color: Colors.white,
-                        fontFamily: 'Medium',
-                      ),
-                      TextWidget(
-                        text: '',
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontFamily: 'Medium',
-                      ),
-                    ],
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  decoration: BoxDecoration(
+                    color: secondary,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextWidget(
+                          text: 'Recent Transactions',
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontFamily: 'Medium',
+                        ),
+                        TextWidget(
+                          text: '',
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontFamily: 'Medium',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1327,11 +1336,11 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 15),
+              padding: const EdgeInsets.only(bottom: 15, left: 15, right: 15),
               child: Center(
                 child: Container(
-                  width: 320,
-                  height: 40,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.05,
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(30),
@@ -1358,11 +1367,11 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
 
   Widget tileWidget(String title, Widget suffix) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.only(bottom: 15, left: 15, right: 15),
       child: Center(
         child: Container(
-          width: 320,
-          height: 40,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.05,
           decoration: BoxDecoration(
             color: secondary,
             borderRadius: BorderRadius.circular(30),
@@ -1412,23 +1421,26 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
                   const SizedBox(
                     height: 20,
                   ),
-                  Container(
-                    height: 300,
-                    width: 320,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: secondary,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 15),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: secondary,
+                        ),
                       ),
-                    ),
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: TextWidget(
-                          align: TextAlign.start,
-                          maxLines: 500,
-                          text: caption,
-                          fontSize: 12,
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: TextWidget(
+                            align: TextAlign.start,
+                            maxLines: 500,
+                            text: caption,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ),
@@ -1442,6 +1454,9 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
                     onPressed: () {
                       Navigator.pop(context);
                     },
+                  ),
+                  const SizedBox(
+                    height: 10,
                   ),
                 ],
               ),
@@ -1533,8 +1548,8 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
                                         }
                                         dynamic data = snapshot.data;
                                         return Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 15),
+                                          padding: const EdgeInsets.only(
+                                              bottom: 15, left: 15, right: 15),
                                           child: GestureDetector(
                                             onTap: () {
                                               Navigator.of(context).push(
@@ -1546,8 +1561,13 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
                                               );
                                             },
                                             child: Container(
-                                              width: 320,
-                                              height: 65,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.1,
                                               decoration: BoxDecoration(
                                                 color: secondary,
                                                 borderRadius:
@@ -1681,5 +1701,72 @@ Pulvinar aenean orci dolor ultricies. Tempus purus eget accumsan facilisis. Enim
     setState(() {
       userData!['officeAddress'] = detail.result.name;
     });
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: TextWidget(
+            text: 'Are you sure you want to logout?',
+            fontSize: 20,
+            fontFamily: "ExtraBold",
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.25,
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: secondary,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: secondary),
+                  ),
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: TextWidget(
+                      text: 'No',
+                      fontSize: 17,
+                      color: white,
+                      fontFamily: "Bold",
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.25,
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: secondary),
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _auth.signOut();
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => const LoginScreen()),
+                        (Route<dynamic> route) => false,
+                      );
+                      showToast('Logout Successful');
+                    },
+                    child: TextWidget(
+                      text: 'Logout',
+                      fontSize: 17,
+                      color: secondary,
+                      fontFamily: "Bold",
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 }

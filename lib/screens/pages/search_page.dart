@@ -221,8 +221,11 @@ class _SearchPageState extends State<SearchPage> {
                                   Card(
                                     elevation: 3,
                                     child: Container(
-                                      width: 80,
-                                      height: 132,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.35,
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.35,
                                       decoration: BoxDecoration(
                                         image: DecorationImage(
                                           fit: BoxFit.cover,
@@ -244,7 +247,11 @@ class _SearchPageState extends State<SearchPage> {
                                   Card(
                                     elevation: 3,
                                     child: Container(
-                                      width: 230,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.55,
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.35,
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(10),

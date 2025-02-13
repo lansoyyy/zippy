@@ -75,15 +75,16 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: secondary,
-      body: Column(
-        children: [
-          Expanded(
-            child: SizedBox(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(
-                    height: 50,
+                  SizedBox(
+                    // height: 50,
+                    height: MediaQuery.of(context).size.height * 0.3,
                   ),
                   Image.asset(
                     logo,
@@ -93,21 +94,22 @@ class _SignupScreenState extends State<SignupScreen> {
                 ],
               ),
             ),
-          ),
-          Container(
-            width: double.infinity,
-            height: 525,
-            decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(
-                    30,
-                  ),
-                  topRight: Radius.circular(
-                    30,
-                  ),
-                )),
-            child: SingleChildScrollView(
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.1,
+            ),
+            Container(
+              width: double.infinity,
+              height: MediaQuery.of(context).size.height * 0.7,
+              decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(
+                      30,
+                    ),
+                    topRight: Radius.circular(
+                      30,
+                    ),
+                  )),
               child: Column(
                 children: [
                   const SizedBox(
@@ -215,56 +217,56 @@ class _SignupScreenState extends State<SignupScreen> {
                   const SizedBox(
                     height: 10,
                   ),
-                    ButtonWidget(
+                  ButtonWidget(
                     height: 50,
                     width: 320,
                     fontSize: 20,
                     label: 'Next',
                     color: otp.text.length != 6 ? Colors.grey : secondary,
                     onPressed: otp.text.length != 6
-                      ? () {}
-                      : () async {
-                        if (otp.text == otpValue &&
-                          name.text.isNotEmpty &&
-                          bday.text.isNotEmpty &&
-                          address.text.isNotEmpty) {
-                          String? result = await addUser(
-                          name: name.text,
-                          email: box.read('email') ?? '',
-                          bday: bday.text,
-                          number: number.text,
-                          home: 'Home',
-                          homeAddress: address.text,
-                          homeLat: 0.0,
-                          homeLng: 0.0,
-                          officeAddress: '',
-                          officeLat: 0.0,
-                          officeLng: 0.0,
-                          profile:
-                            'https://cdn-icons-png.flaticon.com/256/149/149071.png',
-                          isActive: true,
-                          isVerified: false,
-                          );
+                        ? () {}
+                        : () async {
+                            if (otp.text == otpValue &&
+                                name.text.isNotEmpty &&
+                                bday.text.isNotEmpty &&
+                                address.text.isNotEmpty) {
+                              String? result = await addUser(
+                                name: name.text,
+                                email: box.read('email') ?? '',
+                                bday: bday.text,
+                                number: number.text,
+                                home: 'Home',
+                                homeAddress: address.text,
+                                homeLat: 0.0,
+                                homeLng: 0.0,
+                                officeAddress: '',
+                                officeLat: 0.0,
+                                officeLng: 0.0,
+                                profile:
+                                    'https://cdn-icons-png.flaticon.com/256/149/149071.png',
+                                isActive: true,
+                                isVerified: false,
+                              );
 
-                          if (result != null) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                            builder: (context) => const SignupScreen4(),
-                            ),
-                          );
-                          } else {
-                          showToast(
-                            "Failed to create user. Please try again.");
-                          }
-                        } else {
-                          showToast(name.text.isEmpty ||
-                              bday.text.isEmpty ||
-                              address.text.isEmpty
-                            ? 'Please fill in all the required fields'
-                            : 'Invalid OTP, Please try again.');
-                        }
-                        },
-                    ),
+                              if (result != null) {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => const SignupScreen4(),
+                                  ),
+                                );
+                              } else {
+                                showToast(
+                                    "Failed to create user. Please try again.");
+                              }
+                            } else {
+                              showToast(name.text.isEmpty ||
+                                      bday.text.isEmpty ||
+                                      address.text.isEmpty
+                                  ? 'Please fill in all the required fields'
+                                  : 'Invalid OTP, Please try again.');
+                            }
+                          },
+                  ),
                   const SizedBox(
                     height: 30,
                   ),
@@ -297,8 +299,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
