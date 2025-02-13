@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:zippy/screens/auth/login_screen.dart';
 import 'package:zippy/screens/auth/signup_screen4.dart';
+import 'package:zippy/services/otp_service.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/textfield_widget.dart';
+import 'package:zippy/widgets/toast_widget.dart';
 
 import '../../utils/const.dart';
 
@@ -28,13 +32,24 @@ class _SignupScreenState extends State<SignupScreen> {
   int countdown = 10;
   Timer? timer;
 
+  Random random = Random();
+
+  String otpValue = '';
+
+  final box = GetStorage();
+
   void startCountdown() {
+    int sixDigitNumber = random.nextInt(900000) + 100000;
+
+    sendSms('0${number.text}', sixDigitNumber.toString());
+
     setState(() {
+      otpValue = sixDigitNumber.toString();
       hasSent = true;
       countdown = 10;
     });
 
-    timer?.cancel();
+    timer?.cancel(); // Cancel any existing timer before starting a new one
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       if (countdown > 0) {
         setState(() {
@@ -43,7 +58,7 @@ class _SignupScreenState extends State<SignupScreen> {
       } else {
         t.cancel();
         setState(() {
-          hasSent = false;
+          hasSent = false; // Allow resending OTP
         });
       }
     });
@@ -154,6 +169,11 @@ class _SignupScreenState extends State<SignupScreen> {
                     borderColor: secondary,
                     label: 'Mobile Number',
                     controller: number,
+                    onChanged: (p0) {
+                      setState(() {
+                        number.text = p0;
+                      });
+                    },
                   ),
                   TextFieldWidget(
                     suffix: Padding(
@@ -173,7 +193,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             ? () {}
                             : hasSent
                                 ? () {
-                                    print('+63${number.text}');
+                                    // print('+63${number.text}');
                                   }
                                 : startCountdown, // Disable button if countdown is running
                       ),
@@ -185,22 +205,47 @@ class _SignupScreenState extends State<SignupScreen> {
                     label: 'Enter OTP',
                     controller: otp,
                     hint: 'Enter 6-digit Code',
+                    onChanged: (p0) {
+                      setState(() {
+                        otp.text = p0;
+                      });
+                    },
                   ),
                   const SizedBox(
                     height: 10,
                   ),
                   ButtonWidget(
-                    height: 50,
-                    width: 320,
-                    fontSize: 20,
-                    label: 'Next',
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) => const SignupScreen4()),
-                      );
-                    },
-                  ),
+                      height: 50,
+                      width: 320,
+                      fontSize: 20,
+                      label: 'Next',
+                      color: otp.text.length != 6 ? Colors.grey : secondary,
+                      onPressed: otp.text.length != 6
+                          ? () {}
+                          : () {
+                              if (otp.text == otpValue &&
+                                  name.text.isNotEmpty &&
+                                  bday.text.isNotEmpty &&
+                                  address.text.isNotEmpty) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SignupScreen4()),
+                                );
+                              } else {
+                                if (name.text.isEmpty ||
+                                    bday.text.isEmpty ||
+                                    address.text.isEmpty) {
+                                  showToast(
+                                    'Please fill in all the required fields',
+                                  );
+                                } else {
+                                  showToast(
+                                    'Invalid OTP, Please try again.',
+                                  );
+                                }
+                              }
+                            }),
                   const SizedBox(
                     height: 30,
                   ),
