@@ -17,6 +17,7 @@ Future<String?> addUser({
   required bool isVerified,
   List<String>? history = const [],
   List<String>? notifications = const [],
+  List<String>? favorites = const [], // Added favorites parameter
 }) async {
   try {
     final docUser = FirebaseFirestore.instance.collection('Users').doc();
@@ -39,6 +40,7 @@ Future<String?> addUser({
       'isVerified': isVerified,
       'history': history ?? [],
       'notifications': notifications ?? [],
+      'favorites': favorites ?? [],
     };
 
     await docUser.set(json);
