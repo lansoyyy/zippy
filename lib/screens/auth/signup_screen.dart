@@ -30,7 +30,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _numberController = TextEditingController();
 
   bool _hasSentOtp = false;
-  int _countdown = 10;
+  int _countdown = 60;
   Timer? _timer;
 
   final Random _random = Random();
@@ -56,7 +56,7 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       _otpValue = sixDigitNumber.toString();
       _hasSentOtp = true;
-      _countdown = 10;
+      _countdown = 60;
     });
 
     _timer?.cancel(); // Cancel any existing timer before starting a new one

@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _otpController = TextEditingController();
 
   bool _hasSentOtp = false;
-  int _countdown = 10; // Initial countdown value
+  int _countdown = 60; // Initial countdown value
   Timer? _timer;
 
   final Random _random = Random();
@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _otpValue = sixDigitNumber.toString();
       _hasSentOtp = true;
-      _countdown = 10;
+      _countdown = 60;
     });
 
     _timer?.cancel(); // Cancel any existing timer before starting a new one
