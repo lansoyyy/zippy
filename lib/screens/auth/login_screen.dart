@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         : () {
                             FirebaseFirestore.instance
                                 .collection('Users')
-                                .where('number', isEqualTo: '0${number.text}')
+                                .where('number', isEqualTo: number.text)
                                 .get()
                                 .then((QuerySnapshot querySnapshot) {
                               if (querySnapshot.docs.isNotEmpty) {

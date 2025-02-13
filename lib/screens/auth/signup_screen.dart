@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:zippy/screens/auth/login_screen.dart';
 import 'package:zippy/screens/auth/signup_screen4.dart';
+import 'package:zippy/services/add_user.dart';
 import 'package:zippy/services/otp_service.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
@@ -214,38 +215,56 @@ class _SignupScreenState extends State<SignupScreen> {
                   const SizedBox(
                     height: 10,
                   ),
-                  ButtonWidget(
-                      height: 50,
-                      width: 320,
-                      fontSize: 20,
-                      label: 'Next',
-                      color: otp.text.length != 6 ? Colors.grey : secondary,
-                      onPressed: otp.text.length != 6
-                          ? () {}
-                          : () {
-                              if (otp.text == otpValue &&
-                                  name.text.isNotEmpty &&
-                                  bday.text.isNotEmpty &&
-                                  address.text.isNotEmpty) {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SignupScreen4()),
-                                );
-                              } else {
-                                if (name.text.isEmpty ||
-                                    bday.text.isEmpty ||
-                                    address.text.isEmpty) {
-                                  showToast(
-                                    'Please fill in all the required fields',
-                                  );
-                                } else {
-                                  showToast(
-                                    'Invalid OTP, Please try again.',
-                                  );
-                                }
-                              }
-                            }),
+                    ButtonWidget(
+                    height: 50,
+                    width: 320,
+                    fontSize: 20,
+                    label: 'Next',
+                    color: otp.text.length != 6 ? Colors.grey : secondary,
+                    onPressed: otp.text.length != 6
+                      ? () {}
+                      : () async {
+                        if (otp.text == otpValue &&
+                          name.text.isNotEmpty &&
+                          bday.text.isNotEmpty &&
+                          address.text.isNotEmpty) {
+                          String? result = await addUser(
+                          name: name.text,
+                          email: box.read('email') ?? '',
+                          bday: bday.text,
+                          number: number.text,
+                          home: 'Home',
+                          homeAddress: address.text,
+                          homeLat: 0.0,
+                          homeLng: 0.0,
+                          officeAddress: '',
+                          officeLat: 0.0,
+                          officeLng: 0.0,
+                          profile:
+                            'https://cdn-icons-png.flaticon.com/256/149/149071.png',
+                          isActive: true,
+                          isVerified: false,
+                          );
+
+                          if (result != null) {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                            builder: (context) => const SignupScreen4(),
+                            ),
+                          );
+                          } else {
+                          showToast(
+                            "Failed to create user. Please try again.");
+                          }
+                        } else {
+                          showToast(name.text.isEmpty ||
+                              bday.text.isEmpty ||
+                              address.text.isEmpty
+                            ? 'Please fill in all the required fields'
+                            : 'Invalid OTP, Please try again.');
+                        }
+                        },
+                    ),
                   const SizedBox(
                     height: 30,
                   ),

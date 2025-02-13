@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zippy/screens/auth/login_screen.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
@@ -157,7 +158,7 @@ class _SignupScreen4State extends State<SignupScreen4> {
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
+                                builder: (context) => const LoginScreen()),
                           );
                         },
                       ),
@@ -170,7 +171,7 @@ class _SignupScreen4State extends State<SignupScreen4> {
                           onTap: () {
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()),
+                                  builder: (context) => const LoginScreen()),
                             );
                           },
                           child: Row(
