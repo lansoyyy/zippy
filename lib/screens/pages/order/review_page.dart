@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zippy/screens/pages/order/checkout_page.dart';
+import 'package:zippy/screens/pages/order/location_picker_page.dart';
 import 'package:zippy/services/add_order.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
@@ -44,7 +45,7 @@ class _ReviewPageState extends State<ReviewPage> {
   bool _isHome = true;
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
-  final Set<Marker> _markers = {};
+  Set<Marker> _markers = {};
   final String _nearestDriverId = '';
 
   @override
@@ -358,8 +359,9 @@ class _ReviewPageState extends State<ReviewPage> {
   Widget _buildAddressCard(dynamic userData) {
     return Card(
       child: Container(
-        width: 340,
+        width: 370,
         height: 180,
+        clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: secondary),
@@ -419,8 +421,52 @@ class _ReviewPageState extends State<ReviewPage> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () =>
-                            _showAddressSelectionSheet(context, userData),
+                        onTap: () async {
+                          LatLng? newLocation = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LocationPickerScreen(
+                                initialLatLng: LatLng(
+                                  _isHome
+                                      ? userData['homeLat']
+                                      : userData['officeLat'],
+                                  _isHome
+                                      ? userData['homeLng']
+                                      : userData['officeLng'],
+                                ),
+                              ),
+                            ),
+                          );
+
+                          if (newLocation != null) {
+                            setState(() {
+                              if (_isHome) {
+                                userData.reference.update({
+                                  'homeLat': newLocation.latitude,
+                                  'homeLng': newLocation.longitude,
+                                  'homeAddress': newLocation
+                                      .toString(), // Update with selected location
+                                });
+                              } else {
+                                userData.reference.update({
+                                  'officeLat': newLocation.latitude,
+                                  'officeLng': newLocation.longitude,
+                                  'officeAddress': newLocation
+                                      .toString(), // Update with selected location
+                                });
+                              }
+
+                              _markers = {
+                                Marker(
+                                  markerId: const MarkerId("selected"),
+                                  position: newLocation,
+                                  infoWindow: const InfoWindow(
+                                      title: "Selected Location"),
+                                ),
+                              };
+                            });
+                          }
+                        },
                         child: TextWidget(
                           text: 'Edit',
                           fontSize: 14,
@@ -705,51 +751,56 @@ class _ReviewPageState extends State<ReviewPage> {
 
         return Center(
           child: GestureDetector(
-            onTap: () async {
-              final double deliveryFee = _calculateDeliveryFee(userData);
-              final double tipValue = double.tryParse(_tips) ?? 0;
-              final double total = _calculateTotal(userData);
+            onTap: (_isHome && userData['homeAddress'].isEmpty) ||
+                    (!_isHome && userData['officeAddress'].isEmpty)
+                ? null
+                : () async {
+                    final double deliveryFee = _calculateDeliveryFee(userData);
+                    final double tipValue = double.tryParse(_tips) ?? 0;
+                    final double total = _calculateTotal(userData);
 
-              final String orderId = await addOrder(
-                widget.selectedItems,
-                widget.merchantId,
-                widget.merchantName,
-                _isHome ? userData['homeAddress'] : userData['officeAddress'],
-                _totalPrice,
-                _isHome,
-                _remarksController.text,
-                tipValue,
-                'Cash',
-                deliveryFee,
-                total,
-                sortedData.first.id,
-              );
-
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (context) => CheckoutPage(
-                    data: {
-                      'riderId': sortedData.first.id,
-                      'items': widget.selectedItems,
-                      'merchantId': widget.merchantId,
-                      'merchantName': widget.merchantName,
-                      'address': _isHome
+                    final String orderId = await addOrder(
+                      widget.selectedItems,
+                      widget.merchantId,
+                      widget.merchantName,
+                      _isHome
                           ? userData['homeAddress']
                           : userData['officeAddress'],
-                      'subtotal': _totalPrice,
-                      'isHome': _isHome,
-                      'remarks': _remarksController.text,
-                      'tip': tipValue,
-                      'mop': 'Cash',
-                      'deliveryFee': deliveryFee,
-                      'total': total,
-                      'orderId': orderId,
-                    },
-                  ),
-                ),
-                (route) => false,
-              );
-            },
+                      _totalPrice,
+                      _isHome,
+                      _remarksController.text,
+                      tipValue,
+                      'Cash',
+                      deliveryFee,
+                      total,
+                      sortedData.first.id,
+                    );
+
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => CheckoutPage(
+                          data: {
+                            'riderId': sortedData.first.id,
+                            'items': widget.selectedItems,
+                            'merchantId': widget.merchantId,
+                            'merchantName': widget.merchantName,
+                            'address': _isHome
+                                ? userData['homeAddress']
+                                : userData['officeAddress'],
+                            'subtotal': _totalPrice,
+                            'isHome': _isHome,
+                            'remarks': _remarksController.text,
+                            'tip': tipValue,
+                            'mop': 'Cash',
+                            'deliveryFee': deliveryFee,
+                            'total': total,
+                            'orderId': orderId,
+                          },
+                        ),
+                      ),
+                      (route) => false,
+                    );
+                  },
             child: Container(
               width: 280,
               height: 40,

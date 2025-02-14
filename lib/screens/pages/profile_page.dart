@@ -1090,7 +1090,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 stream: FirebaseFirestore.instance
                     .collection('Orders')
                     .where('userId', isEqualTo: userId)
-                    .where('status', isEqualTo: 'Completed')
+                    .where('status', isEqualTo: 'Delivered')
                     .snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {

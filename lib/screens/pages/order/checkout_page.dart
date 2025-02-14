@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zippy/screens/chats/chat_tab.dart';
+import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/screens/pages/order/completed_page.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/utils/colors.dart';
@@ -189,6 +190,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildTopSection(Map<String, dynamic> data) {
+    if (data['status'] == 'Delivered') {
+      Future.delayed(Duration.zero, () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CompletedPage(data: widget.data)),
+        );
+      });
+    }
     return Container(
       width: double.infinity,
       height: data['status'] == 'On the way' ? 200 : 280,
@@ -213,7 +223,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ? 'Awaiting delivery..'
                           : data['status'] == 'Preparing'
                               ? 'Awaiting order..'
-                              : 'Order pending...',
+                              : 'Order Pending...',
                       fontSize: 22,
                       fontFamily: 'Bold',
                       color: Colors.white,

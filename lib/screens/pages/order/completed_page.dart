@@ -40,22 +40,24 @@ class _CompletedPageState extends State<CompletedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 50),
-            _buildHeader(),
-            const SizedBox(height: 20),
-            _buildImage(),
-            const SizedBox(height: 20),
-            _buildEnjoyText(),
-            const SizedBox(height: 20),
-            _buildOrderDetails(),
-            const SizedBox(height: 50),
-            _buildActionButtons(),
-            const SizedBox(height: 20),
-            _buildDoneButton(),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 50),
+              _buildHeader(),
+              const SizedBox(height: 20),
+              _buildImage(),
+              const SizedBox(height: 20),
+              _buildEnjoyText(),
+              const SizedBox(height: 20),
+              _buildOrderDetails(),
+              const SizedBox(height: 50),
+              _buildActionButtons(),
+              const SizedBox(height: 20),
+              _buildDoneButton(),
+            ],
+          ),
         ),
       ),
     );
@@ -533,62 +535,64 @@ class _CompletedPageState extends State<CompletedPage> {
       context: context,
       builder: (context) {
         return Dialog(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Center(
-                    child: TextWidget(
-                      text: 'Rating',
-                      fontSize: 24,
-                      color: secondary,
-                      fontFamily: 'Bold',
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                      child: TextWidget(
+                        text: 'Rating',
+                        fontSize: 24,
+                        color: secondary,
+                        fontFamily: 'Bold',
+                      ),
                     ),
-                  ),
-                  _buildRatingSection(
-                      'Rider', _riderRating, (rating) => _riderRating = rating),
-                  _buildRatingSection(
-                      'Food', _foodRating, (rating) => _foodRating = rating),
-                  _buildRatingSection('Experience', _experienceRating,
-                      (rating) => _experienceRating = rating),
-                  const SizedBox(height: 10),
-                  TextFieldWidget(
-                    width: double.infinity,
-                    radius: 10,
-                    borderColor: secondary,
-                    maxLine: 3,
-                    height: 100,
-                    label: 'Comments',
-                    controller: _commentsController,
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ButtonWidget(
-                      width: 310,
-                      color: secondary,
-                      label: 'DONE',
-                      onPressed: () {
-                        addReview(
-                          _riderRating,
-                          _foodRating,
-                          _experienceRating,
-                          _commentsController.text,
-                          widget.data['orderId'],
-                          widget.data['riderId'],
-                          widget.data['merchantId'],
-                        );
-                        Navigator.pop(context);
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (context) => const HomeScreen()),
-                          (route) => false,
-                        );
-                      },
+                    _buildRatingSection('Rider', _riderRating,
+                        (rating) => _riderRating = rating),
+                    _buildRatingSection(
+                        'Food', _foodRating, (rating) => _foodRating = rating),
+                    _buildRatingSection('Experience', _experienceRating,
+                        (rating) => _experienceRating = rating),
+                    const SizedBox(height: 10),
+                    TextFieldWidget(
+                      width: double.infinity,
+                      radius: 10,
+                      borderColor: secondary,
+                      maxLine: 3,
+                      height: 100,
+                      label: 'Comments',
+                      controller: _commentsController,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    Center(
+                      child: ButtonWidget(
+                        width: 310,
+                        color: secondary,
+                        label: 'DONE',
+                        onPressed: () {
+                          addReview(
+                            _riderRating,
+                            _foodRating,
+                            _experienceRating,
+                            _commentsController.text,
+                            widget.data['orderId'],
+                            widget.data['riderId'],
+                            widget.data['merchantId'],
+                          );
+                          Navigator.pop(context);
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => const HomeScreen()),
+                            (route) => false,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
