@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:get_storage/get_storage.dart';
@@ -86,6 +87,15 @@ class _SignupScreenState extends State<SignupScreen> {
       showToast('Please fill in all the required fields');
       return;
     }
+    final existingUser = await FirebaseFirestore.instance
+        .collection('Users')
+        .where('number', isEqualTo: _numberController.text)
+        .get();
+
+    if (existingUser.docs.isNotEmpty) {
+      showToast('This mobile number is already registered.');
+      return;
+    }
 
     final result = await addUser(
       name: _nameController.text,
@@ -103,6 +113,7 @@ class _SignupScreenState extends State<SignupScreen> {
       isActive: true,
       isVerified: false,
     );
+    showToast('User created successfully');
 
     if (result != null) {
       _box.write('uid', result);
@@ -111,7 +122,7 @@ class _SignupScreenState extends State<SignupScreen> {
         userId = result;
       });
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const SignupScreen4()),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     } else {
       showToast("Failed to create user. Please try again.");
@@ -188,6 +199,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _buildFullNameField() {
     return TextFieldWidget(
+      textCapitalization: TextCapitalization.words,
       height: 55,
       hint: 'eg. Josefa M. Rizalino',
       borderColor: secondary,
@@ -205,7 +217,20 @@ class _SignupScreenState extends State<SignupScreen> {
       inputType: TextInputType.datetime,
       controller: _bdayController,
       suffix: IconButton(
-        onPressed: () {}, // Add date picker logic here
+        onPressed: () async {
+          DateTime? pickedDate = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(1900),
+            lastDate: DateTime.now(),
+          );
+          if (pickedDate != null) {
+            setState(() {
+              _bdayController.text =
+                  "${pickedDate.month}/${pickedDate.day}/${pickedDate.year}";
+            });
+          }
+        },
         icon: const Icon(Icons.calendar_month_outlined, color: secondary),
       ),
     );
@@ -219,6 +244,44 @@ class _SignupScreenState extends State<SignupScreen> {
       borderColor: secondary,
       label: 'Address',
       controller: _addressController,
+      suffix: IconButton(
+        onPressed: () async {
+          location.Prediction? p = await PlacesAutocomplete.show(
+            mode: Mode.overlay,
+            context: context,
+            apiKey: kGoogleApiKey,
+            language: 'en',
+            strictbounds: false,
+            types: [""],
+            decoration: InputDecoration(
+              hintText: 'Search Address',
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+            ),
+            components: [location.Component(location.Component.country, "ph")],
+          );
+
+          if (p != null) {
+            location.GoogleMapsPlaces places = location.GoogleMapsPlaces(
+              apiKey: kGoogleApiKey,
+              apiHeaders: await const GoogleApiHeaders().getHeaders(),
+            );
+
+            location.PlacesDetailsResponse detail =
+                await places.getDetailsByPlaceId(p.placeId!);
+
+            setState(() {
+              _addressController.text = detail.result.name;
+            });
+          }
+        },
+        icon: const Icon(
+          Icons.location_on,
+          color: secondary,
+        ),
+      ),
     );
   }
 
@@ -273,7 +336,7 @@ class _SignupScreenState extends State<SignupScreen> {
       height: 50,
       width: 320,
       fontSize: 20,
-      label: 'Next',
+      label: 'Sign up',
       color: _otpController.text.length != 6 ? Colors.grey : secondary,
       onPressed: _otpController.text.length != 6 ? () {} : _proceedToNextScreen,
     );
