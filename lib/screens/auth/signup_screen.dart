@@ -2,13 +2,17 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:zippy/screens/auth/login_screen.dart';
 import 'package:zippy/screens/auth/signup_screen4.dart';
 import 'package:zippy/services/add_user.dart';
 import 'package:zippy/services/otp_service.dart';
+import 'package:google_maps_webservice/places.dart' as location;
 import 'package:zippy/utils/colors.dart';
+import 'package:zippy/utils/keys.dart';
 import 'package:zippy/widgets/button_widget.dart';
+import 'package:google_api_headers/google_api_headers.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/textfield_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
