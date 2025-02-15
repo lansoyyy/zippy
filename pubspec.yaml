@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.4.4
+  sdk: ^3.5.4
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -52,9 +52,9 @@ dependencies:
   google_maps_flutter_web: ^0.4.0
   google_maps_utils: ^1.5.0+0
   widgets_to_image:
-  image_gallery_saver:
   screenshot:
   get_storage:
+  saver_gallery: ^4.0.1
 
 dev_dependencies:
   flutter_test:

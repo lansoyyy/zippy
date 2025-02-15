@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
@@ -346,11 +346,12 @@ class _CompletedPageState extends State<CompletedPage> {
     try {
       Uint8List? bytes = await _screenshotController.capture();
       if (bytes != null) {
-        final result = await ImageGallerySaver.saveImage(bytes);
-        if (result['isSuccess']) {
+        final result = await SaverGallery.saveImage(bytes,
+            fileName: DateTime.now().toString(), skipIfExists: true);
+        if (result.isSuccess) {
           showToast('Image saved to gallery!');
         } else {
-          showToast('Failed to save image: ${result['errorMessage']}');
+          showToast('Failed to save image: ${result.errorMessage}');
         }
       } else {
         showToast('Failed to capture the widget as an image.');

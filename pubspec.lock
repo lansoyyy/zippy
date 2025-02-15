@@ -157,10 +157,10 @@ packages:
     dependency: transitive
     description:
       name: file_selector_windows
-      sha256: "8f5d2f6590d51ecd9179ba39c64f722edc15226cc93dcc8698466ad36a4a85a4"
+      sha256: "320fcfb6f33caa90f0b58380489fc5ac05d99ee94b61aa96ec2bff0ba81d3c2b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.3+3"
+    version: "0.9.3+4"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -364,10 +364,10 @@ packages:
     dependency: transitive
     description:
       name: get
-      sha256: c338f344fd5bdc40660682f021dfe18329de1173e4729b00ff70ba08f88db5f9
+      sha256: c79eeb4339f1f3deffd9ec912f8a923834bec55f7b49c9e882b8fef2c139d425
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.1"
+    version: "4.7.2"
   get_storage:
     dependency: "direct main"
     description:
@@ -472,14 +472,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
-  image_gallery_saver:
-    dependency: "direct main"
-    description:
-      name: image_gallery_saver
-      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   image_picker:
     dependency: "direct main"
     description:
@@ -744,6 +736,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  saver_gallery:
+    dependency: "direct main"
+    description:
+      name: saver_gallery
+      sha256: bf59475e50b73d666630bed7a5fdb621fed92d637f64e3c61ce81653ec6a833c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
   screenshot:
     dependency: "direct main"
     description:
