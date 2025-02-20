@@ -106,18 +106,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildWelcomeSection() {
     return SizedBox(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 50),
-          Image.asset(logo, width: 191, height: 80),
-          const SizedBox(height: 12.5),
-          TextWidget(
-            text: 'Hi! Welcome',
-            fontSize: 25,
-            color: Colors.white,
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+            Image.asset(logo, width: 191, height: 80),
+            const SizedBox(height: 12.5),
+            TextWidget(
+              text: 'Hi! Welcome',
+              fontSize: 25,
+              color: Colors.white,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -125,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLoginForm() {
     return Container(
       width: double.infinity,
-      height: 450,
+      height: MediaQuery.of(context).size.height * 0.5,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(

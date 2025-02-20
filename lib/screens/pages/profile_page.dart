@@ -1498,11 +1498,14 @@ SCIVER IT SOLUTIONS partners with both government entities and private companies
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const Icon(
-                    Icons.keyboard_arrow_down_outlined,
-                    color: secondary,
-                    size: 50,
+                  const SizedBox(
+                    height: 20,
                   ),
+                  // const Icon(
+                  //   Icons.keyboard_arrow_down_outlined,
+                  //   color: secondary,
+                  //   size: 50,
+                  // ),
                   TextWidget(
                     text: label,
                     fontSize: 24,
@@ -1569,11 +1572,11 @@ SCIVER IT SOLUTIONS partners with both government entities and private companies
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const Icon(
-                    Icons.keyboard_arrow_down_outlined,
-                    color: secondary,
-                    size: 50,
-                  ),
+                  // const Icon(
+                  //   Icons.keyboard_arrow_down_outlined,
+                  //   color: secondary,
+                  //   size: 50,
+                  // ),
                   TextWidget(
                     text: 'Favorites',
                     fontSize: 24,
@@ -1810,7 +1813,7 @@ SCIVER IT SOLUTIONS partners with both government entities and private companies
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width * 0.25,
-                  padding: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: secondary,
                     borderRadius: BorderRadius.circular(10),
@@ -1829,7 +1832,7 @@ SCIVER IT SOLUTIONS partners with both government entities and private companies
                 const SizedBox(width: 10),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.25,
-                  padding: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: secondary),

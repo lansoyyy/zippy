@@ -359,7 +359,7 @@ class _ReviewPageState extends State<ReviewPage> {
   Widget _buildAddressCard(dynamic userData) {
     return Card(
       child: Container(
-        width: 370,
+        width: MediaQuery.of(context).size.width,
         height: 180,
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
@@ -500,7 +500,7 @@ class _ReviewPageState extends State<ReviewPage> {
                 color: secondary,
               ),
               SizedBox(
-                width: 230,
+                width: MediaQuery.of(context).size.width - 170,
                 height: 65,
                 child: TextFieldWidget(
                   height: 65,
@@ -521,7 +521,7 @@ class _ReviewPageState extends State<ReviewPage> {
                 color: secondary,
               ),
               SizedBox(
-                width: 230,
+                width: MediaQuery.of(context).size.width - 300,
                 height: 65,
                 child: TextFieldWidget(
                   onChanged: (value) => setState(() => _tips = value),
@@ -554,7 +554,7 @@ class _ReviewPageState extends State<ReviewPage> {
           ),
           const SizedBox(height: 5),
           Container(
-            width: 320,
+            width: MediaQuery.of(context).size.width,
             height: 45,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
@@ -803,7 +803,8 @@ class _ReviewPageState extends State<ReviewPage> {
                   },
             child: Container(
               width: 280,
-              height: 40,
+              height: 75,
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
                 color: secondary,

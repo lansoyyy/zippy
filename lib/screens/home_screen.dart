@@ -273,8 +273,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildFeaturedLabel() {
     return Container(
-      height: 30,
-      width: 100,
+      height: 40,
+      width: 110,
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: secondary,
         borderRadius: BorderRadius.circular(100),
@@ -305,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Container(
                 width: 265,
-                height: MediaQuery.of(context).size.height * 0.15,
+                height: MediaQuery.of(context).size.height * 0.13,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(15),
@@ -335,6 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
       width: 64,
       height: 60,
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
         image: DecorationImage(
           fit: BoxFit.cover,
           image: NetworkImage(imageUrl),

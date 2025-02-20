@@ -351,7 +351,8 @@ class _ShopPageState extends State<ShopPage> {
         ),
         child: item['imageUrl'] == null
             ? const Center(child: CircularProgressIndicator(color: secondary))
-            : null,
+            : const Center(
+                child: CircularProgressIndicator(color: Colors.transparent)),
       ),
     );
   }
@@ -397,7 +398,7 @@ class _ShopPageState extends State<ShopPage> {
               fontFamily: 'Medium',
               color: Colors.black,
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 35),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
