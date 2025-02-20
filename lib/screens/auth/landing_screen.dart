@@ -24,7 +24,7 @@ class LandingScreen extends StatelessWidget {
               height: 104,
             ),
             Image.asset(
-              label,
+              label2,
               width: 250,
               height: 40,
             ),

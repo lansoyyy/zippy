@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:zippy/screens/auth/landing_screen.dart';
 import 'package:zippy/screens/home_screen.dart';
+import 'package:zippy/screens/onboarding_screens/onboarding_one.dart';
 import 'package:zippy/utils/const.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -20,13 +21,13 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
 
-    Timer(const Duration(seconds: 4), () async {
+    Timer(const Duration(seconds: 2), () async {
       if (box.read('uid') == '' ||
           box.read('uid').toString() == '' ||
           box.read('uid') == null ||
           box.read('uid') == 'null') {
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LandingScreen()));
+            MaterialPageRoute(builder: (context) => const OnboardingOne()));
       } else {
         setState(() {
           userId = box.read('uid');

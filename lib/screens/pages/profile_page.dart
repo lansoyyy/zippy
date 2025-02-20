@@ -92,36 +92,70 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final ImageSource? source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 150,
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: TextWidget(
+                  text: 'Camera',
+                  color: secondary,
+                  fontSize: 20,
+                  fontFamily: "Medium",
+                ),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: TextWidget(
+                  text: 'Gallery',
+                  color: secondary,
+                  fontSize: 20,
+                  fontFamily: "Medium",
+                ),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
+          ),
+        );
+      },
+    );
 
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+    if (source != null) {
+      final pickedFile = await ImagePicker().pickImage(source: source);
 
-      try {
-        final ref = FirebaseStorage.instance
-            .ref()
-            .child('profile_images')
-            .child('$userId.jpg');
-
-        await ref.putFile(_image!);
-
-        final url = await ref.getDownloadURL();
-
-        await FirebaseFirestore.instance
-            .collection('Users')
-            .doc(userId)
-            .update({'profile': url});
-
+      if (pickedFile != null) {
         setState(() {
-          profileImage = url;
+          _image = File(pickedFile.path);
         });
 
-        showToast('Profile Image Updated');
-      } catch (e) {
-        print("Error uploading image: $e");
+        try {
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child('profile_images')
+              .child('$userId.jpg');
+
+          await ref.putFile(_image!);
+
+          final url = await ref.getDownloadURL();
+
+          await FirebaseFirestore.instance
+              .collection('Users')
+              .doc(userId)
+              .update({'profile': url});
+
+          setState(() {
+            profileImage = url;
+          });
+
+          showToast('Profile Image Updated');
+        } catch (e) {
+          print("Error uploading image: $e");
+        }
       }
     }
   }
