@@ -68,8 +68,12 @@ class _ShopPageState extends State<ShopPage> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: secondary),
+      return const Stack(
+        children: [
+          Center(
+            child: CircularProgressIndicator(color: secondary),
+          ),
+        ],
       );
     }
 

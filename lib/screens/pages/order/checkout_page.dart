@@ -166,7 +166,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       children: [
         if (data['status'] == 'Preparing')
           Center(
-              child: _buildLoadingDialog('assets/images/Group 121 (1).png',
+              child: _buildLoadingDialog('assets/images/cat/CAT #7 2.png',
                   'Preparing your Treats', '15 to 20 minutes'))
         else
           GoogleMap(
@@ -201,7 +201,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
     return Container(
       width: double.infinity,
-      height: data['status'] == 'On the way' ? 200 : 280,
+      height: data['status'] == 'On the way' ? 200 : 300,
       decoration: const BoxDecoration(
           color: secondary,
           borderRadius: BorderRadius.only(
@@ -336,7 +336,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       alignment: Alignment.bottomCenter,
       child: Container(
         width: double.infinity,
-        height: 140,
+        height: MediaQuery.of(context).size.height * 0.15,
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(25), topRight: Radius.circular(25)),
