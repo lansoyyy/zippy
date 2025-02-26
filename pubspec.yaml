@@ -55,6 +55,7 @@ dependencies:
   screenshot:
   get_storage:
   saver_gallery: ^4.0.1
+  custom_map_markers:
 
 dev_dependencies:
   flutter_test:

@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:custom_map_markers/custom_map_markers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zippy/screens/chats/chat_tab.dart';
-import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/screens/pages/order/completed_page.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/utils/colors.dart';
@@ -15,6 +15,7 @@ import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
 import 'package:zippy/utils/my_location.dart';
 import 'package:zippy/widgets/button_widget.dart';
+import 'package:zippy/widgets/marker_widget.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
@@ -119,7 +120,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
             mylat = position.latitude;
             mylng = position.longitude;
-
+            _customMarkers.add(MarkerData(
+                marker: Marker(
+                    draggable: true,
+                    icon: BitmapDescriptor.defaultMarker,
+                    markerId: const MarkerId("pickup"),
+                    position: LatLng(data['lat'], data['lng']),
+                    infoWindow: const InfoWindow(title: "Rider's Location")),
+                child: CustomMarker(secondary)));
             markers.add(Marker(
                 draggable: true,
                 icon: BitmapDescriptor.defaultMarker,
@@ -161,6 +169,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  late final List<MarkerData> _customMarkers = [];
+
   Widget _buildMainContent(Map<String, dynamic> data) {
     return Stack(
       children: [
@@ -169,18 +179,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: _buildLoadingDialog('assets/images/cat/CAT #7 2.png',
                   'Preparing your Treats', '15 to 20 minutes'))
         else
-          GoogleMap(
-            polylines: {_polyline},
-            zoomControlsEnabled: false,
-            mapType: MapType.normal,
-            myLocationButtonEnabled: true,
-            myLocationEnabled: true,
-            markers: markers,
-            initialCameraPosition:
-                CameraPosition(target: LatLng(mylat, mylng), zoom: 14.4746),
-            onMapCreated: (controller) {
-              mapController = controller;
-              _controller.complete(controller);
+          CustomGoogleMapMarkerBuilder(
+            customMarkers: _customMarkers,
+            builder: (p0, customMarkers) {
+              if (customMarkers == null) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: secondary,
+                  ),
+                );
+              }
+
+              return GoogleMap(
+                polylines: {_polyline},
+                zoomControlsEnabled: false,
+                mapType: MapType.normal,
+                myLocationButtonEnabled: true,
+                myLocationEnabled: true,
+                markers: markers,
+                initialCameraPosition:
+                    CameraPosition(target: LatLng(mylat, mylng), zoom: 14.4746),
+                onMapCreated: (controller) {
+                  mapController = controller;
+                  _controller.complete(controller);
+                },
+              );
             },
           ),
         _buildTopSection(data),
