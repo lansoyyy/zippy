@@ -66,11 +66,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     return await Geolocator.getCurrentPosition();
   }
 
-  void _onMapTapped(LatLng newPosition) {
+  void _onCameraMove(CameraPosition position) {
     setState(() {
-      _selectedLocation = newPosition;
+      _selectedLocation = position.target;
     });
-    _mapController.animateCamera(CameraUpdate.newLatLng(newPosition));
   }
 
   Future<void> _handleSearch() async {
@@ -112,6 +111,21 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _mapController.animateCamera(CameraUpdate.newLatLng(searchedLocation));
   }
 
+  Future<void> _moveToCurrentLocation() async {
+    try {
+      Position position = await _determinePosition();
+      LatLng currentLocation = LatLng(position.latitude, position.longitude);
+
+      setState(() {
+        _selectedLocation = currentLocation;
+      });
+
+      _mapController.animateCamera(CameraUpdate.newLatLng(currentLocation));
+    } catch (e) {
+      debugPrint("Error moving to current location: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,19 +157,25 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   onMapCreated: (controller) {
                     _mapController = controller;
                   },
-                  onTap: _onMapTapped,
+                  onCameraMove: _onCameraMove,
                   markers: {
                     Marker(
                       markerId: const MarkerId("selected"),
                       position: _selectedLocation,
-                      draggable: true,
-                      onDragEnd: (newPosition) {
-                        setState(() {
-                          _selectedLocation = newPosition;
-                        });
-                      },
+                      draggable: false, // Marker is not draggable
                     ),
                   },
+                  myLocationButtonEnabled:
+                      true, // Enable the "My Location" button
+                  myLocationEnabled:
+                      true, // Enable the blue dot for current location
+                ),
+                const Center(
+                  child: Icon(
+                    Icons.location_pin,
+                    color: Colors.red,
+                    size: 50,
+                  ),
                 ),
                 Positioned(
                   bottom: 20,
@@ -185,6 +205,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 ),
               ],
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _moveToCurrentLocation,
+        child: const Icon(Icons.my_location),
+      ),
     );
   }
 }
