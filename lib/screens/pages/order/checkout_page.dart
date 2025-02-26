@@ -124,7 +124,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 marker: Marker(
                     draggable: true,
                     icon: BitmapDescriptor.defaultMarker,
-                    markerId: const MarkerId("pickup"),
+                    markerId: const MarkerId("pickup1"),
                     position: LatLng(data['lat'], data['lng']),
                     infoWindow: const InfoWindow(title: "Rider's Location")),
                 child: CustomMarker(secondary)));
