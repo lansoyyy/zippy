@@ -10,6 +10,7 @@ import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/textfield_widget.dart';
+import 'package:zippy/widgets/toast_widget.dart';
 
 class ReviewPage extends StatefulWidget {
   final List<Map<String, dynamic>> selectedItems;
@@ -755,51 +756,57 @@ class _ReviewPageState extends State<ReviewPage> {
                     (!_isHome && userData['officeAddress'].isEmpty)
                 ? null
                 : () async {
-                    final double deliveryFee = _calculateDeliveryFee(userData);
-                    final double tipValue = double.tryParse(_tips) ?? 0;
-                    final double total = _calculateTotal(userData);
+                    if (sortedData.isNotEmpty) {
+                      final double deliveryFee =
+                          _calculateDeliveryFee(userData);
+                      final double tipValue = double.tryParse(_tips) ?? 0;
+                      final double total = _calculateTotal(userData);
 
-                    final String orderId = await addOrder(
-                      widget.selectedItems,
-                      widget.merchantId,
-                      widget.merchantName,
-                      _isHome
-                          ? userData['homeAddress']
-                          : userData['officeAddress'],
-                      _totalPrice,
-                      _isHome,
-                      _remarksController.text,
-                      tipValue,
-                      'Cash',
-                      deliveryFee,
-                      total,
-                      sortedData.first.id,
-                    );
+                      final String orderId = await addOrder(
+                        widget.selectedItems,
+                        widget.merchantId,
+                        widget.merchantName,
+                        _isHome
+                            ? userData['homeAddress']
+                            : userData['officeAddress'],
+                        _totalPrice,
+                        _isHome,
+                        _remarksController.text,
+                        tipValue,
+                        'Cash',
+                        deliveryFee,
+                        total,
+                        sortedData.first.id,
+                      );
 
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (context) => CheckoutPage(
-                          data: {
-                            'riderId': sortedData.first.id,
-                            'items': widget.selectedItems,
-                            'merchantId': widget.merchantId,
-                            'merchantName': widget.merchantName,
-                            'address': _isHome
-                                ? userData['homeAddress']
-                                : userData['officeAddress'],
-                            'subtotal': _totalPrice,
-                            'isHome': _isHome,
-                            'remarks': _remarksController.text,
-                            'tip': tipValue,
-                            'mop': 'Cash',
-                            'deliveryFee': deliveryFee,
-                            'total': total,
-                            'orderId': orderId,
-                          },
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => CheckoutPage(
+                            data: {
+                              'riderId': sortedData.first.id,
+                              'items': widget.selectedItems,
+                              'merchantId': widget.merchantId,
+                              'merchantName': widget.merchantName,
+                              'address': _isHome
+                                  ? userData['homeAddress']
+                                  : userData['officeAddress'],
+                              'subtotal': _totalPrice,
+                              'isHome': _isHome,
+                              'remarks': _remarksController.text,
+                              'tip': tipValue,
+                              'mop': 'Cash',
+                              'deliveryFee': deliveryFee,
+                              'total': total,
+                              'orderId': orderId,
+                            },
+                          ),
                         ),
-                      ),
-                      (route) => false,
-                    );
+                        (route) => false,
+                      );
+                    } else {
+                      showToast(
+                          "We're sorry, but there are currently no available riders to take your order. Please try again later or check back soon. Thank you for your patience!");
+                    }
                   },
             child: Container(
               width: 280,
