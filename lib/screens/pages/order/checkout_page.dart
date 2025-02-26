@@ -123,7 +123,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
             _customMarkers.add(MarkerData(
                 marker: Marker(
                     draggable: true,
-                    icon: BitmapDescriptor.defaultMarker,
                     markerId: const MarkerId("pickup1"),
                     position: LatLng(data['lat'], data['lng']),
                     infoWindow: const InfoWindow(title: "Rider's Location")),
@@ -196,7 +195,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 mapType: MapType.normal,
                 myLocationButtonEnabled: true,
                 myLocationEnabled: true,
-                markers: markers,
+                markers: customMarkers,
                 initialCameraPosition:
                     CameraPosition(target: LatLng(mylat, mylng), zoom: 14.4746),
                 onMapCreated: (controller) {
