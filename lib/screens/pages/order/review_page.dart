@@ -39,7 +39,7 @@ class ReviewPage extends StatefulWidget {
 class _ReviewPageState extends State<ReviewPage> {
   final TextEditingController _remarksController =
       TextEditingController(text: '');
-  final TextEditingController _tipController = TextEditingController(text: '0');
+  final TextEditingController _tipController = TextEditingController(text: '');
   String _tips = '0';
   final Map<String, dynamic> _itemCounts = {};
   double _totalPrice = 0;
@@ -487,57 +487,41 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Widget _buildRemarksAndTipSection() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TextWidget(
-                text: 'Remarks:',
-                fontSize: 20,
-                fontFamily: 'Bold',
-                color: secondary,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width - 170,
-                height: 65,
-                child: TextFieldWidget(
-                  height: 65,
-                  radius: 10,
-                  borderColor: secondary,
-                  label: 'Remarks',
-                  controller: _remarksController,
-                ),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: 150,
+          child: TextFieldWidget(
+            maxLine: 20,
+            height: 65,
+            radius: 10,
+            
+            borderColor: secondary,
+            label: 'Remarks',
+            controller: _remarksController,
           ),
-          Row(
-            children: [
-              TextWidget(
-                text: 'Tip (optional):',
-                fontSize: 14,
-                fontFamily: 'Bold',
-                color: secondary,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width - 300,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.6,
+              height: 80,
+              child: TextFieldWidget(
+                onChanged: (value) => setState(() => _tips = value),
+                inputType: TextInputType.number,
                 height: 65,
-                child: TextFieldWidget(
-                  onChanged: (value) => setState(() => _tips = value),
-                  inputType: TextInputType.number,
-                  height: 65,
-                  radius: 10,
-                  borderColor: secondary,
-                  label: 'Amount',
-                  controller: _tipController,
-                ),
+                radius: 10,
+                borderColor: secondary,
+                label: 'Tip (optional)',
+                controller: _tipController,
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

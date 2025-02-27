@@ -72,7 +72,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
           enabled: widget.enabled,
           style: const TextStyle(
             fontFamily: 'Medium',
-            fontSize: 24,
+            fontSize: 18,
           ),
           textCapitalization: widget.textCapitalization!,
           keyboardType: widget.inputType,
