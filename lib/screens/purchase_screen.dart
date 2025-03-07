@@ -7,6 +7,7 @@ import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
+import 'package:zippy/widgets/textfield_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
 class PurchaseScreen extends StatefulWidget {
@@ -19,8 +20,10 @@ class PurchaseScreen extends StatefulWidget {
 class _PurchaseScreenState extends State<PurchaseScreen> {
   Map<String, dynamic>? userData;
   String? profileImage;
-
   bool hasLoaded = true;
+  bool isNowSelected = true;
+  final namecontroller = TextEditingController();
+  final typesOfPurchase = TextEditingController();
 
   @override
   void initState() {
@@ -92,23 +95,338 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 color: Colors.black,
                               ),
                             ),
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 15),
-                                TextWidget(
-                                  text: 'Welcome to Zippy Purchase!',
-                                  fontSize: 18,
-                                  color: secondary,
-                                  fontFamily: "Bold",
+                            child: SingleChildScrollView(
+                              padding:
+                                  const EdgeInsets.only(top: 5, bottom: 20),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 15),
+                                    TextWidget(
+                                      text: 'Welcome to Zippy Purchase!',
+                                      fontSize: 18,
+                                      color: secondary,
+                                      fontFamily: "Bold",
+                                    ),
+                                    TextWidget(
+                                      text:
+                                          'Groceries, Medicine, and other need? \n Zippy can do it for you',
+                                      fontSize: 12,
+                                      color: Colors.black,
+                                      fontFamily: "Bold",
+                                    ),
+                                    const SizedBox(height: 10),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          isNowSelected = !isNowSelected;
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 200,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                              color: secondary, width: 2),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            AnimatedAlign(
+                                              alignment: isNowSelected
+                                                  ? Alignment.centerLeft
+                                                  : Alignment.centerRight,
+                                              duration: const Duration(
+                                                  milliseconds: 300),
+                                              child: Container(
+                                                width: 100,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  color: secondary,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Center(
+                                                    child: TextWidget(
+                                                        text: 'reserve',
+                                                        fontSize: 15,
+                                                        fontFamily: "Medium",
+                                                        color: isNowSelected
+                                                            ? Colors.white
+                                                            : secondary),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Center(
+                                                    child: TextWidget(
+                                                        text: 'reserve',
+                                                        fontSize: 15,
+                                                        fontFamily: "Medium",
+                                                        color: isNowSelected
+                                                            ? secondary
+                                                            : Colors.white),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 15, right: 15),
+                                      child: Row(
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              TextWidget(
+                                                text: 'Name of Recipient',
+                                                fontSize: 12,
+                                                fontFamily: "Medium",
+                                              ),
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    80,
+                                                height: 45,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  border: Border.all(
+                                                      color: black, width: 1.5),
+                                                ),
+                                                child: TextFieldWidget(
+                                                    label: data['name'],
+                                                    controller: namecontroller),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              TextWidget(
+                                                text: 'Mobile Number',
+                                                fontSize: 12,
+                                                fontFamily: "Medium",
+                                              ),
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    80,
+                                                height: 45,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  border: Border.all(
+                                                      color: black, width: 1.5),
+                                                ),
+                                                child: TextFieldWidget(
+                                                    label: '0${data['number']}',
+                                                    controller: namecontroller),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              TextWidget(
+                                                text: 'Address',
+                                                fontSize: 12,
+                                                fontFamily: "Medium",
+                                              ),
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    80,
+                                                height: 45,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  border: Border.all(
+                                                      color: black, width: 1.5),
+                                                ),
+                                                child: TextFieldWidget(
+                                                    label:
+                                                        '${data['homeAddress']}',
+                                                    controller: namecontroller),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              TextWidget(
+                                                text: 'Types of Purchase',
+                                                fontSize: 12,
+                                                fontFamily: "Medium",
+                                              ),
+                                              SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    80,
+                                                height: 60,
+                                                // decoration: BoxDecoration(
+                                                //   borderRadius:
+                                                //       BorderRadius.circular(5),
+                                                //   border: Border.all(
+                                                //       color: black, width: 1.5),
+                                                // ),
+                                                child: DropdownButtonFormField<
+                                                    String>(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  value: typesOfPurchase
+                                                          .text.isEmpty
+                                                      ? null
+                                                      : typesOfPurchase.text,
+                                                  items: [
+                                                    'Grocery',
+                                                    'Market',
+                                                    'Medicine',
+                                                    'Pet Shop',
+                                                    'Household',
+                                                    'Others',
+                                                  ]
+                                                      .map((label) =>
+                                                          DropdownMenuItem(
+                                                            value: label,
+                                                            child: TextWidget(
+                                                              text: label,
+                                                              fontSize: 15,
+                                                              color: secondary,
+                                                              fontFamily:
+                                                                  'Medium',
+                                                            ),
+                                                          ))
+                                                      .toList(),
+                                                  hint: TextWidget(
+                                                    text: 'Types of Purchase',
+                                                    fontSize: 12,
+                                                    color: secondary,
+                                                  ),
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      typesOfPurchase.text =
+                                                          value!;
+                                                    });
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5),
+                                                      borderSide: BorderSide(
+                                                          color: black,
+                                                          width: 1.5),
+                                                    ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: black,
+                                                          width: 1.5),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: black,
+                                                          width: 1.5),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5),
+                                                    ),
+                                                  ),
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Please select types of purchase.';
+                                                    }
+                                                    return null;
+                                                  },
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              TextWidget(
+                                                text: 'Drop-off Address',
+                                                fontSize: 12,
+                                                fontFamily: "Medium",
+                                              ),
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    80,
+                                                height: 45,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  border: Border.all(
+                                                      color: black, width: 1.5),
+                                                ),
+                                                child: TextFieldWidget(
+                                                    label:
+                                                        '${data['officeAddress']}',
+                                                    controller: namecontroller),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              TextWidget(
+                                                text: 'List of Items',
+                                                fontSize: 12,
+                                                fontFamily: "Medium",
+                                              ),
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    80,
+                                                height: 45,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  border: Border.all(
+                                                      color: black, width: 1.5),
+                                                ),
+                                                child: TextFieldWidget(
+                                                    label: '${data['']}',
+                                                    controller: namecontroller),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              TextWidget(
+                                                text: 'Note to rider',
+                                                fontSize: 12,
+                                                fontFamily: "Medium",
+                                              ),
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    80,
+                                                height: 45,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  border: Border.all(
+                                                      color: black, width: 1.5),
+                                                ),
+                                                child: TextFieldWidget(
+                                                    label: 'Note here...',
+                                                    controller: namecontroller),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                TextWidget(
-                                  text:
-                                      'Groceries, Medicine, and other need? \n Zippy can do it for you',
-                                  fontSize: 12,
-                                  color: Colors.black,
-                                  fontFamily: "Bold",
-                                )
-                              ],
+                              ),
                             ),
                           ),
                         ),

@@ -18,16 +18,13 @@ class TextFieldWidget extends StatefulWidget {
   late Color? hintColor;
   late double? radius;
   final String? Function(String?)? validator; // Add validator parameter
-
   final TextCapitalization? textCapitalization;
-
   bool? hasValidator;
   Widget? prefix;
-
   late int? length;
-
   Widget? suffix;
   Function(String)? onChanged;
+  final double fontSize; // Add fontSize parameter
 
   TextFieldWidget({
     super.key,
@@ -52,6 +49,7 @@ class TextFieldWidget extends StatefulWidget {
     this.textCapitalization = TextCapitalization.sentences,
     this.inputType = TextInputType.text,
     this.validator, // Add validator parameter
+    this.fontSize = 24, // Initialize fontSize with a default value
   });
 
   @override
@@ -70,9 +68,9 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
           onChanged: widget.onChanged,
           maxLength: widget.length,
           enabled: widget.enabled,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Medium',
-            fontSize: 24,
+            fontSize: widget.fontSize, // Use the fontSize parameter
           ),
           textCapitalization: widget.textCapitalization!,
           keyboardType: widget.inputType,
@@ -99,14 +97,15 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
             hintText: widget.hint,
             border: InputBorder.none,
             label: TextWidget(
+              align: TextAlign.start,
               text: widget.label,
-              fontSize: 18,
+              fontSize: 12,
               color: secondary,
             ),
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
               fontFamily: 'Regular',
               color: Colors.grey,
-              fontSize: 24,
+              fontSize: widget.fontSize, // Use the fontSize parameter
             ),
             disabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
@@ -140,7 +139,6 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
               borderRadius: BorderRadius.circular(widget.radius!),
             ),
           ),
-
           maxLines: widget.maxLine,
           obscureText: widget.isObscure!,
           controller: widget.controller,
@@ -149,7 +147,6 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a ${widget.label}';
                   }
-
                   return null;
                 }
               : widget.validator, // Pass the validator to the TextFormField

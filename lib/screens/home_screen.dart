@@ -222,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         _buildCravingOption(Icons.fastfood_outlined, 'Food', true),
         _buildCravingOption(
-            Icons.directions_car_filled_outlined, 'Purchase', false,
+            Icons.production_quantity_limits_sharp, 'Purchase', false,
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => const PurchaseScreen()))),
         _buildCravingOption(Icons.directions_car_filled_outlined, 'Ride', false,
