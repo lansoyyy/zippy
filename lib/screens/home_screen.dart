@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/screens/pages/shop_page.dart';
+import 'package:zippy/screens/purchase_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/my_location.dart';
@@ -220,6 +221,10 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _buildCravingOption(Icons.fastfood_outlined, 'Food', true),
+        _buildCravingOption(
+            Icons.directions_car_filled_outlined, 'Purchase', false,
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const PurchaseScreen()))),
         _buildCravingOption(Icons.directions_car_filled_outlined, 'Ride', false,
             onTap: () => showToast('Coming soon.')),
         _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
