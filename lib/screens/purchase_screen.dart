@@ -23,7 +23,11 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   bool hasLoaded = true;
   bool isNowSelected = true;
   final namecontroller = TextEditingController();
+  final mobileNumber = TextEditingController();
+  final address = TextEditingController();
   final typesOfPurchase = TextEditingController();
+  final deliveryAddress = TextEditingController();
+  final riderNoteController = TextEditingController();
 
   @override
   void initState() {
@@ -57,427 +61,423 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Column(
-            children: [
-              _buildTopSection(),
-              StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('Users')
-                      .doc(userId)
-                      .snapshots(),
-                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(
-                          child: Center(child: CircularProgressIndicator()));
-                    } else if (snapshot.hasError) {
-                      return const Center(child: Text('Something went wrong'));
-                    } else if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Center(
-                          child: Center(child: CircularProgressIndicator()));
-                    }
-
-                    final data = snapshot.data!.data() as Map<String, dynamic>?;
-
-                    if (data == null) {
-                      return const Center(child: Text('No data found.'));
-                    }
-                    return Column(
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildTopSection(),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  height: MediaQuery.of(context).size.height * 0.55,
+                  width: MediaQuery.of(context).size.width - 20,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: black),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
-                          child: Container(
-                            height: MediaQuery.of(context).size.height - 500,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.black,
+                        Center(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 15),
+                              TextWidget(
+                                text: 'Welcome to Zippy Purchase!',
+                                fontSize: 18,
+                                color: secondary,
+                                fontFamily: "Bold",
                               ),
-                            ),
-                            child: SingleChildScrollView(
-                              padding:
-                                  const EdgeInsets.only(top: 5, bottom: 20),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    const SizedBox(height: 15),
-                                    TextWidget(
-                                      text: 'Welcome to Zippy Purchase!',
-                                      fontSize: 18,
-                                      color: secondary,
-                                      fontFamily: "Bold",
-                                    ),
-                                    TextWidget(
-                                      text:
-                                          'Groceries, Medicine, and other need? \n Zippy can do it for you',
-                                      fontSize: 12,
-                                      color: Colors.black,
-                                      fontFamily: "Bold",
-                                    ),
-                                    const SizedBox(height: 10),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          isNowSelected = !isNowSelected;
-                                        });
-                                      },
-                                      child: Container(
-                                        width: 200,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          border: Border.all(
-                                              color: secondary, width: 2),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            AnimatedAlign(
-                                              alignment: isNowSelected
-                                                  ? Alignment.centerLeft
-                                                  : Alignment.centerRight,
-                                              duration: const Duration(
-                                                  milliseconds: 300),
-                                              child: Container(
-                                                width: 100,
-                                                height: 40,
-                                                decoration: BoxDecoration(
-                                                  color: secondary,
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                ),
-                                              ),
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Center(
-                                                    child: TextWidget(
-                                                        text: 'reserve',
-                                                        fontSize: 15,
-                                                        fontFamily: "Medium",
-                                                        color: isNowSelected
-                                                            ? Colors.white
-                                                            : secondary),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Center(
-                                                    child: TextWidget(
-                                                        text: 'reserve',
-                                                        fontSize: 15,
-                                                        fontFamily: "Medium",
-                                                        color: isNowSelected
-                                                            ? secondary
-                                                            : Colors.white),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                              TextWidget(
+                                text:
+                                    'Groceries, Medicine, and other need? \n Zippy can do it for you',
+                                fontSize: 12,
+                                color: Colors.black,
+                                fontFamily: "Bold",
+                              ),
+                              const SizedBox(height: 10),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isNowSelected = !isNowSelected;
+                                  });
+                                },
+                                child: Container(
+                                  width: 200,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    border:
+                                        Border.all(color: secondary, width: 2),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      AnimatedAlign(
+                                        alignment: isNowSelected
+                                            ? Alignment.centerLeft
+                                            : Alignment.centerRight,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        child: Container(
+                                          width: 100,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: secondary,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 15, right: 15),
-                                      child: Row(
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              TextWidget(
-                                                text: 'Name of Recipient',
-                                                fontSize: 12,
-                                                fontFamily: "Medium",
-                                              ),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    80,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      color: black, width: 1.5),
-                                                ),
-                                                child: TextFieldWidget(
-                                                    label: data['name'],
-                                                    controller: namecontroller),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              TextWidget(
-                                                text: 'Mobile Number',
-                                                fontSize: 12,
-                                                fontFamily: "Medium",
-                                              ),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    80,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      color: black, width: 1.5),
-                                                ),
-                                                child: TextFieldWidget(
-                                                    label: '0${data['number']}',
-                                                    controller: namecontroller),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              TextWidget(
-                                                text: 'Address',
-                                                fontSize: 12,
-                                                fontFamily: "Medium",
-                                              ),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    80,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      color: black, width: 1.5),
-                                                ),
-                                                child: TextFieldWidget(
-                                                    label:
-                                                        '${data['homeAddress']}',
-                                                    controller: namecontroller),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              TextWidget(
-                                                text: 'Types of Purchase',
-                                                fontSize: 12,
-                                                fontFamily: "Medium",
-                                              ),
-                                              SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    80,
-                                                height: 60,
-                                                // decoration: BoxDecoration(
-                                                //   borderRadius:
-                                                //       BorderRadius.circular(5),
-                                                //   border: Border.all(
-                                                //       color: black, width: 1.5),
-                                                // ),
-                                                child: DropdownButtonFormField<
-                                                    String>(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  value: typesOfPurchase
-                                                          .text.isEmpty
-                                                      ? null
-                                                      : typesOfPurchase.text,
-                                                  items: [
-                                                    'Grocery',
-                                                    'Market',
-                                                    'Medicine',
-                                                    'Pet Shop',
-                                                    'Household',
-                                                    'Others',
-                                                  ]
-                                                      .map((label) =>
-                                                          DropdownMenuItem(
-                                                            value: label,
-                                                            child: TextWidget(
-                                                              text: label,
-                                                              fontSize: 15,
-                                                              color: secondary,
-                                                              fontFamily:
-                                                                  'Medium',
-                                                            ),
-                                                          ))
-                                                      .toList(),
-                                                  hint: TextWidget(
-                                                    text: 'Types of Purchase',
-                                                    fontSize: 12,
-                                                    color: secondary,
-                                                  ),
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      typesOfPurchase.text =
-                                                          value!;
-                                                    });
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5),
-                                                      borderSide: BorderSide(
-                                                          color: black,
-                                                          width: 1.5),
-                                                    ),
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: black,
-                                                          width: 1.5),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: black,
-                                                          width: 1.5),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5),
-                                                    ),
-                                                  ),
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'Please select types of purchase.';
-                                                    }
-                                                    return null;
-                                                  },
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              TextWidget(
-                                                text: 'Drop-off Address',
-                                                fontSize: 12,
-                                                fontFamily: "Medium",
-                                              ),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    80,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      color: black, width: 1.5),
-                                                ),
-                                                child: TextFieldWidget(
-                                                    label:
-                                                        '${data['officeAddress']}',
-                                                    controller: namecontroller),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              TextWidget(
-                                                text: 'List of Items',
-                                                fontSize: 12,
-                                                fontFamily: "Medium",
-                                              ),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    80,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      color: black, width: 1.5),
-                                                ),
-                                                child: TextFieldWidget(
-                                                    label: '${data['']}',
-                                                    controller: namecontroller),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              TextWidget(
-                                                text: 'Note to rider',
-                                                fontSize: 12,
-                                                fontFamily: "Medium",
-                                              ),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    80,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  border: Border.all(
-                                                      color: black, width: 1.5),
-                                                ),
-                                                child: TextFieldWidget(
-                                                    label: 'Note here...',
-                                                    controller: namecontroller),
-                                              ),
-                                            ],
+                                          Expanded(
+                                            child: Center(
+                                              child: TextWidget(
+                                                  text: 'reserve',
+                                                  fontSize: 15,
+                                                  fontFamily: "Medium",
+                                                  color: isNowSelected
+                                                      ? Colors.white
+                                                      : secondary),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Center(
+                                              child: TextWidget(
+                                                  text: 'reserve',
+                                                  fontSize: 15,
+                                                  fontFamily: "Medium",
+                                                  color: isNowSelected
+                                                      ? secondary
+                                                      : Colors.white),
+                                            ),
                                           ),
                                         ],
                                       ),
-                                    )
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(height: 10),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 15, right: 15),
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // TextWidget(
+                                        //   text: 'Name of Recipient',
+                                        //   fontSize: 12,
+                                        //   fontFamily: "Medium",
+                                        // ),
+                                        Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              55,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            border: Border.all(
+                                                color: black, width: 1.5),
+                                          ),
+                                          child: TextFieldWidget(
+                                              height: 55,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              radius: 10,
+                                              color: secondary,
+                                              label: 'Name of Recipient',
+                                              fontSize: 14,
+                                              controller: namecontroller),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        // TextWidget(
+                                        //   text: 'Mobile Number',
+                                        //   fontSize: 12,
+                                        //   fontFamily: "Medium",
+                                        // ),
+                                        Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              55,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            border: Border.all(
+                                                color: black, width: 1.5),
+                                          ),
+                                          child: TextFieldWidget(
+                                              height: 55,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              radius: 10,
+                                              color: secondary,
+                                              label: 'Mobile Number',
+                                              fontSize: 14,
+                                              controller: mobileNumber),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        // TextWidget(
+                                        //   text: 'Address',
+                                        //   fontSize: 12,
+                                        //   fontFamily: "Medium",
+                                        // ),
+                                        Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              55,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            border: Border.all(
+                                                color: black, width: 1.5),
+                                          ),
+                                          child: TextFieldWidget(
+                                              height: 55,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              radius: 10,
+                                              color: secondary,
+                                              label: 'Address',
+                                              fontSize: 14,
+                                              controller: address),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        // TextWidget(
+                                        //   text: 'Types of Purchase',
+                                        //   fontSize: 12,
+                                        //   fontFamily: "Medium",
+                                        // ),
+                                        Material(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          child: SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width -
+                                                55,
+                                            child:
+                                                DropdownButtonFormField<String>(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                              value:
+                                                  typesOfPurchase.text.isEmpty
+                                                      ? null
+                                                      : typesOfPurchase.text,
+                                              items: [
+                                                'Grocery',
+                                                'Market',
+                                                'Medicine',
+                                                'Pet Shop',
+                                                'Household',
+                                                'Others',
+                                              ]
+                                                  .map((label) =>
+                                                      DropdownMenuItem(
+                                                        value: label,
+                                                        child: TextWidget(
+                                                          text: label,
+                                                          fontSize: 15,
+                                                          color: secondary,
+                                                          fontFamily: 'Medium',
+                                                        ),
+                                                      ))
+                                                  .toList(),
+                                              hint: TextWidget(
+                                                text: 'Types of Purchase',
+                                                fontSize: 12,
+                                                color: secondary,
+                                              ),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  typesOfPurchase.text = value!;
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  borderSide: BorderSide(
+                                                      color: black, width: 1.5),
+                                                ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: black, width: 1.5),
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: black, width: 1.5),
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
+                                              ),
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return 'Please select types of purchase.';
+                                                }
+                                                return null;
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        // TextWidget(
+                                        //   text: 'Drop-off Address',
+                                        //   fontSize: 12,
+                                        //   fontFamily: "Medium",
+                                        // ),
+                                        Material(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width -
+                                                55,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                              border: Border.all(
+                                                  color: black, width: 1.5),
+                                            ),
+                                            child: TextFieldWidget(
+                                                height: 55,
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                radius: 10,
+                                                color: secondary,
+                                                label: 'Delivery Address',
+                                                fontSize: 14,
+                                                controller: deliveryAddress),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        TextWidget(
+                                          text: 'List of Items',
+                                          fontSize: 12,
+                                          fontFamily: "Medium",
+                                        ),
+                                        Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              55,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            border: Border.all(
+                                                color: black, width: 1.5),
+                                          ),
+                                          child: TextFieldWidget(
+                                              label: '',
+                                              controller: namecontroller),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        // TextWidget(
+                                        //   text: 'Note to rider',
+                                        //   fontSize: 12,
+                                        //   fontFamily: "Medium",
+                                        // ),
+                                        Material(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width -
+                                                55,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                              border: Border.all(
+                                                  color: black, width: 1.5),
+                                            ),
+                                            child: TextFieldWidget(
+                                                height: 55,
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                radius: 10,
+                                                color: secondary,
+                                                label: 'Note to rider',
+                                                fontSize: 14,
+                                                controller:
+                                                    riderNoteController),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
                           ),
                         ),
-                        Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Container(
-                              width: double.infinity,
-                              height: 112,
-                              decoration: const BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    blurRadius: 10,
-                                    spreadRadius: 1,
-                                    offset: Offset(0, 0),
-                                  )
-                                ],
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(25),
-                                    topRight: Radius.circular(25)),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width - 50,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(50),
-                                      color: secondary,
-                                      border: Border.all(color: secondary),
-                                    ),
-                                    child: Center(
-                                      child: TextWidget(
-                                        text: 'BOOK',
-                                        fontSize: 23,
-                                        color: Colors.white,
-                                        fontFamily: "Bold",
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )),
                       ],
-                    );
-                  })
-            ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+          Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                height: 112,
+                decoration: const BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                      offset: Offset(0, 0),
+                    )
+                  ],
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25)),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width - 50,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        color: secondary,
+                        border: Border.all(color: secondary),
+                      ),
+                      child: Center(
+                        child: TextWidget(
+                          text: 'BOOK',
+                          fontSize: 23,
+                          color: Colors.white,
+                          fontFamily: "Bold",
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )),
         ],
       ),
     );
@@ -513,13 +513,14 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
           Icons.fastfood_outlined,
           'Food',
           false,
-          onTap: () => Navigator.of(context).push(
+          onTap: () => Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => const HomeScreen())),
         ),
         _buildCravingOption(
-            Icons.production_quantity_limits_sharp, 'Purchase', true,
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const PurchaseScreen()))),
+          Icons.production_quantity_limits_sharp,
+          'Purchase',
+          true,
+        ),
         _buildCravingOption(Icons.directions_car_filled_outlined, 'Ride', false,
             onTap: () => showToast('Coming soon.')),
         _buildCravingOption(Icons.card_giftcard, 'Surprise', false,

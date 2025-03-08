@@ -60,7 +60,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 25, right: 25),
+      padding: const EdgeInsets.only(top: 10, bottom: 10, right: 25),
       child: SizedBox(
         width: widget.width,
         height: widget.height,
