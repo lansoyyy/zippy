@@ -158,13 +158,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     _mapController = controller;
                   },
                   onCameraMove: _onCameraMove,
-                  markers: {
-                    Marker(
-                      markerId: const MarkerId("selected"),
-                      position: _selectedLocation,
-                      draggable: false, // Marker is not draggable
-                    ),
-                  },
+                  // markers: {
+                  //   Marker(
+                  //     markerId: const MarkerId("selected"),
+                  //     position: _selectedLocation,
+                  //     draggable: false, // Marker is not draggable
+                  //   ),
+                  // },
                   myLocationButtonEnabled:
                       true, // Enable the "My Location" button
                   myLocationEnabled:

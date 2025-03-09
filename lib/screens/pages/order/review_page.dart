@@ -487,43 +487,40 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Widget _buildRemarksAndTipSection() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 27),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: 150,
-            child: TextFieldWidget(
-              maxLine: 20,
-              height: 65,
-              radius: 10,
-              borderColor: secondary,
-              label: 'Remarks',
-              controller: _remarksController,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: 150,
+          child: TextFieldWidget(
+            maxLine: 20,
+            height: 65,
+            radius: 10,
+            borderColor: secondary,
+            label: 'Remarks',
+            controller: _remarksController,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.6,
-                height: 80,
-                child: TextFieldWidget(
-                  onChanged: (value) => setState(() => _tips = value),
-                  inputType: TextInputType.number,
-                  height: 65,
-                  radius: 10,
-                  borderColor: secondary,
-                  label: 'Tip (optional)',
-                  controller: _tipController,
-                ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.6,
+              height: 80,
+              child: TextFieldWidget(
+                onChanged: (value) => setState(() => _tips = value),
+                inputType: TextInputType.number,
+                height: 65,
+                radius: 10,
+                borderColor: secondary,
+                label: 'Tip (optional)',
+                controller: _tipController,
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

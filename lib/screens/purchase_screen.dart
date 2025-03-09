@@ -1,14 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
+import 'package:zippy/utils/keys.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/textfield_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
+import 'package:google_maps_webservice/places.dart' as location;
+import 'dart:async';
+import 'package:google_api_headers/google_api_headers.dart';
 
 class PurchaseScreen extends StatefulWidget {
   const PurchaseScreen({super.key});
@@ -28,6 +33,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   final typesOfPurchase = TextEditingController();
   final deliveryAddress = TextEditingController();
   final riderNoteController = TextEditingController();
+  final itemsController = TextEditingController();
 
   @override
   void initState() {
@@ -67,7 +73,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                 _buildTopSection(),
                 const SizedBox(height: 20),
                 Container(
-                  padding: const EdgeInsets.only(bottom: 15),
+                  padding: const EdgeInsets.only(bottom: 20),
                   height: MediaQuery.of(context).size.height * 0.55,
                   width: MediaQuery.of(context).size.width - 20,
                   decoration: BoxDecoration(
@@ -102,10 +108,10 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                   });
                                 },
                                 child: Container(
-                                  width: 200,
-                                  height: 40,
+                                  width: MediaQuery.of(context).size.width - 70,
+                                  height: 55,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(10),
                                     border:
                                         Border.all(color: secondary, width: 2),
                                   ),
@@ -116,14 +122,17 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                             ? Alignment.centerLeft
                                             : Alignment.centerRight,
                                         duration:
-                                            const Duration(milliseconds: 300),
+                                            const Duration(milliseconds: 150),
                                         child: Container(
-                                          width: 100,
-                                          height: 40,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              250,
+                                          height: 55,
                                           decoration: BoxDecoration(
                                             color: secondary,
                                             borderRadius:
-                                                BorderRadius.circular(20),
+                                                BorderRadius.circular(5),
                                           ),
                                         ),
                                       ),
@@ -134,7 +143,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                           Expanded(
                                             child: Center(
                                               child: TextWidget(
-                                                  text: 'reserve',
+                                                  text: 'now',
                                                   fontSize: 15,
                                                   fontFamily: "Medium",
                                                   color: isNowSelected
@@ -160,271 +169,310 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15, right: 15),
-                                child: Row(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // TextWidget(
-                                        //   text: 'Name of Recipient',
-                                        //   fontSize: 12,
-                                        //   fontFamily: "Medium",
-                                        // ),
-                                        Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width -
-                                              55,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            border: Border.all(
-                                                color: black, width: 1.5),
-                                          ),
-                                          child: TextFieldWidget(
-                                              height: 55,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              radius: 10,
-                                              color: secondary,
-                                              label: 'Name of Recipient',
-                                              fontSize: 14,
-                                              controller: namecontroller),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        // TextWidget(
-                                        //   text: 'Mobile Number',
-                                        //   fontSize: 12,
-                                        //   fontFamily: "Medium",
-                                        // ),
-                                        Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width -
-                                              55,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            border: Border.all(
-                                                color: black, width: 1.5),
-                                          ),
-                                          child: TextFieldWidget(
-                                              height: 55,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              radius: 10,
-                                              color: secondary,
-                                              label: 'Mobile Number',
-                                              fontSize: 14,
-                                              controller: mobileNumber),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        // TextWidget(
-                                        //   text: 'Address',
-                                        //   fontSize: 12,
-                                        //   fontFamily: "Medium",
-                                        // ),
-                                        Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width -
-                                              55,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            border: Border.all(
-                                                color: black, width: 1.5),
-                                          ),
-                                          child: TextFieldWidget(
-                                              height: 55,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              radius: 10,
-                                              color: secondary,
-                                              label: 'Address',
-                                              fontSize: 14,
-                                              controller: address),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        // TextWidget(
-                                        //   text: 'Types of Purchase',
-                                        //   fontSize: 12,
-                                        //   fontFamily: "Medium",
-                                        // ),
-                                        Material(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          child: SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                55,
-                                            child:
-                                                DropdownButtonFormField<String>(
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextFieldWidget(
+                                    borderColor: black,
+                                    height: 55,
+                                    width: MediaQuery.of(context).size.width,
+                                    radius: 10,
+                                    color: secondary,
+                                    label: 'Name of Recipient',
+                                    fontSize: 14,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        namecontroller.text = value;
+                                      });
+                                    },
+                                    controller: namecontroller,
+                                  ),
+                                  // Container(
+                                  //   width: MediaQuery.of(context)
+                                  //           .size
+                                  //           .width -
+                                  //       55,
+                                  //   decoration: BoxDecoration(
+                                  //     borderRadius:
+                                  //         BorderRadius.circular(5),
+                                  //     border: Border.all(
+                                  //         color: black, width: 1.5),
+                                  //   ),
+                                  //   child: TextFieldWidget(
+                                  //     height: 55,
+                                  //     width: MediaQuery.of(context)
+                                  //         .size
+                                  //         .width,
+                                  //     radius: 10,
+                                  //     color: secondary,
+                                  //     label: 'Name of Recipient',
+                                  //     fontSize: 14,
+                                  //     onChanged: (value) {
+                                  //       setState(() {
+                                  //         namecontroller.text = value;
+                                  //       });
+                                  //     },
+                                  //     controller: namecontroller,
+                                  //   ),
+                                  // ),
+                                  TextFieldWidget(
+                                      borderColor: black,
+                                      inputType: TextInputType.number,
+                                      length: 11,
+                                      height: 55,
+                                      width: MediaQuery.of(context).size.width,
+                                      radius: 10,
+                                      color: secondary,
+                                      label: 'Mobile Number',
+                                      fontSize: 14,
+                                      controller: mobileNumber),
+                                  TextFieldWidget(
+                                    borderColor: black,
+                                    height: 55,
+                                    width: MediaQuery.of(context).size.width,
+                                    radius: 10,
+                                    color: secondary,
+                                    label: 'Delivery Address',
+                                    fontSize: 14,
+                                    controller: deliveryAddress,
+                                    suffix: IconButton(
+                                      onPressed: () async {
+                                        location.Prediction? p =
+                                            await PlacesAutocomplete.show(
+                                          mode: Mode.overlay,
+                                          context: context,
+                                          apiKey: kGoogleApiKey,
+                                          language: 'en',
+                                          strictbounds: false,
+                                          types: [""],
+                                          decoration: InputDecoration(
+                                            hintText: 'Search Address',
+                                            focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(5),
-                                              value:
-                                                  typesOfPurchase.text.isEmpty
-                                                      ? null
-                                                      : typesOfPurchase.text,
-                                              items: [
-                                                'Grocery',
-                                                'Market',
-                                                'Medicine',
-                                                'Pet Shop',
-                                                'Household',
-                                                'Others',
-                                              ]
-                                                  .map((label) =>
-                                                      DropdownMenuItem(
-                                                        value: label,
-                                                        child: TextWidget(
-                                                          text: label,
-                                                          fontSize: 15,
-                                                          color: secondary,
-                                                          fontFamily: 'Medium',
-                                                        ),
-                                                      ))
-                                                  .toList(),
-                                              hint: TextWidget(
-                                                text: 'Types of Purchase',
-                                                fontSize: 12,
-                                                color: secondary,
-                                              ),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  typesOfPurchase.text = value!;
-                                                });
-                                              },
-                                              decoration: InputDecoration(
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  borderSide: BorderSide(
-                                                      color: black, width: 1.5),
-                                                ),
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: black, width: 1.5),
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: black, width: 1.5),
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                ),
-                                              ),
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please select types of purchase.';
-                                                }
-                                                return null;
-                                              },
+                                                  BorderRadius.circular(20),
+                                              borderSide: const BorderSide(
+                                                  color: Colors.white),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        // TextWidget(
-                                        //   text: 'Drop-off Address',
-                                        //   fontSize: 12,
-                                        //   fontFamily: "Medium",
-                                        // ),
-                                        Material(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          child: Container(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                55,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              border: Border.all(
-                                                  color: black, width: 1.5),
-                                            ),
-                                            child: TextFieldWidget(
-                                                height: 55,
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                radius: 10,
-                                                color: secondary,
-                                                label: 'Delivery Address',
-                                                fontSize: 14,
-                                                controller: deliveryAddress),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        TextWidget(
-                                          text: 'List of Items',
-                                          fontSize: 12,
-                                          fontFamily: "Medium",
-                                        ),
-                                        Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width -
-                                              55,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            border: Border.all(
-                                                color: black, width: 1.5),
-                                          ),
-                                          child: TextFieldWidget(
-                                              label: '',
-                                              controller: namecontroller),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        // TextWidget(
-                                        //   text: 'Note to rider',
-                                        //   fontSize: 12,
-                                        //   fontFamily: "Medium",
-                                        // ),
-                                        Material(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          child: Container(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                55,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              border: Border.all(
-                                                  color: black, width: 1.5),
-                                            ),
-                                            child: TextFieldWidget(
-                                                height: 55,
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                radius: 10,
-                                                color: secondary,
-                                                label: 'Note to rider',
-                                                fontSize: 14,
-                                                controller:
-                                                    riderNoteController),
-                                          ),
-                                        ),
-                                      ],
+                                          components: [
+                                            location.Component(
+                                                location.Component.country,
+                                                "ph")
+                                          ],
+                                        );
+
+                                        if (p != null) {
+                                          location.GoogleMapsPlaces places =
+                                              location.GoogleMapsPlaces(
+                                            apiKey: kGoogleApiKey,
+                                            apiHeaders:
+                                                await const GoogleApiHeaders()
+                                                    .getHeaders(),
+                                          );
+
+                                          location.PlacesDetailsResponse
+                                              detail =
+                                              await places.getDetailsByPlaceId(
+                                                  p.placeId!);
+
+                                          setState(() {
+                                            deliveryAddress.text =
+                                                detail.result.name;
+                                          });
+                                        }
+                                      },
+                                      icon: const Icon(
+                                        Icons.location_on,
+                                        color: secondary,
+                                      ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 25, right: 25),
+                                    child: SizedBox(
+                                      width: MediaQuery.of(context).size.width,
+                                      child: DropdownButtonFormField<String>(
+                                        borderRadius: BorderRadius.circular(5),
+                                        value: typesOfPurchase.text.isEmpty
+                                            ? null
+                                            : typesOfPurchase.text,
+                                        items: [
+                                          'Grocery',
+                                          'Market',
+                                          'Medicine',
+                                          'Pet Shop',
+                                          'Household',
+                                          'Others',
+                                        ]
+                                            .map((label) => DropdownMenuItem(
+                                                  value: label,
+                                                  child: TextWidget(
+                                                    text: label,
+                                                    fontSize: 15,
+                                                    color: secondary,
+                                                    fontFamily: 'Medium',
+                                                  ),
+                                                ))
+                                            .toList(),
+                                        hint: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 25),
+                                          child: TextWidget(
+                                            text: 'Types of Purchase',
+                                            fontSize: 14,
+                                            color: secondary,
+                                          ),
+                                        ),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            typesOfPurchase.text = value!;
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            borderSide:
+                                                BorderSide(color: black),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide:
+                                                BorderSide(color: black),
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide:
+                                                BorderSide(color: black),
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please select types of purchase.';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  // TextWidget(
+                                  //   text: 'Drop-off Address',
+                                  //   fontSize: 12,
+                                  //   fontFamily: "Medium",
+                                  // ),
+                                  // Material(
+                                  //   borderRadius:
+                                  //       BorderRadius.circular(5),
+                                  //   child: Container(
+                                  //     width: MediaQuery.of(context)
+                                  //             .size
+                                  //             .width -
+                                  //         55,
+                                  //     decoration: BoxDecoration(
+                                  //       borderRadius:
+                                  //           BorderRadius.circular(5),
+                                  //       border: Border.all(
+                                  //           color: black, width: 1.5),
+                                  //     ),
+                                  //     child: TextFieldWidget(
+                                  //         height: 55,
+                                  //         width: MediaQuery.of(context)
+                                  //             .size
+                                  //             .width,
+                                  //         radius: 10,
+                                  //         color: secondary,
+                                  //         label: 'Delivery Address',
+                                  //         fontSize: 14,
+                                  //         suffix: IconButton(
+                                  //           onPressed: () async {
+                                  //             location.Prediction? p =
+                                  //                 await PlacesAutocomplete
+                                  //                     .show(
+                                  //               mode: Mode.overlay,
+                                  //               context: context,
+                                  //               apiKey: kGoogleApiKey,
+                                  //               language: 'en',
+                                  //               strictbounds: false,
+                                  //               types: [""],
+                                  //               decoration:
+                                  //                   InputDecoration(
+                                  //                 hintText:
+                                  //                     'Search Address',
+                                  //                 focusedBorder:
+                                  //                     OutlineInputBorder(
+                                  //                   borderRadius:
+                                  //                       BorderRadius
+                                  //                           .circular(20),
+                                  //                   borderSide:
+                                  //                       const BorderSide(
+                                  //                           color: Colors
+                                  //                               .white),
+                                  //                 ),
+                                  //               ),
+                                  //               components: [
+                                  //                 location.Component(
+                                  //                     location.Component
+                                  //                         .country,
+                                  //                     "ph")
+                                  //               ],
+                                  //             );
+
+                                  //             if (p != null) {
+                                  //               location.GoogleMapsPlaces
+                                  //                   places = location
+                                  //                       .GoogleMapsPlaces(
+                                  //                 apiKey: kGoogleApiKey,
+                                  //                 apiHeaders:
+                                  //                     await const GoogleApiHeaders()
+                                  //                         .getHeaders(),
+                                  //               );
+
+                                  //               location
+                                  //                   .PlacesDetailsResponse
+                                  //                   detail = await places
+                                  //                       .getDetailsByPlaceId(
+                                  //                           p.placeId!);
+
+                                  //               setState(() {
+                                  //                 deliveryAddress.text =
+                                  //                     detail.result.name;
+                                  //               });
+                                  //             }
+                                  //           },
+                                  //           icon: const Icon(
+                                  //             Icons.location_on,
+                                  //             color: secondary,
+                                  //           ),
+                                  //         ),
+                                  //         controller: deliveryAddress),
+                                  //   ),
+                                  // ),
+
+                                  TextFieldWidget(
+                                      inputType: TextInputType.multiline,
+                                      borderColor: black,
+                                      maxLine: 500,
+                                      height: 150,
+                                      width: MediaQuery.of(context).size.width,
+                                      radius: 10,
+                                      color: secondary,
+                                      label: 'List of items',
+                                      fontSize: 14,
+                                      controller: itemsController),
+                                  TextFieldWidget(
+                                      borderColor: black,
+                                      maxLine: 50,
+                                      height: 150,
+                                      width: MediaQuery.of(context).size.width,
+                                      radius: 10,
+                                      color: secondary,
+                                      label: 'Note to rider',
+                                      fontSize: 14,
+                                      controller: riderNoteController),
+                                ],
                               )
                             ],
                           ),
@@ -436,11 +484,13 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
               ],
             ),
           ),
-          Align(
+          Visibility(
+            visible: MediaQuery.of(context).viewInsets.bottom == 0,
+            child: Align(
               alignment: Alignment.bottomCenter,
               child: Container(
                 width: double.infinity,
-                height: 112,
+                height: 100,
                 decoration: const BoxDecoration(
                   boxShadow: [
                     BoxShadow(
@@ -458,26 +508,72 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width - 50,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: secondary,
-                        border: Border.all(color: secondary),
-                      ),
-                      child: Center(
-                        child: TextWidget(
-                          text: 'BOOK',
-                          fontSize: 23,
-                          color: Colors.white,
-                          fontFamily: "Bold",
+                    GestureDetector(
+                      onTap: () {
+                        if (namecontroller.text.isEmpty) {
+                          showToast('Please enter name of recipient.');
+                        } else if (mobileNumber.text.isEmpty ||
+                            mobileNumber.text.length != 11 ||
+                            mobileNumber.text.startsWith('9')) {
+                          showToast('Please enter mobile number.');
+                        } else if (deliveryAddress.text.isEmpty) {
+                          showToast('Please enter delivery address.');
+                        } else if (typesOfPurchase.text.isEmpty) {
+                          showToast('Please select types of purchase.');
+                        } else if (itemsController.text.isEmpty) {
+                          showToast('Please enter list of items.');
+                        } else {
+                          FirebaseFirestore.instance
+                              .collection('Purchase')
+                              .add({
+                            'type': 'Purchase',
+                            'isNowSelected': isNowSelected ? 'now' : 'reserve',
+                            'name': namecontroller.text,
+                            'mobile': mobileNumber.text,
+                            'typesOfPurchase': typesOfPurchase.text,
+                            'deliveryAddress': deliveryAddress.text,
+                            'items': itemsController.text,
+                            'riderNote': riderNoteController.text,
+                            'status': 'Pending',
+                            'userId': userId,
+                            'createdAt': FieldValue.serverTimestamp(),
+                          }).then((value) {
+                            showToast('Order placed successfully.');
+                            namecontroller.clear();
+                            mobileNumber.clear();
+                            address.clear();
+                            typesOfPurchase.clear();
+                            deliveryAddress.clear();
+                            itemsController.clear();
+                            riderNoteController.clear();
+                          }).catchError((error) {
+                            showToast('Error placing order.');
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: MediaQuery.of(context).size.width - 50,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: secondary,
+                          border: Border.all(color: secondary),
+                        ),
+                        child: Center(
+                          child: TextWidget(
+                            text: 'BOOK',
+                            fontSize: 23,
+                            color: Colors.white,
+                            fontFamily: "Bold",
+                          ),
                         ),
                       ),
                     )
                   ],
                 ),
-              )),
+              ),
+            ),
+          ),
         ],
       ),
     );
