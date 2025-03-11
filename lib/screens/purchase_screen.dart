@@ -34,6 +34,9 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   final deliveryAddress = TextEditingController();
   final riderNoteController = TextEditingController();
   final itemsController = TextEditingController();
+  final selectedDate = TextEditingController();
+  final selectedTime = TextEditingController();
+  final deliveryOfferController = TextEditingController();
 
   @override
   void initState() {
@@ -172,7 +175,119 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  if (!isNowSelected)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 25, right: 25),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                DateTime? pickedDate =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate: DateTime.now(),
+                                                  firstDate: DateTime.now(),
+                                                  lastDate: DateTime(2101),
+                                                );
+                                                if (pickedDate != null) {
+                                                  setState(() {
+                                                    selectedDate.text =
+                                                        "${pickedDate.toLocal()}"
+                                                            .split(' ')[0];
+                                                  });
+                                                }
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 15,
+                                                        horizontal: 10),
+                                                decoration: BoxDecoration(
+                                                  border:
+                                                      Border.all(color: black),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    TextWidget(
+                                                      text: selectedDate
+                                                              .text.isEmpty
+                                                          ? 'Select Date'
+                                                          : selectedDate.text,
+                                                      fontSize: 14,
+                                                      color: secondary,
+                                                      fontFamily: "Medium",
+                                                    ),
+                                                    const Icon(
+                                                        Icons.calendar_today,
+                                                        color: secondary),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                TimeOfDay? pickedTime =
+                                                    await showTimePicker(
+                                                  context: context,
+                                                  initialTime: TimeOfDay.now(),
+                                                );
+                                                if (pickedTime != null) {
+                                                  setState(() {
+                                                    selectedTime.text =
+                                                        pickedTime
+                                                            .format(context);
+                                                  });
+                                                }
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 15,
+                                                        horizontal: 10),
+                                                decoration: BoxDecoration(
+                                                  border:
+                                                      Border.all(color: black),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    TextWidget(
+                                                      text: selectedTime
+                                                              .text.isEmpty
+                                                          ? 'Select Time'
+                                                          : selectedTime.text,
+                                                      fontSize: 14,
+                                                      color: secondary,
+                                                      fontFamily: "Medium",
+                                                    ),
+                                                    const Icon(
+                                                        Icons.access_time,
+                                                        color: secondary),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   TextFieldWidget(
+                                    textCapitalization:
+                                        TextCapitalization.words,
                                     borderColor: black,
                                     height: 55,
                                     width: MediaQuery.of(context).size.width,
@@ -293,7 +408,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                     child: SizedBox(
                                       width: MediaQuery.of(context).size.width,
                                       child: DropdownButtonFormField<String>(
-                                        borderRadius: BorderRadius.circular(5),
+                                        // borderRadius: BorderRadius.circular(5),
                                         value: typesOfPurchase.text.isEmpty
                                             ? null
                                             : typesOfPurchase.text,
@@ -309,20 +424,16 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                                   value: label,
                                                   child: TextWidget(
                                                     text: label,
-                                                    fontSize: 15,
+                                                    fontSize: 14,
                                                     color: secondary,
                                                     fontFamily: 'Medium',
                                                   ),
                                                 ))
                                             .toList(),
-                                        hint: Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 25),
-                                          child: TextWidget(
-                                            text: 'Types of Purchase',
-                                            fontSize: 14,
-                                            color: secondary,
-                                          ),
+                                        hint: TextWidget(
+                                          text: 'Types of Purchase',
+                                          fontSize: 16,
+                                          color: secondary,
                                         ),
                                         onChanged: (value) {
                                           setState(() {
@@ -472,6 +583,22 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                       label: 'Note to rider',
                                       fontSize: 14,
                                       controller: riderNoteController),
+                                  TextFieldWidget(
+                                      inputType: TextInputType.number,
+                                      borderColor: black,
+                                      maxLine: 50,
+                                      prefix: TextWidget(
+                                        text: '₱',
+                                        fontSize: 14,
+                                        color: black,
+                                      ),
+                                      height: 55,
+                                      width: MediaQuery.of(context).size.width,
+                                      radius: 10,
+                                      color: secondary,
+                                      label: 'Delivery Fee Offer',
+                                      fontSize: 14,
+                                      controller: deliveryOfferController),
                                 ],
                               )
                             ],
@@ -509,46 +636,77 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         if (namecontroller.text.isEmpty) {
                           showToast('Please enter name of recipient.');
                         } else if (mobileNumber.text.isEmpty ||
                             mobileNumber.text.length != 11 ||
                             mobileNumber.text.startsWith('9')) {
-                          showToast('Please enter mobile number.');
+                          showToast('Please enter a valid mobile number.');
                         } else if (deliveryAddress.text.isEmpty) {
                           showToast('Please enter delivery address.');
                         } else if (typesOfPurchase.text.isEmpty) {
                           showToast('Please select types of purchase.');
+                        } else if (deliveryOfferController.text.isEmpty ||
+                            double.parse(deliveryOfferController.text) <= 0) {
+                          showToast('Please enter amount of delivery offer.');
                         } else if (itemsController.text.isEmpty) {
                           showToast('Please enter list of items.');
                         } else {
-                          FirebaseFirestore.instance
-                              .collection('Purchase')
-                              .add({
-                            'type': 'Purchase',
-                            'isNowSelected': isNowSelected ? 'now' : 'reserve',
-                            'name': namecontroller.text,
-                            'mobile': mobileNumber.text,
-                            'typesOfPurchase': typesOfPurchase.text,
-                            'deliveryAddress': deliveryAddress.text,
-                            'items': itemsController.text,
-                            'riderNote': riderNoteController.text,
-                            'status': 'Pending',
-                            'userId': userId,
-                            'createdAt': FieldValue.serverTimestamp(),
-                          }).then((value) {
-                            showToast('Order placed successfully.');
-                            namecontroller.clear();
-                            mobileNumber.clear();
-                            address.clear();
-                            typesOfPurchase.clear();
-                            deliveryAddress.clear();
-                            itemsController.clear();
-                            riderNoteController.clear();
-                          }).catchError((error) {
+                          try {
+                            QuerySnapshot riderSnapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('Riders')
+                                    .where('isActive', isEqualTo: true)
+                                    .limit(1)
+                                    .get();
+
+                            if (riderSnapshot.docs.isNotEmpty) {
+                              DocumentSnapshot riderDoc =
+                                  riderSnapshot.docs.first;
+                              Map<String, dynamic> riderData =
+                                  riderDoc.data() as Map<String, dynamic>;
+
+                              // Add purchase order with rider information
+                              await FirebaseFirestore.instance
+                                  .collection('Purchase')
+                                  .add({
+                                'deliveryFeeOffer':
+                                    deliveryOfferController.text,
+                                'type': 'Purchase',
+                                'orderType': isNowSelected ? 'now' : 'reserve',
+                                'name': namecontroller.text,
+                                'mobile': mobileNumber.text,
+                                'typesOfPurchase': typesOfPurchase.text,
+                                'deliveryAddress': deliveryAddress.text,
+                                'items': itemsController.text,
+                                'riderNote': riderNoteController.text,
+                                'status': 'Pending',
+                                'userId': userId,
+                                'riderId': riderDoc.id,
+                                'riderName': riderData['name'],
+                                'riderContact': riderData['number'],
+                                'createdAt': FieldValue.serverTimestamp(),
+                                if (!isNowSelected) ...{
+                                  'selectedDate': selectedDate.text,
+                                  'selectedTime': selectedTime.text,
+                                }
+                              });
+
+                              showToast('Order placed successfully.');
+                              namecontroller.clear();
+                              mobileNumber.clear();
+                              address.clear();
+                              typesOfPurchase.clear();
+                              deliveryAddress.clear();
+                              itemsController.clear();
+                              riderNoteController.clear();
+                            } else {
+                              showToast('No active rider available.');
+                            }
+                          } catch (error) {
                             showToast('Error placing order.');
-                          });
+                          }
                         }
                       },
                       child: Container(
@@ -613,7 +771,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
               MaterialPageRoute(builder: (context) => const HomeScreen())),
         ),
         _buildCravingOption(
-          Icons.production_quantity_limits_sharp,
+          Icons.shopping_cart_outlined,
           'Purchase',
           true,
         ),

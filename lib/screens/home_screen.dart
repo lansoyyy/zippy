@@ -221,10 +221,10 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _buildCravingOption(Icons.fastfood_outlined, 'Food', true),
-        _buildCravingOption(
-            Icons.production_quantity_limits_sharp, 'Purchase', false,
-            onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const PurchaseScreen()))),
+        _buildCravingOption(Icons.shopping_cart, 'Purchase', false,
+            onTap: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                    builder: (context) => const PurchaseScreen()))),
         _buildCravingOption(Icons.directions_car_filled_outlined, 'Ride', false,
             onTap: () => showToast('Coming soon.')),
         _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
