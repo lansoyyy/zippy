@@ -596,7 +596,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                       width: MediaQuery.of(context).size.width,
                                       radius: 10,
                                       color: secondary,
-                                      label: 'Delivery Fee Offer',
+                                      label: 'Delivery Fee Offer (excluding the amount of purchase items)',
                                       fontSize: 14,
                                       controller: deliveryOfferController),
                                 ],
@@ -701,6 +701,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                               deliveryAddress.clear();
                               itemsController.clear();
                               riderNoteController.clear();
+                              deliveryOfferController.clear();
                             } else {
                               showToast('No active rider available.');
                             }
