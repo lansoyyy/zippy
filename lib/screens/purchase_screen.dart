@@ -37,12 +37,24 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   final selectedDate = TextEditingController();
   final selectedTime = TextEditingController();
   final deliveryOfferController = TextEditingController();
+  var deliveryLat = 0.0;
+  var deliveryLng = 0.0;
 
   @override
   void initState() {
     super.initState();
 
     _fetchUser();
+  }
+
+  String selectedDateAndTime = '';
+
+  void updateSelectedDateAndTime() {
+    if (selectedDate.text.isNotEmpty && selectedTime.text.isNotEmpty) {
+      selectedDateAndTime = "${selectedDate.text} ${selectedTime.text}";
+    } else {
+      selectedDateAndTime = '';
+    }
   }
 
   Future<void> _fetchUser() async {
@@ -196,6 +208,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                                     selectedDate.text =
                                                         "${pickedDate.toLocal()}"
                                                             .split(' ')[0];
+                                                    // Update the combined date and time field
+                                                    updateSelectedDateAndTime();
                                                   });
                                                 }
                                               },
@@ -246,6 +260,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                                     selectedTime.text =
                                                         pickedTime
                                                             .format(context);
+                                                    // Update the combined date and time field
+                                                    updateSelectedDateAndTime();
                                                   });
                                                 }
                                               },
@@ -390,9 +406,17 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                               await places.getDetailsByPlaceId(
                                                   p.placeId!);
 
+                                          // Extract latitude and longitude from the details
+                                          final double deliveryLat = detail
+                                              .result.geometry!.location.lat;
+                                          final double deliveryLng = detail
+                                              .result.geometry!.location.lng;
+
                                           setState(() {
                                             deliveryAddress.text =
                                                 detail.result.name;
+                                            this.deliveryLat = deliveryLat;
+                                            this.deliveryLng = deliveryLng;
                                           });
                                         }
                                       },
@@ -469,99 +493,6 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                       ),
                                     ),
                                   ),
-                                  // TextWidget(
-                                  //   text: 'Drop-off Address',
-                                  //   fontSize: 12,
-                                  //   fontFamily: "Medium",
-                                  // ),
-                                  // Material(
-                                  //   borderRadius:
-                                  //       BorderRadius.circular(5),
-                                  //   child: Container(
-                                  //     width: MediaQuery.of(context)
-                                  //             .size
-                                  //             .width -
-                                  //         55,
-                                  //     decoration: BoxDecoration(
-                                  //       borderRadius:
-                                  //           BorderRadius.circular(5),
-                                  //       border: Border.all(
-                                  //           color: black, width: 1.5),
-                                  //     ),
-                                  //     child: TextFieldWidget(
-                                  //         height: 55,
-                                  //         width: MediaQuery.of(context)
-                                  //             .size
-                                  //             .width,
-                                  //         radius: 10,
-                                  //         color: secondary,
-                                  //         label: 'Delivery Address',
-                                  //         fontSize: 14,
-                                  //         suffix: IconButton(
-                                  //           onPressed: () async {
-                                  //             location.Prediction? p =
-                                  //                 await PlacesAutocomplete
-                                  //                     .show(
-                                  //               mode: Mode.overlay,
-                                  //               context: context,
-                                  //               apiKey: kGoogleApiKey,
-                                  //               language: 'en',
-                                  //               strictbounds: false,
-                                  //               types: [""],
-                                  //               decoration:
-                                  //                   InputDecoration(
-                                  //                 hintText:
-                                  //                     'Search Address',
-                                  //                 focusedBorder:
-                                  //                     OutlineInputBorder(
-                                  //                   borderRadius:
-                                  //                       BorderRadius
-                                  //                           .circular(20),
-                                  //                   borderSide:
-                                  //                       const BorderSide(
-                                  //                           color: Colors
-                                  //                               .white),
-                                  //                 ),
-                                  //               ),
-                                  //               components: [
-                                  //                 location.Component(
-                                  //                     location.Component
-                                  //                         .country,
-                                  //                     "ph")
-                                  //               ],
-                                  //             );
-
-                                  //             if (p != null) {
-                                  //               location.GoogleMapsPlaces
-                                  //                   places = location
-                                  //                       .GoogleMapsPlaces(
-                                  //                 apiKey: kGoogleApiKey,
-                                  //                 apiHeaders:
-                                  //                     await const GoogleApiHeaders()
-                                  //                         .getHeaders(),
-                                  //               );
-
-                                  //               location
-                                  //                   .PlacesDetailsResponse
-                                  //                   detail = await places
-                                  //                       .getDetailsByPlaceId(
-                                  //                           p.placeId!);
-
-                                  //               setState(() {
-                                  //                 deliveryAddress.text =
-                                  //                     detail.result.name;
-                                  //               });
-                                  //             }
-                                  //           },
-                                  //           icon: const Icon(
-                                  //             Icons.location_on,
-                                  //             color: secondary,
-                                  //           ),
-                                  //         ),
-                                  //         controller: deliveryAddress),
-                                  //   ),
-                                  // ),
-
                                   TextFieldWidget(
                                       inputType: TextInputType.multiline,
                                       borderColor: black,
@@ -596,7 +527,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                       width: MediaQuery.of(context).size.width,
                                       radius: 10,
                                       color: secondary,
-                                      label: 'Delivery Fee Offer (excluding the amount of purchase items)',
+                                      label:
+                                          'Delivery Fee Offer (excluding the amount of purchase items)',
                                       fontSize: 14,
                                       controller: deliveryOfferController),
                                 ],
@@ -679,6 +611,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 'mobile': mobileNumber.text,
                                 'typesOfPurchase': typesOfPurchase.text,
                                 'deliveryAddress': deliveryAddress.text,
+                                'deliveryLat': deliveryLat,
+                                'deliveryLng': deliveryLng,
                                 'items': itemsController.text,
                                 'riderNote': riderNoteController.text,
                                 'status': 'Pending',
@@ -688,8 +622,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 'riderContact': riderData['number'],
                                 'createdAt': FieldValue.serverTimestamp(),
                                 if (!isNowSelected) ...{
-                                  'selectedDate': selectedDate.text,
-                                  'selectedTime': selectedTime.text,
+                                  'selectedDateAndTime':
+                                      selectedDateAndTime, // Combined field
                                 }
                               });
 
@@ -702,6 +636,12 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                               itemsController.clear();
                               riderNoteController.clear();
                               deliveryOfferController.clear();
+                              setState(() {
+                                selectedDate.clear();
+                                selectedTime.clear();
+                                selectedDateAndTime =
+                                    ''; // Clear the combined field
+                              });
                             } else {
                               showToast('No active rider available.');
                             }
@@ -727,7 +667,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                           ),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
