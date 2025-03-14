@@ -47,13 +47,26 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     _fetchUser();
   }
 
-  String selectedDateAndTime = '';
+  DateTime? selectedDateAndTime;
 
   void updateSelectedDateAndTime() {
     if (selectedDate.text.isNotEmpty && selectedTime.text.isNotEmpty) {
-      selectedDateAndTime = "${selectedDate.text} ${selectedTime.text}";
+      // Parse the selected date
+      final dateParts = selectedDate.text.split('-');
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+
+      // Parse the selected time
+      final timeParts = selectedTime.text.split(' ');
+      final time = timeParts[0].split(':');
+      final hour = int.parse(time[0]) + (timeParts[1] == 'PM' ? 12 : 0);
+      final minute = int.parse(time[1]);
+
+      // Create a DateTime object
+      selectedDateAndTime = DateTime(year, month, day, hour, minute);
     } else {
-      selectedDateAndTime = '';
+      selectedDateAndTime = null;
     }
   }
 
@@ -622,8 +635,11 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 'riderContact': riderData['number'],
                                 'createdAt': FieldValue.serverTimestamp(),
                                 if (!isNowSelected) ...{
-                                  'selectedDateAndTime':
-                                      selectedDateAndTime, // Combined field
+                                  'selectedDateAndTime': selectedDateAndTime !=
+                                          null
+                                      ? Timestamp.fromDate(
+                                          selectedDateAndTime!) // Convert to Timestamp
+                                      : null,
                                 }
                               });
 
@@ -640,7 +656,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 selectedDate.clear();
                                 selectedTime.clear();
                                 selectedDateAndTime =
-                                    ''; // Clear the combined field
+                                    null; // Clear the DateTime object
                               });
                             } else {
                               showToast('No active rider available.');
