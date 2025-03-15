@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:zippy/screens/home_screen.dart';
+import 'package:zippy/screens/pages/order/checkout_page.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/utils/colors.dart';
@@ -613,9 +614,10 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                   riderDoc.data() as Map<String, dynamic>;
 
                               // Add purchase order with rider information
-                              await FirebaseFirestore.instance
-                                  .collection('Purchase')
-                                  .add({
+                              DocumentReference purchaseOrderRef =
+                                  await FirebaseFirestore.instance
+                                      .collection('Purchase')
+                                      .add({
                                 'deliveryFeeOffer':
                                     deliveryOfferController.text,
                                 'type': 'Purchase',
@@ -644,6 +646,47 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                               });
 
                               showToast('Order placed successfully.');
+
+                              // Navigate to CheckoutPage with the necessary data
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => CheckoutPage(
+                                    data: {
+                                      'riderId': riderDoc.id,
+                                      'riderName': riderData['name'],
+                                      'riderContact': riderData['number'],
+                                      'deliveryFeeOffer':
+                                          deliveryOfferController.text,
+                                      'type': 'Purchase',
+                                      'orderType':
+                                          isNowSelected ? 'now' : 'reserve',
+                                      'name': namecontroller.text,
+                                      'mobile': mobileNumber.text,
+                                      'typesOfPurchase': typesOfPurchase.text,
+                                      'deliveryAddress': deliveryAddress.text,
+                                      'deliveryLat': deliveryLat,
+                                      'deliveryLng': deliveryLng,
+                                      'items': itemsController.text,
+                                      'riderNote': riderNoteController.text,
+                                      'status': 'Pending',
+                                      'userId': userId,
+                                      'createdAt': FieldValue.serverTimestamp(),
+                                      'orderId': purchaseOrderRef
+                                          .id, // Pass the order ID
+                                      if (!isNowSelected) ...{
+                                        'selectedDateAndTime':
+                                            selectedDateAndTime != null
+                                                ? Timestamp.fromDate(
+                                                    selectedDateAndTime!)
+                                                : null,
+                                      }
+                                    },
+                                  ),
+                                ),
+                                (route) => false,
+                              );
+
+                              // Clear the form fields
                               namecontroller.clear();
                               mobileNumber.clear();
                               address.clear();

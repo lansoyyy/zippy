@@ -147,7 +147,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: hasLoaded
           ? StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('Orders')
+                  .collection(
+                      widget.data['type'] == 'Purchase' ? 'Purchase' : 'Orders')
                   .doc(widget.data['orderId'])
                   .snapshots(),
               builder: (context, snapshot) {
@@ -175,8 +176,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
       children: [
         if (data['status'] == 'Preparing')
           Center(
-              child: _buildLoadingDialog('assets/images/cat/CAT #7 2.png',
-                  'Preparing your Treats', '15 to 20 minutes'))
+              child: _buildLoadingDialog(
+                  'assets/images/cat/CAT #7 2.png',
+                  widget.data['type'] == 'Purchase'
+                      ? 'Preparing your Purchase'
+                      : 'Preparing your Treats',
+                  '15 to 20 minutes'))
         else
           CustomGoogleMapMarkerBuilder(
             customMarkers: _customMarkers,
@@ -380,7 +385,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     ],
                   ),
                   TextWidget(
-                    text: 'Total: ₱${widget.data['total'].toStringAsFixed(2)}',
+                    text: widget.data['type'] == 'Purchase'
+                        ? 'Total: N/A'
+                        : 'Total: ₱${widget.data['total'].toStringAsFixed(2)}',
                     fontSize: 15,
                     fontFamily: 'Bold',
                   ),

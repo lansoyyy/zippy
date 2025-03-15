@@ -150,6 +150,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           : Stack(
               children: [
                 GoogleMap(
+                  zoomControlsEnabled: false,
+                  compassEnabled: true,
+                  buildingsEnabled: true,
                   initialCameraPosition: CameraPosition(
                     target: _selectedLocation,
                     zoom: 15,
@@ -172,7 +175,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 ),
                 const Center(
                   child: Icon(
-                    Icons.location_pin,
+                    Icons.location_on_sharp,
                     color: Colors.red,
                     size: 50,
                   ),
@@ -205,10 +208,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 ),
               ],
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _moveToCurrentLocation,
-        child: const Icon(Icons.my_location),
-      ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _moveToCurrentLocation,
+      //   child: const Icon(Icons.my_location),
+      // ),
     );
   }
 }

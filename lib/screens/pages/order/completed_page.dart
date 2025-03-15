@@ -77,7 +77,9 @@ class _CompletedPageState extends State<CompletedPage> {
   Widget _buildImage() {
     return Center(
       child: Image.asset(
-        'assets/images/cat.png',
+        widget.data['type'] == 'Purchase'
+            ? 'assets/images/Group 121 (1).png'
+            : 'assets/images/cat.png',
         width: 140,
         height: 140,
       ),
@@ -87,7 +89,9 @@ class _CompletedPageState extends State<CompletedPage> {
   Widget _buildEnjoyText() {
     return Center(
       child: TextWidget(
-        text: 'Enjoy your food!',
+        text: widget.data['type'] == 'Purchase'
+            ? 'Thank you for your purchase!'
+            : 'Enjoy your food!',
         fontSize: 22,
         fontFamily: 'Bold',
         color: secondary,
