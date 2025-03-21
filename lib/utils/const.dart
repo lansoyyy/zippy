@@ -7,6 +7,7 @@ String label = 'assets/images/label.png';
 String avatar = 'assets/images/avatar.png';
 String icon = 'assets/images/icon.png';
 String label2 = 'assets/images/image.png';
+String catIcon = 'assets/images/bg.png';
 
 List socials = [
   'assets/images/phone.png',

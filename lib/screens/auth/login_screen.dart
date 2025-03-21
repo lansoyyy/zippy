@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:zippy/screens/auth/signup_screen.dart';
 import 'package:zippy/screens/home_screen.dart';
+import 'package:zippy/screens/main_home_screen.dart';
 import 'package:zippy/services/otp_service.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/widgets/button_widget.dart';
@@ -85,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => userId = userDoc['uid']);
 
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute(builder: (context) => const MainHomeScreen()),
     );
   }
 

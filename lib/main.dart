@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:zippy/firebase_options.dart';
+import 'package:zippy/screens/main_home_screen.dart';
 import 'package:zippy/screens/splash_screen.dart';
 
 void main() async {
