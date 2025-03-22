@@ -760,6 +760,8 @@ class _ReviewPageState extends State<ReviewPage> {
                         deliveryFee,
                         total,
                         sortedData.first.id,
+                        userData['name'],
+                        userData['number'],
                       );
 
                       Navigator.of(context).pushAndRemoveUntil(
@@ -781,6 +783,9 @@ class _ReviewPageState extends State<ReviewPage> {
                               'deliveryFee': deliveryFee,
                               'total': total,
                               'orderId': orderId,
+                              'type': 'Food',
+                              'customerNumber': userData['number'],
+                              'customerName': userData['name'],
                             },
                           ),
                         ),
@@ -792,8 +797,8 @@ class _ReviewPageState extends State<ReviewPage> {
                     }
                   },
             child: Container(
-              width: 280,
-              height: 75,
+              width: MediaQuery.of(context).size.width,
+              height: 50,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),

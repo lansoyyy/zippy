@@ -13,7 +13,9 @@ Future addOrder(
     mop,
     double deliveryFee, //
     double total, //,
-    String driverId) async {
+    String driverId,
+    String customerName,
+    String customerNumber) async {
   final docUser = FirebaseFirestore.instance.collection('Orders').doc();
 
   final json = {
@@ -33,6 +35,9 @@ Future addOrder(
     'status': 'Pending',
     'driverId': driverId, // change this
     'isDeleted': false,
+    'type': 'Food',
+    'customerName': customerName,
+    'customerNumber': customerNumber,
   };
 
   await docUser.set(json);
