@@ -764,31 +764,32 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildCravingOption(Icons.fastfood_outlined, 'Food', false,
                 onTap: () => Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                         builder: (context) => const HomeScreen()))),
-            const SizedBox(width: 35),
+            const SizedBox(width: 50),
             _buildCravingOption(
               Icons.shopping_cart,
               'Purchase',
               true,
             ),
-            const SizedBox(width: 35),
+            const SizedBox(width: 50),
             _buildCravingOption(
                 Icons.directions_car_filled_outlined, 'Ride', false,
                 onTap: () => showToast('Coming soon.')),
-            const SizedBox(width: 35),
+            const SizedBox(width: 50),
             _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
                 onTap: () => showToast('Coming soon.')),
-            const SizedBox(width: 35),
+            const SizedBox(width: 50),
             _buildCravingOption(Icons.local_shipping_outlined, 'Package', false,
                 onTap: () => showToast('Coming soon.')),
-            const SizedBox(width: 35),
-            _buildCravingOption(Icons.more_horiz_rounded, 'Other', false,
+            const SizedBox(width: 50),
+            _buildCravingOption(Icons.more_horiz_rounded, 'Others', false,
                 onTap: () => Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                         builder: (context) => const MainHomeScreen()))),
