@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:zippy/screens/main_home_screen.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/screens/pages/shop_page.dart';
@@ -217,21 +218,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCravingOptions() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        _buildCravingOption(Icons.fastfood_outlined, 'Food', true),
-        _buildCravingOption(Icons.shopping_cart, 'Purchase', false,
-            onTap: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                    builder: (context) => const PurchaseScreen()))),
-        _buildCravingOption(Icons.directions_car_filled_outlined, 'Ride', false,
-            onTap: () => showToast('Coming soon.')),
-        _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
-            onTap: () => showToast('Coming soon.')),
-        _buildCravingOption(Icons.local_shipping_outlined, 'Package', false,
-            onTap: () => showToast('Coming soon.')),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: Row(
+          children: [
+            _buildCravingOption(Icons.fastfood_outlined, 'Food', true),
+            const SizedBox(width: 35),
+            _buildCravingOption(Icons.shopping_cart, 'Purchase', false,
+                onTap: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const PurchaseScreen()))),
+            const SizedBox(width: 35),
+            _buildCravingOption(
+                Icons.directions_car_filled_outlined, 'Ride', false,
+                onTap: () => showToast('Coming soon.')),
+            const SizedBox(width: 35),
+            _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
+                onTap: () => showToast('Coming soon.')),
+            const SizedBox(width: 35),
+            _buildCravingOption(Icons.local_shipping_outlined, 'Package', false,
+                onTap: () => showToast('Coming soon.')),
+            const SizedBox(width: 35),
+            _buildCravingOption(Icons.more_horiz_rounded, 'Other', false,
+                onTap: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const MainHomeScreen()))),
+          ],
+        ),
+      ),
     );
   }
 
