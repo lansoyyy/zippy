@@ -423,46 +423,62 @@ class _ReviewPageState extends State<ReviewPage> {
                       ),
                       GestureDetector(
                         onTap: () async {
-                          LatLng? newLocation = await Navigator.push(
+                          // Get the current location data
+                          final currentLatLng = LatLng(
+                            _isHome
+                                ? userData['homeLat']
+                                : userData['officeLat'],
+                            _isHome
+                                ? userData['homeLng']
+                                : userData['officeLng'],
+                          );
+                          final currentAddress = _isHome
+                              ? userData['homeAddress']
+                              : userData['officeAddress'];
+
+                          // Navigate to location picker
+                          final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => LocationPickerScreen(
-                                initialLatLng: LatLng(
-                                  _isHome
-                                      ? userData['homeLat']
-                                      : userData['officeLat'],
-                                  _isHome
-                                      ? userData['homeLng']
-                                      : userData['officeLng'],
-                                ),
+                                initialLatLng: currentLatLng,
+                                initialLocationName: currentAddress,
                               ),
                             ),
                           );
 
-                          if (newLocation != null) {
+                          // Handle the returned result
+                          if (result != null && mounted) {
+                            final newLocation = result['location'] as LatLng;
+                            final locationName = result['name'] as String;
+
                             setState(() {
+                              // Update Firestore
                               if (_isHome) {
                                 userData.reference.update({
                                   'homeLat': newLocation.latitude,
                                   'homeLng': newLocation.longitude,
-                                  'homeAddress': newLocation
-                                      .toString(), // Update with selected location
+                                  'homeAddress':
+                                      locationName, // Use the actual location name
                                 });
                               } else {
                                 userData.reference.update({
                                   'officeLat': newLocation.latitude,
                                   'officeLng': newLocation.longitude,
-                                  'officeAddress': newLocation
-                                      .toString(), // Update with selected location
+                                  'officeAddress':
+                                      locationName, // Use the actual location name
                                 });
                               }
 
+                              // Update the marker
                               _markers = {
                                 Marker(
                                   markerId: const MarkerId("selected"),
                                   position: newLocation,
-                                  infoWindow: const InfoWindow(
-                                      title: "Selected Location"),
+                                  infoWindow: InfoWindow(
+                                    title: "Selected Location",
+                                    snippet: locationName,
+                                  ),
                                 ),
                               };
                             });

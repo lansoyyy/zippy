@@ -176,7 +176,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/fastfood.png',
@@ -186,7 +186,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Food',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
@@ -208,7 +208,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/cart.png',
@@ -219,7 +219,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Purchase',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
@@ -238,7 +238,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/Surprise.png',
@@ -249,7 +249,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Surprise',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
@@ -273,7 +273,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/package.png',
@@ -283,7 +283,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Package',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
@@ -302,7 +302,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/ride.png',
@@ -313,7 +313,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Ride',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
@@ -332,7 +332,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/payments.png',
@@ -343,7 +343,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Payment',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
@@ -367,7 +367,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/transient.png',
@@ -377,7 +377,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Transient',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
@@ -396,7 +396,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/homeservice.png',
@@ -407,7 +407,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Home Service',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
@@ -426,7 +426,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 100,
+                            width: 60,
                           ),
                           Image.asset(
                             'assets/images/tutorial.png',
@@ -437,7 +437,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       ),
                       TextWidget(
                         text: 'Tutorial',
-                        fontSize: 20,
+                        fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
                       ),
