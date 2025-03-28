@@ -226,22 +226,32 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildCravingOption(Icons.fastfood_outlined, 'Food', true),
-            const SizedBox(width: 50),
+            SizedBox(
+              width: MediaQuery.of(context).size.height * 0.07,
+            ),
             _buildCravingOption(Icons.shopping_cart, 'Purchase', false,
                 onTap: () => Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                         builder: (context) => const PurchaseScreen()))),
-            const SizedBox(width: 50),
+            SizedBox(
+              width: MediaQuery.of(context).size.height * 0.07,
+            ),
             _buildCravingOption(
                 Icons.directions_car_filled_outlined, 'Ride', false,
                 onTap: () => showToast('Coming soon.')),
-            const SizedBox(width: 50),
+            SizedBox(
+              width: MediaQuery.of(context).size.height * 0.07,
+            ),
             _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
                 onTap: () => showToast('Coming soon.')),
-            const SizedBox(width: 50),
+            SizedBox(
+              width: MediaQuery.of(context).size.height * 0.07,
+            ),
             _buildCravingOption(Icons.local_shipping_outlined, 'Package', false,
                 onTap: () => showToast('Coming soon.')),
-            const SizedBox(width: 50),
+            SizedBox(
+              width: MediaQuery.of(context).size.height * 0.07,
+            ),
             _buildCravingOption(Icons.more_horiz_rounded, 'Others', false,
                 onTap: () => Navigator.of(context).pushReplacement(
                     MaterialPageRoute(

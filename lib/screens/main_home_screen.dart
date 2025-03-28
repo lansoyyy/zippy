@@ -158,6 +158,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
               color: secondary,
               fontFamily: "Bold",
             ),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -176,7 +177,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/fastfood.png',
@@ -208,7 +209,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/cart.png',
@@ -238,7 +239,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/Surprise.png',
@@ -273,7 +274,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/package.png',
@@ -302,7 +303,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/ride.png',
@@ -332,7 +333,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/payments.png',
@@ -367,7 +368,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/transient.png',
@@ -396,7 +397,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/homeservice.png',
@@ -406,7 +407,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         ],
                       ),
                       TextWidget(
-                        text: 'Home Service',
+                        text: 'Home \nService',
                         fontSize: 17,
                         color: secondary,
                         fontFamily: "Medium",
@@ -426,7 +427,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         children: [
                           Image.asset(
                             catIcon,
-                            width: 60,
+                            width: 100,
                           ),
                           Image.asset(
                             'assets/images/tutorial.png',
