@@ -126,22 +126,42 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 .toList();
           }
         } else {
-          final result = await polylinePoints.getRouteBetweenCoordinates(
-              kGoogleApiKey,
-              PointLatLng(position.latitude, position.longitude),
-              PointLatLng(data['lat'], data['lng']));
+          // Get user's home location from Firestore
+          final userDoc = await FirebaseFirestore.instance
+              .collection('Users')
+              .doc(userId)
+              .get();
 
-          if (result.points.isNotEmpty) {
-            polylineCoordinates = result.points
-                .map((point) => LatLng(point.latitude, point.longitude))
-                .toList();
+          if (userDoc.exists) {
+            final userData = userDoc.data() as Map<String, dynamic>;
+            final homeLat = userData['homeLat'];
+            final homeLng = userData['homeLng'];
+
+            if (homeLat == null || homeLng == null) {
+              showToast('Home location not available');
+              return;
+            }
+
+            final result = await polylinePoints.getRouteBetweenCoordinates(
+                kGoogleApiKey,
+                PointLatLng(data['lat'], data['lng']),
+                PointLatLng(homeLat, homeLng));
+
+            if (result.points.isNotEmpty) {
+              polylineCoordinates = result.points
+                  .map((point) => LatLng(point.latitude, point.longitude))
+                  .toList();
+            }
+          } else {
+            showToast('User data not found');
+            return;
           }
         }
 
         mapController?.animateCamera(
             CameraUpdate.newLatLngZoom(LatLng(data['lat'], data['lng']), 18.0));
 
-        setState(() {
+        setState(() async {
           markers.clear();
           _polyline = Polyline(
               color: Colors.red,
@@ -174,10 +194,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
               widget.data['deliveryLat'] != null &&
               widget.data['deliveryLng'] != null) {
             markers.add(Marker(
+                icon: BitmapDescriptor.defaultMarker,
                 markerId: const MarkerId("delivery"),
                 position: LatLng(
                     widget.data['deliveryLat'], widget.data['deliveryLng']),
                 infoWindow: const InfoWindow(title: "Delivery Location")));
+          } else if (widget.data['type'] != 'Purchase') {
+            // Add home location marker for non-Purchase types
+            final userDoc = await FirebaseFirestore.instance
+                .collection('Users')
+                .doc(userId)
+                .get();
+            if (userDoc.exists) {
+              final userData = userDoc.data() as Map<String, dynamic>;
+              final homeLat = userData['homeLat'];
+              final homeLng = userData['homeLng'];
+
+              if (homeLat != null && homeLng != null) {
+                markers.add(Marker(
+                    markerId: const MarkerId("home"),
+                    position: LatLng(homeLat, homeLng),
+                    infoWindow: const InfoWindow(title: "Home Location")));
+              }
+            }
           }
         });
       } else {
