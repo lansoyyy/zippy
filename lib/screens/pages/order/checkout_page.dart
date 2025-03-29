@@ -41,6 +41,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   late Polyline _polyline = const Polyline(polylineId: PolylineId('route'));
   List<LatLng> polylineCoordinates = [];
   final PolylinePoints polylinePoints = PolylinePoints();
+  StreamSubscription<DocumentSnapshot>? _riderSubscription;
+  DateTime? _lastUpdate;
 
   @override
   void initState() {
@@ -50,6 +52,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   void dispose() {
+    _riderSubscription?.cancel();
     mapController?.dispose();
     super.dispose();
   }
@@ -84,18 +87,45 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void _plotPolylines() {
-    Timer.periodic(const Duration(seconds: 10), (timer) async {
-      final riderDoc = FirebaseFirestore.instance
-          .collection('Riders')
-          .doc(widget.data['riderId']);
+    // Cancel any existing subscription
+    _riderSubscription?.cancel();
 
-      riderDoc.snapshots().listen((docSnapshot) async {
-        if (docSnapshot.exists) {
-          final data = docSnapshot.data() as Map<String, dynamic>;
-          final position = await Geolocator.getCurrentPosition(
-              locationSettings:
-                  const LocationSettings(accuracy: LocationAccuracy.high));
+    final riderDoc = FirebaseFirestore.instance
+        .collection('Riders')
+        .doc(widget.data['riderId']);
 
+    _riderSubscription = riderDoc.snapshots().listen((docSnapshot) async {
+      if (docSnapshot.exists) {
+        final now = DateTime.now();
+        if (_lastUpdate != null && now.difference(_lastUpdate!).inSeconds < 1) {
+          return;
+        }
+        _lastUpdate = now;
+
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        final position = await Geolocator.getCurrentPosition(
+            locationSettings:
+                const LocationSettings(accuracy: LocationAccuracy.high));
+
+        if (widget.data['type'] == 'Purchase') {
+          if (widget.data['deliveryLat'] == null ||
+              widget.data['deliveryLng'] == null) {
+            showToast('Delivery location not available');
+            return;
+          }
+
+          final result = await polylinePoints.getRouteBetweenCoordinates(
+              kGoogleApiKey,
+              PointLatLng(data['lat'], data['lng']),
+              PointLatLng(
+                  widget.data['deliveryLat'], widget.data['deliveryLng']));
+
+          if (result.points.isNotEmpty) {
+            polylineCoordinates = result.points
+                .map((point) => LatLng(point.latitude, point.longitude))
+                .toList();
+          }
+        } else {
           final result = await polylinePoints.getRouteBetweenCoordinates(
               kGoogleApiKey,
               PointLatLng(position.latitude, position.longitude),
@@ -106,38 +136,53 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 .map((point) => LatLng(point.latitude, point.longitude))
                 .toList();
           }
-
-          mapController?.animateCamera(CameraUpdate.newLatLngZoom(
-              LatLng(data['lat'], data['lng']), 18.0));
-
-          setState(() {
-            markers.clear();
-            _polyline = Polyline(
-                color: Colors.red,
-                polylineId: const PolylineId('route'),
-                points: polylineCoordinates,
-                width: 4);
-
-            mylat = position.latitude;
-            mylng = position.longitude;
-            _customMarkers.add(MarkerData(
-                marker: Marker(
-                    draggable: true,
-                    markerId: const MarkerId("pickup1"),
-                    position: LatLng(data['lat'], data['lng']),
-                    infoWindow: const InfoWindow(title: "Rider's Location")),
-                child: CustomMarker(secondary)));
-            markers.add(Marker(
-                draggable: true,
-                icon: BitmapDescriptor.defaultMarker,
-                markerId: const MarkerId("pickup"),
-                position: LatLng(data['lat'], data['lng']),
-                infoWindow: const InfoWindow(title: "Rider's Location")));
-          });
-        } else {
-          showToast('Rider data not found.');
         }
-      });
+
+        mapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(LatLng(data['lat'], data['lng']), 18.0));
+
+        setState(() {
+          markers.clear();
+          _polyline = Polyline(
+              color: Colors.red,
+              polylineId: const PolylineId('route'),
+              points: polylineCoordinates,
+              width: 4);
+
+          mylat = position.latitude;
+          mylng = position.longitude;
+          _customMarkers.clear(); // Clear existing custom markers
+
+          // Add rider's location marker
+          _customMarkers.add(MarkerData(
+              marker: Marker(
+                  draggable: true,
+                  markerId: const MarkerId("pickup1"),
+                  position: LatLng(data['lat'], data['lng']),
+                  infoWindow: const InfoWindow(title: "Rider's Location")),
+              child: CustomMarker(secondary)));
+
+          markers.add(Marker(
+              draggable: true,
+              icon: BitmapDescriptor.defaultMarker,
+              markerId: const MarkerId("pickup"),
+              position: LatLng(data['lat'], data['lng']),
+              infoWindow: const InfoWindow(title: "Rider's Location")));
+
+          // If it's a Purchase, also add the delivery location marker
+          if (widget.data['type'] == 'Purchase' &&
+              widget.data['deliveryLat'] != null &&
+              widget.data['deliveryLng'] != null) {
+            markers.add(Marker(
+                markerId: const MarkerId("delivery"),
+                position: LatLng(
+                    widget.data['deliveryLat'], widget.data['deliveryLng']),
+                infoWindow: const InfoWindow(title: "Delivery Location")));
+          }
+        });
+      } else {
+        showToast('Rider data not found.');
+      }
     });
   }
 
@@ -194,20 +239,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 );
               }
 
-              return GoogleMap(
-                polylines: {_polyline},
-                zoomControlsEnabled: false,
-                mapType: MapType.normal,
-                myLocationButtonEnabled: true,
-                myLocationEnabled: true,
-                markers: customMarkers,
-                initialCameraPosition:
-                    CameraPosition(target: LatLng(mylat, mylng), zoom: 14.4746),
-                onMapCreated: (controller) {
-                  mapController = controller;
-                  _controller.complete(controller);
-                },
-              );
+              return StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection(widget.data['type'] == 'Purchase'
+                          ? 'Purchase'
+                          : 'Orders')
+                      .doc(widget.data['orderId'])
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final orderData =
+                        snapshot.data!.data() as Map<String, dynamic>;
+
+                    return GoogleMap(
+                      polylines: {_polyline},
+                      zoomControlsEnabled: false,
+                      mapType: MapType.normal,
+                      myLocationButtonEnabled: true,
+                      myLocationEnabled: true,
+                      markers: customMarkers,
+                      initialCameraPosition: CameraPosition(
+                          target: LatLng(mylat, mylng), zoom: 14.4746),
+                      onMapCreated: (controller) {
+                        mapController = controller;
+                        _controller.complete(controller);
+                      },
+                    );
+                  });
             },
           ),
         _buildTopSection(data),
@@ -363,7 +424,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       alignment: Alignment.bottomCenter,
       child: Container(
         width: double.infinity,
-        height: MediaQuery.of(context).size.height * 0.15,
+        height: MediaQuery.of(context).size.height * 0.18,
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(25), topRight: Radius.circular(25)),
@@ -415,7 +476,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Card(
-                        elevation: 3,
+                        elevation: 5,
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(100)),
