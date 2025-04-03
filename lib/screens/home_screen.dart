@@ -9,6 +9,7 @@ import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/screens/pages/shop_page.dart';
 import 'package:zippy/screens/purchase_screen.dart';
+import 'package:zippy/screens/ride_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/my_location.dart';
@@ -114,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
       mapType: MapType.normal,
       myLocationButtonEnabled: true,
       myLocationEnabled: true,
+      padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.32),
       initialCameraPosition:
           CameraPosition(target: LatLng(mylat, mylng), zoom: 14.4746),
       onMapCreated: (controller) => _controller.complete(controller),
@@ -238,7 +240,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             _buildCravingOption(
                 Icons.directions_car_filled_outlined, 'Ride', false,
-                onTap: () => showToast('Coming soon.')),
+                onTap: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const RideScreen()))),
             SizedBox(
               width: MediaQuery.of(context).size.height * 0.07,
             ),

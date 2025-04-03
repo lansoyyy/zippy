@@ -7,6 +7,7 @@ import 'package:zippy/screens/main_home_screen.dart';
 import 'package:zippy/screens/pages/order/checkout_page.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
+import 'package:zippy/screens/ride_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
@@ -785,7 +786,9 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
             ),
             _buildCravingOption(
                 Icons.directions_car_filled_outlined, 'Ride', false,
-                onTap: () => showToast('Coming soon.')),
+                onTap: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const RideScreen()))),
             SizedBox(
               width: MediaQuery.of(context).size.height * 0.07,
             ),

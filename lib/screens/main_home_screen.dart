@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/screens/purchase_screen.dart';
+import 'package:zippy/screens/ride_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -293,7 +294,10 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    showToast('Coming Soon');
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                          builder: (context) => const RideScreen()),
+                    );
                   },
                   child: Column(
                     children: [

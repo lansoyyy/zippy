@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:zippy/screens/auth/landing_screen.dart';
 import 'package:zippy/screens/home_screen.dart';
+import 'package:zippy/screens/main_home_screen.dart';
 import 'package:zippy/screens/onboarding_screens/onboarding_one.dart';
 import 'package:zippy/utils/const.dart';
 
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
           userId = box.read('uid');
         });
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomeScreen()));
+            MaterialPageRoute(builder: (context) => const MainHomeScreen()));
       }
     });
   }

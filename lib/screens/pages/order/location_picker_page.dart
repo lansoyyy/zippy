@@ -301,7 +301,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       ),
                       child: Center(
                         child: TextWidget(
-                          text: "Set Delivery Address",
+                          text: "Set Address",
                           fontSize: 18,
                           color: white,
                           fontFamily: 'Bold',
