@@ -57,6 +57,7 @@ dependencies:
   saver_gallery: ^4.0.1
   custom_map_markers:
   google_maps_webservice: ^0.0.20-nullsafety.5
+  
 
 dev_dependencies:
   flutter_test:

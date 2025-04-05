@@ -1,16 +1,22 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/screens/main_home_screen.dart';
+import 'package:zippy/screens/pages/order/checkout_page.dart';
 import 'package:zippy/screens/pages/order/location_picker_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/screens/purchase_screen.dart';
 import 'package:zippy/utils/colors.dart';
+import 'package:zippy/utils/keys.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
+import 'package:google_maps_webservice/directions.dart' as directions;
 
 class RideScreen extends StatefulWidget {
   const RideScreen({super.key});
@@ -27,6 +33,11 @@ class _RideScreenState extends State<RideScreen> {
   LatLng? dropoffLocation;
   String pickupLocationName = 'Pickup Location';
   String dropoffLocationName = 'Drop off Location';
+  Set<Polyline> _polylines = {};
+  final directions.GoogleMapsDirections _directionsService =
+      directions.GoogleMapsDirections(apiKey: kGoogleApiKey);
+  final PolylinePoints _polylinePoints = PolylinePoints();
+  List<LatLng> _routeCoordinates = [];
 
   @override
   void initState() {
@@ -55,53 +66,150 @@ class _RideScreenState extends State<RideScreen> {
         children: [
           _buildGoogleMap(),
           _buildTopSection(),
-          Visibility(
-            visible: MediaQuery.of(context).viewInsets.bottom == 0,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                height: 100,
-                decoration: const BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey,
-                      blurRadius: 10,
-                      spreadRadius: 1,
-                      offset: Offset(0, 0),
-                    )
-                  ],
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      topRight: Radius.circular(25)),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+          _bookButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _bookButton() {
+    return Visibility(
+      visible: MediaQuery.of(context).viewInsets.bottom == 0,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height * 0.19,
+          decoration: const BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey,
+                blurRadius: 10,
+                spreadRadius: 1,
+                offset: Offset(0, 0),
+              )
+            ],
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25), topRight: Radius.circular(25)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.05),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width - 50,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: secondary,
-                        border: Border.all(color: secondary),
-                      ),
-                      child: Center(
-                        child: TextWidget(
-                          text: 'BOOK',
-                          fontSize: 23,
-                          color: Colors.white,
-                          fontFamily: "Bold",
-                        ),
-                      ),
+                    TextWidget(
+                      text: 'Total: ',
+                      fontSize: 23,
+                      color: secondary,
+                      fontFamily: "Bold",
+                    ),
+                    TextWidget(
+                      text: '₱ ${_calculateDeliveryFee().toStringAsFixed(2)}',
+                      fontSize: 25,
+                      color: secondary,
+                      fontFamily: "Bold",
                     ),
                   ],
                 ),
               ),
-            ),
+              GestureDetector(
+                onTap: () async {
+                  if (pickupLocation == null || dropoffLocation == null) {
+                    showToast('Please select pickup and drop-off locations');
+                    return;
+                  }
+
+                  try {
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user == null) {
+                      showToast('Please login first');
+                      return;
+                    }
+                    final availableDriver = await FirebaseFirestore.instance
+                        .collection('Riders')
+                        .where('isActive', isEqualTo: true)
+                        .limit(1)
+                        .get();
+
+                    if (availableDriver.docs.isEmpty) {
+                      showToast('No drivers available at the moment');
+                      return;
+                    }
+
+                    DocumentReference rideRef = await FirebaseFirestore.instance
+                        .collection('Ride')
+                        .add({
+                      'customerName': user.displayName ?? 'Unknown',
+                      'customerNumber': user.phoneNumber ?? 'Unknown',
+                      'date': DateTime.now(),
+                      'pickupLocation': GeoPoint(
+                          pickupLocation!.latitude, pickupLocation!.longitude),
+                      'dropoffLocation': GeoPoint(dropoffLocation!.latitude,
+                          dropoffLocation!.longitude),
+                      'pickupLocationName': pickupLocationName,
+                      'dropoffLocationName': dropoffLocationName,
+                      'fare': _calculateDeliveryFee(),
+                      'driverId': availableDriver.docs.first.id,
+                      'driverName': availableDriver.docs.first['name'],
+                      'driverContact': availableDriver.docs.first['number'],
+                      'type': 'Ride',
+                      'status': 'Pending',
+                      'userId': user.uid,
+                    });
+
+                    showToast('Booking successful!');
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CheckoutPage(
+                          data: {
+                            'customerName': user.displayName ?? 'Unknown',
+                            'customerNumber': user.phoneNumber ?? 'Unknown',
+                            'pickupLocationName': pickupLocationName,
+                            'dropoffLocationName': dropoffLocationName,
+                            'fare': _calculateDeliveryFee(),
+                            'driverId': availableDriver.docs.first.id,
+                            'driverName': availableDriver.docs.first['name'],
+                            'driverContact':
+                                availableDriver.docs.first['number'],
+                            'type': 'Ride',
+                            'status': 'Pending',
+                            'orderId': rideRef.id,
+                          },
+                        ),
+                      ),
+                    );
+                  } catch (e) {
+                    showToast('Error creating booking: $e');
+                  }
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width - 50,
+                  height: MediaQuery.of(context).size.height * 0.07,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    color: secondary,
+                    border: Border.all(color: secondary),
+                  ),
+                  child: Center(
+                    child: TextWidget(
+                      text: 'BOOK',
+                      fontSize: 23,
+                      color: Colors.white,
+                      fontFamily: "Bold",
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -118,6 +226,7 @@ class _RideScreenState extends State<RideScreen> {
           CameraPosition(target: LatLng(mylat, mylng), zoom: 14.0),
       onMapCreated: (controller) => _controller.complete(controller),
       markers: _buildMarkers(),
+      polylines: _polylines,
     );
   }
 
@@ -146,8 +255,105 @@ class _RideScreenState extends State<RideScreen> {
         ),
       );
     }
+    if (pickupLocation != null && dropoffLocation != null) {
+      Polyline(
+        polylineId: const PolylineId('route'),
+        color: secondary,
+        width: 5,
+        points: [
+          pickupLocation!,
+          dropoffLocation!,
+        ],
+      );
+    }
 
     return markers;
+  }
+
+  Future<void> _updatePolylines() async {
+    if (pickupLocation == null || dropoffLocation == null) return;
+
+    try {
+      final response = await _directionsService.directionsWithLocation(
+        directions.Location(
+          lat: pickupLocation!.latitude,
+          lng: pickupLocation!.longitude,
+        ),
+        directions.Location(
+          lat: dropoffLocation!.latitude,
+          lng: dropoffLocation!.longitude,
+        ),
+        travelMode: directions.TravelMode.driving,
+      );
+
+      if (response.isOkay && response.routes.isNotEmpty) {
+        // Get the encoded polyline string
+        final polylineString = response.routes.first.overviewPolyline.points;
+
+        // Decode the polyline points
+        final result = _polylinePoints.decodePolyline(polylineString);
+
+        // Convert to LatLng list
+        _routeCoordinates = result
+            .map((point) => LatLng(point.latitude, point.longitude))
+            .toList();
+
+        setState(() {
+          _polylines = {
+            Polyline(
+              polylineId: const PolylineId('route'),
+              color: secondary,
+              width: 5,
+              points: _routeCoordinates,
+              geodesic: false, // Set to false to follow roads
+            ),
+          };
+        });
+
+        // Adjust camera to show the entire route
+        if (_routeCoordinates.isNotEmpty) {
+          final controller = await _controller.future;
+          controller.animateCamera(
+            CameraUpdate.newLatLngBounds(
+              _boundsFromLatLngList(_routeCoordinates),
+              100, // padding
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error getting directions: $e');
+      // Fallback to straight line if API fails
+      setState(() {
+        _polylines = {
+          Polyline(
+            polylineId: const PolylineId('route'),
+            color: secondary,
+            width: 5,
+            points: [pickupLocation!, dropoffLocation!],
+          ),
+        };
+      });
+    }
+  }
+
+  LatLngBounds _boundsFromLatLngList(List<LatLng> list) {
+    double? x0, x1, y0, y1;
+    for (LatLng latLng in list) {
+      if (x0 == null) {
+        x0 = x1 = latLng.latitude;
+        y0 = y1 = latLng.longitude;
+      } else {
+        if (latLng.latitude > x1!) x1 = latLng.latitude;
+        if (latLng.latitude < x0) x0 = latLng.latitude;
+        if (latLng.longitude > y1!) y1 = latLng.longitude;
+        if (latLng.longitude < y0!) y0 = latLng.longitude;
+      }
+    }
+    return LatLngBounds(
+      northeast: LatLng(x1!, y1!),
+      southwest: LatLng(x0!, y0!),
+    );
   }
 
   Widget _buildTopSection() {
@@ -191,6 +397,7 @@ class _RideScreenState extends State<RideScreen> {
             setState(() {
               pickupLocation = result['location'];
               pickupLocationName = result['name'];
+              _updatePolylines();
             });
           }
         },
@@ -205,6 +412,12 @@ class _RideScreenState extends State<RideScreen> {
             children: [
               const Icon(Icons.location_on_rounded, color: Colors.black54),
               const SizedBox(width: 8.0),
+              TextWidget(
+                text: 'From: ',
+                fontSize: 14,
+                color: black,
+                fontFamily: "Bold",
+              ),
               Expanded(
                   child: TextWidget(
                 align: TextAlign.start,
@@ -238,6 +451,7 @@ class _RideScreenState extends State<RideScreen> {
             setState(() {
               dropoffLocation = result['location'];
               dropoffLocationName = result['name'];
+              _updatePolylines();
             });
           }
         },
@@ -252,6 +466,12 @@ class _RideScreenState extends State<RideScreen> {
             children: [
               const Icon(Icons.location_on_rounded, color: Colors.black54),
               const SizedBox(width: 8.0),
+              TextWidget(
+                text: 'To: ',
+                fontSize: 14,
+                color: black,
+                fontFamily: "Bold",
+              ),
               Expanded(
                 child: Text(
                   dropoffLocationName,
@@ -343,5 +563,18 @@ class _RideScreenState extends State<RideScreen> {
       ),
     );
   }
-  // ... rest of your existing methods (_buildCravingOptions, _buildCravingOption) ...
+
+  double _calculateDeliveryFee() {
+    if (pickupLocation == null || dropoffLocation == null) {
+      return 0.0;
+    }
+    double distanceInMeters = Geolocator.distanceBetween(
+      pickupLocation!.latitude,
+      pickupLocation!.longitude,
+      dropoffLocation!.latitude,
+      dropoffLocation!.longitude,
+    );
+    double distanceInKm = distanceInMeters / 1000;
+    return 50 + (distanceInKm * 15);
+  }
 }

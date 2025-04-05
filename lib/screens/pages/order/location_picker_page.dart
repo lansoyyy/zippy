@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart' as places;
+import 'package:google_maps_webservice/geocoding.dart' as geocoding;
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/keys.dart';
 import 'package:zippy/widgets/text_widget.dart';
@@ -27,10 +28,12 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   String _locationName = 'Select a location';
   bool _isLoading = true;
   bool _isNavigating = false;
+  late geocoding.GoogleMapsGeocoding _geocoding;
 
   @override
   void initState() {
     super.initState();
+    _geocoding = geocoding.GoogleMapsGeocoding(apiKey: kGoogleApiKey);
     _initializeLocation();
   }
 
@@ -59,15 +62,61 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<String> _getAddressName(LatLng position) async {
     try {
+      // First try to get a place name from Places API
       final placesService = places.GoogleMapsPlaces(apiKey: kGoogleApiKey);
-      final response = await placesService.searchNearbyWithRadius(
+      final nearbyResponse = await placesService.searchNearbyWithRadius(
         places.Location(lat: position.latitude, lng: position.longitude),
         50,
       );
 
-      if (response.results.isNotEmpty) {
-        return response.results.first.name ?? 'Selected Location';
+      if (nearbyResponse.results.isNotEmpty) {
+        // If we have a place name (like a business or landmark), use that
+        final place = nearbyResponse.results.first;
+        if (place.name.isNotEmpty) {
+          // Try to get the full address for context
+          final geocodeResponse = await _geocoding.searchByLocation(
+            geocoding.Location(lat: position.latitude, lng: position.longitude),
+          );
+
+          if (geocodeResponse.results.isNotEmpty) {
+            final address = geocodeResponse.results.first;
+            // Combine place name with locality if available
+            String locality = '';
+            for (var component in address.addressComponents) {
+              if (component.types.contains('locality')) {
+                locality = component.longName;
+                break;
+              }
+            }
+
+            if (locality.isNotEmpty) {
+              return '${place.name}, $locality';
+            }
+            return place.name;
+          }
+          return place.name;
+        }
       }
+
+      // Fall back to reverse geocoding if no place name found
+      final response = await _geocoding.searchByLocation(
+        geocoding.Location(lat: position.latitude, lng: position.longitude),
+      );
+
+      if (response.results.isNotEmpty) {
+        // Try to get a more detailed address
+        final address = response.results.first;
+
+        // Check if this is a specific establishment
+        if (address.types.contains('establishment') ||
+            address.types.contains('point_of_interest')) {
+          return address.formattedAddress ?? 'Selected Location';
+        }
+
+        // Otherwise return the formatted address
+        return address.formattedAddress ?? 'Selected Location';
+      }
+
       return 'Selected Location';
     } catch (e) {
       debugPrint("Error getting address name: $e");
@@ -145,7 +194,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
       final lat = detail.result.geometry!.location.lat;
       final lng = detail.result.geometry!.location.lng;
-      final name = detail.result.name ?? 'Selected Location';
+      final name = detail.result.name ??
+          detail.result.formattedAddress ??
+          'Selected Location';
 
       final searchedLocation = LatLng(lat, lng);
 
@@ -164,38 +215,37 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     }
   }
 
-  Future<void> _moveToCurrentLocation() async {
-    try {
-      Position position = await _determinePosition();
-      final currentLocation = LatLng(position.latitude, position.longitude);
-      final name = await _getAddressName(currentLocation);
+  // Future<void> _moveToCurrentLocation() async {
+  //   try {
+  //     Position position = await _determinePosition();
+  //     final currentLocation = LatLng(position.latitude, position.longitude);
+  //     final name = await _getAddressName(currentLocation);
 
-      if (mounted) {
-        setState(() {
-          _selectedLocation = currentLocation;
-          _locationName = name;
-        });
-      }
+  //     if (mounted) {
+  //       setState(() {
+  //         _selectedLocation = currentLocation;
+  //         _locationName = name;
+  //       });
+  //     }
 
-      await _mapController.animateCamera(
-        CameraUpdate.newLatLng(currentLocation),
-      );
-    } catch (e) {
-      debugPrint("Error moving to current location: $e");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
-      }
-    }
-  }
+  //     await _mapController.animateCamera(
+  //       CameraUpdate.newLatLng(currentLocation),
+  //     );
+  //   } catch (e) {
+  //     debugPrint("Error moving to current location: $e");
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Error: ${e.toString()}')),
+  //       );
+  //     }
+  //   }
+  // }
 
   Future<void> _returnWithLocation() async {
     if (_isNavigating || !mounted) return;
     _isNavigating = true;
 
     try {
-      // Wait for any ongoing animations
       await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
@@ -258,7 +308,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       draggable: false,
                     ),
                   },
-                  myLocationButtonEnabled: false, // We have our own button
+                  myLocationButtonEnabled: true,
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.1),
                   myLocationEnabled: true,
                 ),
                 Positioned(
@@ -312,16 +364,16 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 ),
               ],
             ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FloatingActionButton(
-            heroTag: 'current_location',
-            onPressed: _moveToCurrentLocation,
-            child: const Icon(Icons.my_location),
-          ),
-        ],
-      ),
+      // floatingActionButton: Column(
+      //   mainAxisAlignment: MainAxisAlignment.center,
+      //   children: [
+      //     FloatingActionButton(
+      //       heroTag: 'current_location',
+      //       onPressed: _moveToCurrentLocation,
+      //       child: const Icon(Icons.my_location),
+      //     ),
+      //   ],
+      // ),
     );
   }
 
