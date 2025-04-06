@@ -42,6 +42,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   List<LatLng> polylineCoordinates = [];
   final PolylinePoints polylinePoints = PolylinePoints();
   StreamSubscription<DocumentSnapshot>? _riderSubscription;
+  StreamSubscription<DocumentSnapshot>? _rideBookingSubscription;
   DateTime? _lastUpdate;
 
   @override
@@ -53,6 +54,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   void dispose() {
     _riderSubscription?.cancel();
+    _rideBookingSubscription?.cancel();
     mapController?.dispose();
     super.dispose();
   }
@@ -86,66 +88,146 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
   }
 
+  String _getCollectionName() {
+    if (widget.data['type'] == 'Purchase') return 'Purchase';
+    if (widget.data['type'] == 'Ride') return 'Ride Bookings';
+    return 'Orders';
+  }
+
   void _plotPolylines() {
-    // Cancel any existing subscription
+    // Cancel any existing subscriptions
     _riderSubscription?.cancel();
+    _rideBookingSubscription?.cancel();
 
-    final riderDoc = FirebaseFirestore.instance
-        .collection('Riders')
-        .doc(widget.data['riderId']);
+    if (widget.data['type'] == 'Ride') {
+      // Handle Ride Bookings separately
+      final rideBookingDoc = FirebaseFirestore.instance
+          .collection('Ride Bookings')
+          .doc(widget.data['orderId']);
 
-    _riderSubscription = riderDoc.snapshots().listen((docSnapshot) async {
-      if (docSnapshot.exists) {
-        final now = DateTime.now();
-        if (_lastUpdate != null && now.difference(_lastUpdate!).inSeconds < 1) {
-          return;
-        }
-        _lastUpdate = now;
-
-        final data = docSnapshot.data() as Map<String, dynamic>;
-        final position = await Geolocator.getCurrentPosition(
-            locationSettings:
-                const LocationSettings(accuracy: LocationAccuracy.high));
-
-        if (widget.data['type'] == 'Purchase') {
-          if (widget.data['deliveryLat'] == null ||
-              widget.data['deliveryLng'] == null) {
-            showToast('Delivery location not available');
+      _rideBookingSubscription =
+          rideBookingDoc.snapshots().listen((docSnapshot) async {
+        if (docSnapshot.exists) {
+          final now = DateTime.now();
+          if (_lastUpdate != null &&
+              now.difference(_lastUpdate!).inSeconds < 1) {
             return;
           }
+          _lastUpdate = now;
 
-          final result = await polylinePoints.getRouteBetweenCoordinates(
-              kGoogleApiKey,
-              PointLatLng(data['lat'], data['lng']),
-              PointLatLng(
-                  widget.data['deliveryLat'], widget.data['deliveryLng']));
+          final data = docSnapshot.data() as Map<String, dynamic>;
+          final position = await Geolocator.getCurrentPosition(
+              locationSettings:
+                  const LocationSettings(accuracy: LocationAccuracy.high));
 
-          if (result.points.isNotEmpty) {
-            polylineCoordinates = result.points
-                .map((point) => LatLng(point.latitude, point.longitude))
-                .toList();
-          }
-        } else {
-          // Get user's home location from Firestore
-          final userDoc = await FirebaseFirestore.instance
-              .collection('Users')
-              .doc(userId)
+          // Get driver's location from Riders collection
+          final driverDoc = await FirebaseFirestore.instance
+              .collection('Riders')
+              .doc(data['driverId'])
               .get();
 
-          if (userDoc.exists) {
-            final userData = userDoc.data() as Map<String, dynamic>;
-            final homeLat = userData['homeLat'];
-            final homeLng = userData['homeLng'];
+          if (driverDoc.exists) {
+            final driverData = driverDoc.data() as Map<String, dynamic>;
+            final driverLat = driverData['lat'];
+            final driverLng = driverData['lng'];
 
-            if (homeLat == null || homeLng == null) {
-              showToast('Home location not available');
+            if (driverLat == null || driverLng == null) {
+              showToast('Driver location not available');
+              return;
+            }
+
+            // For Ride Bookings, we show route from driver to pickup location
+            final pickupLocation = data['pickupLocation'] as GeoPoint;
+            final result = await polylinePoints.getRouteBetweenCoordinates(
+                kGoogleApiKey,
+                PointLatLng(driverLat, driverLng),
+                PointLatLng(pickupLocation.latitude, pickupLocation.longitude));
+
+            if (result.points.isNotEmpty) {
+              polylineCoordinates = result.points
+                  .map((point) => LatLng(point.latitude, point.longitude))
+                  .toList();
+            }
+
+            mapController?.animateCamera(
+                CameraUpdate.newLatLngZoom(LatLng(driverLat, driverLng), 18.0));
+
+            setState(() async {
+              markers.clear();
+              _polyline = Polyline(
+                  color: Colors.red,
+                  polylineId: const PolylineId('route'),
+                  points: polylineCoordinates,
+                  width: 4);
+
+              mylat = position.latitude;
+              mylng = position.longitude;
+              _customMarkers.clear();
+
+              // Add driver's location marker
+              _customMarkers.add(MarkerData(
+                  marker: Marker(
+                      draggable: true,
+                      markerId: const MarkerId("driver"),
+                      position: LatLng(driverLat, driverLng),
+                      infoWindow: InfoWindow(
+                          title: "${data['driverName']}'s Location")),
+                  child: CustomMarker(secondary)));
+
+              // Add pickup location marker
+              _customMarkers.add(MarkerData(
+                  marker: Marker(
+                      markerId: const MarkerId("pickup"),
+                      position: LatLng(
+                          pickupLocation.latitude, pickupLocation.longitude),
+                      infoWindow: const InfoWindow(title: "Pickup Location")),
+                  child: CustomMarker(primary)));
+
+              // Add dropoff location marker if available
+              if (data['dropoffLocation'] != null) {
+                final dropoffLocation = data['dropoffLocation'] as GeoPoint;
+                markers.add(Marker(
+                    markerId: const MarkerId("dropoff"),
+                    position: LatLng(
+                        dropoffLocation.latitude, dropoffLocation.longitude),
+                    infoWindow: const InfoWindow(title: "Dropoff Location")));
+              }
+            });
+          }
+        }
+      });
+    } else {
+      // Original logic for Purchase and Orders
+      final riderDoc = FirebaseFirestore.instance
+          .collection('Riders')
+          .doc(widget.data['riderId']);
+
+      _riderSubscription = riderDoc.snapshots().listen((docSnapshot) async {
+        if (docSnapshot.exists) {
+          final now = DateTime.now();
+          if (_lastUpdate != null &&
+              now.difference(_lastUpdate!).inSeconds < 1) {
+            return;
+          }
+          _lastUpdate = now;
+
+          final data = docSnapshot.data() as Map<String, dynamic>;
+          final position = await Geolocator.getCurrentPosition(
+              locationSettings:
+                  const LocationSettings(accuracy: LocationAccuracy.high));
+
+          if (widget.data['type'] == 'Purchase') {
+            if (widget.data['deliveryLat'] == null ||
+                widget.data['deliveryLng'] == null) {
+              showToast('Delivery location not available');
               return;
             }
 
             final result = await polylinePoints.getRouteBetweenCoordinates(
                 kGoogleApiKey,
                 PointLatLng(data['lat'], data['lng']),
-                PointLatLng(homeLat, homeLng));
+                PointLatLng(
+                    widget.data['deliveryLat'], widget.data['deliveryLng']));
 
             if (result.points.isNotEmpty) {
               polylineCoordinates = result.points
@@ -153,76 +235,102 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   .toList();
             }
           } else {
-            showToast('User data not found');
-            return;
-          }
-        }
-
-        mapController?.animateCamera(
-            CameraUpdate.newLatLngZoom(LatLng(data['lat'], data['lng']), 18.0));
-
-        setState(() async {
-          markers.clear();
-          _polyline = Polyline(
-              color: Colors.red,
-              polylineId: const PolylineId('route'),
-              points: polylineCoordinates,
-              width: 4);
-
-          mylat = position.latitude;
-          mylng = position.longitude;
-          _customMarkers.clear(); // Clear existing custom markers
-
-          // Add rider's location marker
-          _customMarkers.add(MarkerData(
-              marker: Marker(
-                  draggable: true,
-                  markerId: const MarkerId("pickup1"),
-                  position: LatLng(data['lat'], data['lng']),
-                  infoWindow: const InfoWindow(title: "Rider's Location")),
-              child: CustomMarker(secondary)));
-
-          markers.add(Marker(
-              draggable: true,
-              icon: BitmapDescriptor.defaultMarker,
-              markerId: const MarkerId("pickup"),
-              position: LatLng(data['lat'], data['lng']),
-              infoWindow: const InfoWindow(title: "Rider's Location")));
-
-          // If it's a Purchase, also add the delivery location marker
-          if (widget.data['type'] == 'Purchase' &&
-              widget.data['deliveryLat'] != null &&
-              widget.data['deliveryLng'] != null) {
-            markers.add(Marker(
-                icon: BitmapDescriptor.defaultMarker,
-                markerId: const MarkerId("delivery"),
-                position: LatLng(
-                    widget.data['deliveryLat'], widget.data['deliveryLng']),
-                infoWindow: const InfoWindow(title: "Delivery Location")));
-          } else if (widget.data['type'] != 'Purchase') {
-            // Add home location marker for non-Purchase types
+            // Get user's home location from Firestore
             final userDoc = await FirebaseFirestore.instance
                 .collection('Users')
                 .doc(userId)
                 .get();
+
             if (userDoc.exists) {
               final userData = userDoc.data() as Map<String, dynamic>;
               final homeLat = userData['homeLat'];
               final homeLng = userData['homeLng'];
 
-              if (homeLat != null && homeLng != null) {
-                markers.add(Marker(
-                    markerId: const MarkerId("home"),
-                    position: LatLng(homeLat, homeLng),
-                    infoWindow: const InfoWindow(title: "Home Location")));
+              if (homeLat == null || homeLng == null) {
+                showToast('Home location not available');
+                return;
               }
+
+              final result = await polylinePoints.getRouteBetweenCoordinates(
+                  kGoogleApiKey,
+                  PointLatLng(data['lat'], data['lng']),
+                  PointLatLng(homeLat, homeLng));
+
+              if (result.points.isNotEmpty) {
+                polylineCoordinates = result.points
+                    .map((point) => LatLng(point.latitude, point.longitude))
+                    .toList();
+              }
+            } else {
+              showToast('User data not found');
+              return;
             }
           }
-        });
-      } else {
-        showToast('Rider data not found.');
-      }
-    });
+
+          mapController?.animateCamera(CameraUpdate.newLatLngZoom(
+              LatLng(data['lat'], data['lng']), 18.0));
+
+          setState(() async {
+            markers.clear();
+            _polyline = Polyline(
+                color: Colors.red,
+                polylineId: const PolylineId('route'),
+                points: polylineCoordinates,
+                width: 4);
+
+            mylat = position.latitude;
+            mylng = position.longitude;
+            _customMarkers.clear();
+
+            // Add rider's location marker
+            _customMarkers.add(MarkerData(
+                marker: Marker(
+                    draggable: true,
+                    markerId: const MarkerId("pickup1"),
+                    position: LatLng(data['lat'], data['lng']),
+                    infoWindow: const InfoWindow(title: "Rider's Location")),
+                child: CustomMarker(secondary)));
+
+            markers.add(Marker(
+                draggable: true,
+                icon: BitmapDescriptor.defaultMarker,
+                markerId: const MarkerId("pickup"),
+                position: LatLng(data['lat'], data['lng']),
+                infoWindow: const InfoWindow(title: "Rider's Location")));
+
+            if (widget.data['type'] == 'Purchase' &&
+                widget.data['deliveryLat'] != null &&
+                widget.data['deliveryLng'] != null) {
+              markers.add(Marker(
+                  icon: BitmapDescriptor.defaultMarker,
+                  markerId: const MarkerId("delivery"),
+                  position: LatLng(
+                      widget.data['deliveryLat'], widget.data['deliveryLng']),
+                  infoWindow: const InfoWindow(title: "Delivery Location")));
+            } else if (widget.data['type'] != 'Purchase') {
+              final userDoc = await FirebaseFirestore.instance
+                  .collection('Users')
+                  .doc(userId)
+                  .get();
+              if (userDoc.exists) {
+                final userData = userDoc.data() as Map<String, dynamic>;
+                final homeLat = userData['homeLat'];
+                final homeLng = userData['homeLng'];
+
+                if (homeLat != null && homeLng != null) {
+                  markers.add(Marker(
+                      markerId: const MarkerId("home"),
+                      position: LatLng(homeLat, homeLng),
+                      infoWindow: const InfoWindow(title: "Home Location")));
+                }
+              }
+            }
+          });
+        } else {
+          showToast('Rider data not found.');
+        }
+      });
+    }
   }
 
   @override
@@ -231,8 +339,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: hasLoaded
           ? StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection(
-                      widget.data['type'] == 'Purchase' ? 'Purchase' : 'Orders')
+                  .collection(_getCollectionName())
                   .doc(widget.data['orderId'])
                   .snapshots(),
               builder: (context, snapshot) {
@@ -258,14 +365,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget _buildMainContent(Map<String, dynamic> data) {
     return Stack(
       children: [
-        if (data['status'] == 'Preparing')
-          Center(
-              child: _buildLoadingDialog(
-                  'assets/images/cat/CAT #7 2.png',
-                  widget.data['type'] == 'Purchase'
-                      ? 'Preparing your Purchase'
-                      : 'Preparing your Treats',
-                  '15 to 20 minutes'))
+        if (data['status'] == 'Preparing' ||
+            (widget.data['type'] == 'Ride' && data['status'] == 'Pending'))
+          Column(
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.35,
+              ),
+              Center(
+                  child: _buildLoadingDialog(
+                      'assets/images/cat/CAT #7 2.png',
+                      widget.data['type'] == 'Purchase'
+                          ? 'Preparing your Purchase'
+                          : widget.data['type'] == 'Ride'
+                              ? 'Finding a driver'
+                              : 'Preparing your Treats',
+                      '15 to 20 minutes')),
+            ],
+          )
         else
           CustomGoogleMapMarkerBuilder(
             customMarkers: _customMarkers,
@@ -280,9 +397,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
               return StreamBuilder<DocumentSnapshot>(
                   stream: FirebaseFirestore.instance
-                      .collection(widget.data['type'] == 'Purchase'
-                          ? 'Purchase'
-                          : 'Orders')
+                      .collection(_getCollectionName())
                       .doc(widget.data['orderId'])
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -311,13 +426,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
             },
           ),
         _buildTopSection(data),
-        if (data['status'] == 'On the way') _buildBottomSection(),
+        if (data['status'] == 'On the way') _buildBottomSection(data),
       ],
     );
   }
 
   Widget _buildTopSection(Map<String, dynamic> data) {
-    if (data['status'] == 'Delivered') {
+    if (data['status'] == 'Delivered' ||
+        (widget.data['type'] == 'Ride' && data['status'] == 'Completed')) {
       Future.delayed(Duration.zero, () {
         Navigator.pushReplacement(
           context,
@@ -347,9 +463,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     child: TextWidget(
                       align: TextAlign.start,
                       text: data['status'] == 'On the way'
-                          ? 'Awaiting delivery..'
-                          : data['status'] == 'Preparing'
-                              ? 'Awaiting order..'
+                          ? 'Awaiting Booking...'
+                          : data['status'] == 'Preparing' ||
+                                  (widget.data['type'] == 'Ride' &&
+                                      data['status'] == 'Pending')
+                              ? widget.data['type'] == 'Ride'
+                                  ? 'Finding a driver..'
+                                  : 'Awaiting order..'
                               : 'Order Pending...',
                       fontSize: 22,
                       fontFamily: 'Bold',
@@ -379,7 +499,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 child: ButtonWidget(
                   color: Colors.white,
                   textColor: secondary,
-                  label: 'Order delivered',
+                  label: widget.data['type'] == 'Ride'
+                      ? 'Complete Ride'
+                      : 'Order delivered',
                   onPressed: _showCompleteDialog,
                 ),
               ),
@@ -431,11 +553,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildCravingOption(Icons.fastfood_outlined, 'Food', true),
         _buildCravingOption(
-            Icons.directions_car_filled_outlined, 'Ride', false),
+            Icons.fastfood_outlined, 'Food', widget.data['type'] == 'Food'),
+        _buildCravingOption(Icons.directions_car_filled_outlined, 'Ride',
+            widget.data['type'] == 'Ride'),
         _buildCravingOption(Icons.card_giftcard, 'Surprise', false),
-        _buildCravingOption(Icons.local_shipping_outlined, 'Package', false),
+        _buildCravingOption(Icons.local_shipping_outlined, 'Package',
+            widget.data['type'] == 'Purchase'),
       ],
     );
   }
@@ -458,7 +582,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildBottomSection() {
+  Widget _buildBottomSection(Map<String, dynamic> data) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
@@ -481,13 +605,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       Image.asset(icon, height: 20, width: 20),
                       const SizedBox(width: 10),
                       TextWidget(
-                          text: 'arriving in 20-30 minutes', fontSize: 12),
+                          text: widget.data['type'] == 'Ride'
+                              ? 'Driver is on the way'
+                              : 'arriving in 20-30 minutes',
+                          fontSize: 12),
                     ],
                   ),
                   TextWidget(
                     text: widget.data['type'] == 'Purchase'
                         ? 'Total: N/A'
-                        : 'Total: ₱${widget.data['total'].toStringAsFixed(2)}',
+                        : widget.data['type'] == 'Ride'
+                            ? 'Fare: ₱${data['fare'].toStringAsFixed(2)}'
+                            : 'Total: ₱${widget.data['total'].toStringAsFixed(2)}',
                     fontSize: 15,
                     fontFamily: 'Bold',
                   ),
@@ -495,10 +624,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               const SizedBox(height: 20),
               StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('Riders')
-                    .doc(widget.data['riderId'])
-                    .snapshots(),
+                stream: widget.data['type'] == 'Ride'
+                    ? FirebaseFirestore.instance
+                        .collection('Riders')
+                        .doc(data['driverId'])
+                        .snapshots()
+                    : FirebaseFirestore.instance
+                        .collection('Riders')
+                        .doc(widget.data['riderId'])
+                        .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(child: Text('Loading'));
@@ -530,8 +664,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ChatPage(
-                              driverId: widget.data['riderId'],
-                              driverName: driverData['number'],
+                              driverId: widget.data['type'] == 'Ride'
+                                  ? data['driverId']
+                                  : widget.data['riderId'],
+                              driverName: widget.data['type'] == 'Ride'
+                                  ? data['driverName']
+                                  : driverData['name'],
                             ),
                           ),
                         ),
@@ -566,7 +704,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   Widget _buildLoadingDialog(String image, String caption, String duration) {
     return SizedBox(
-      height: 320,
+      height: MediaQuery.of(context).size.height * 0.5,
       width: 300,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -576,7 +714,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               fontSize: 20,
               fontFamily: 'Bold',
               color: secondary),
-          const SizedBox(height: 10),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.05),
           Image.asset(image, height: 160, width: 160),
           const SizedBox(height: 10),
           TextWidget(
@@ -601,8 +739,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       builder: (context) => AlertDialog(
         title: const Text('Complete Order Confirmation',
             style: TextStyle(fontFamily: 'QBold', fontWeight: FontWeight.bold)),
-        content: const Text('Are you sure you want to complete your order?',
-            style: TextStyle(fontFamily: 'QRegular')),
+        content: Text(
+            widget.data['type'] == 'Ride'
+                ? 'Are you sure you want to complete your ride?'
+                : 'Are you sure you want to complete your order?',
+            style: const TextStyle(fontFamily: 'QRegular')),
         actions: [
           MaterialButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -611,11 +752,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     fontFamily: 'QRegular', fontWeight: FontWeight.bold)),
           ),
           MaterialButton(
-            onPressed: () => Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                  builder: (context) => CompletedPage(data: widget.data)),
-              (route) => false,
-            ),
+            onPressed: () {
+              // Update status in Firestore
+              if (widget.data['type'] == 'Ride') {
+                FirebaseFirestore.instance
+                    .collection('Ride Bookings')
+                    .doc(widget.data['orderId'])
+                    .update({'status': 'Completed'});
+              } else {
+                FirebaseFirestore.instance
+                    .collection(widget.data['type'] == 'Purchase'
+                        ? 'Purchase'
+                        : 'Orders')
+                    .doc(widget.data['orderId'])
+                    .update({'status': 'Delivered'});
+              }
+
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => CompletedPage(data: widget.data)),
+                (route) => false,
+              );
+            },
             child: const Text('Continue',
                 style: TextStyle(
                     fontFamily: 'QRegular', fontWeight: FontWeight.bold)),

@@ -66,7 +66,9 @@ class _CompletedPageState extends State<CompletedPage> {
   Widget _buildHeader() {
     return Center(
       child: TextWidget(
-        text: 'Delivery Completed',
+        text: widget.data['type'] == 'Ride'
+            ? 'Arrived at the destination'
+            : 'Delivery Completed',
         fontSize: 22,
         fontFamily: 'Bold',
         color: secondary,
@@ -91,7 +93,9 @@ class _CompletedPageState extends State<CompletedPage> {
       child: TextWidget(
         text: widget.data['type'] == 'Purchase'
             ? 'Thank you for your purchase!'
-            : 'Enjoy your food!',
+            : widget.data['type'] == 'Ride'
+                ? 'Thanks for the ride!'
+                : 'Enjoy your meal!',
         fontSize: 22,
         fontFamily: 'Bold',
         color: secondary,

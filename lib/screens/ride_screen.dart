@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:zippy/screens/auth/login_screen.dart';
 import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/screens/main_home_screen.dart';
 import 'package:zippy/screens/pages/order/checkout_page.dart';
@@ -13,6 +14,7 @@ import 'package:zippy/screens/pages/order/location_picker_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/screens/purchase_screen.dart';
 import 'package:zippy/utils/colors.dart';
+import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
@@ -38,11 +40,33 @@ class _RideScreenState extends State<RideScreen> {
       directions.GoogleMapsDirections(apiKey: kGoogleApiKey);
   final PolylinePoints _polylinePoints = PolylinePoints();
   List<LatLng> _routeCoordinates = [];
+  Map<String, dynamic>? userData;
 
   @override
   void initState() {
     super.initState();
     getMyLocation();
+    _fetchUser();
+  }
+
+  Future<void> _fetchUser() async {
+    try {
+      final userDoc =
+          FirebaseFirestore.instance.collection('Users').doc(userId);
+      userDoc.snapshots().listen((docSnapshot) {
+        if (docSnapshot.exists) {
+          final data = docSnapshot.data() as Map<String, dynamic>;
+          setState(() {
+            userData = data;
+          });
+        } else {
+          showToast('User data not found.');
+        }
+      });
+    } catch (e) {
+      print("Error fetching user data: $e");
+      showToast('Error loading user data');
+    }
   }
 
   Future getMyLocation() async {
@@ -119,17 +143,30 @@ class _RideScreenState extends State<RideScreen> {
               ),
               GestureDetector(
                 onTap: () async {
+                  // Check if locations are selected
                   if (pickupLocation == null || dropoffLocation == null) {
                     showToast('Please select pickup and drop-off locations');
                     return;
                   }
 
+                  // Check if user is logged in
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (userData == null || userId.isEmpty) {
+                    showToast('Please login first');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginScreen()),
+                    );
+                    return;
+                  }
+                  if (userData == null) {
+                    showToast('Loading user data, please wait...');
+                    return;
+                  }
+
                   try {
-                    final user = FirebaseAuth.instance.currentUser;
-                    if (user == null) {
-                      showToast('Please login first');
-                      return;
-                    }
+                    // Check for available drivers
                     final availableDriver = await FirebaseFirestore.instance
                         .collection('Riders')
                         .where('isActive', isEqualTo: true)
@@ -140,12 +177,11 @@ class _RideScreenState extends State<RideScreen> {
                       showToast('No drivers available at the moment');
                       return;
                     }
-
                     DocumentReference rideRef = await FirebaseFirestore.instance
-                        .collection('Ride')
+                        .collection('Ride Bookings')
                         .add({
-                      'customerName': user.displayName ?? 'Unknown',
-                      'customerNumber': user.phoneNumber ?? 'Unknown',
+                      'customerName': userData!['name'] ?? 'Unknown',
+                      'customerNumber': userData!['number'] ?? 'Unknown',
                       'date': DateTime.now(),
                       'pickupLocation': GeoPoint(
                           pickupLocation!.latitude, pickupLocation!.longitude),
@@ -159,7 +195,7 @@ class _RideScreenState extends State<RideScreen> {
                       'driverContact': availableDriver.docs.first['number'],
                       'type': 'Ride',
                       'status': 'Pending',
-                      'userId': user.uid,
+                      'userId': userId,
                     });
 
                     showToast('Booking successful!');
@@ -169,11 +205,11 @@ class _RideScreenState extends State<RideScreen> {
                       MaterialPageRoute(
                         builder: (context) => CheckoutPage(
                           data: {
-                            'customerName': user.displayName ?? 'Unknown',
-                            'customerNumber': user.phoneNumber ?? 'Unknown',
+                            'customerName': userData!['name'],
+                            'customerNumber': userData!['number'],
                             'pickupLocationName': pickupLocationName,
                             'dropoffLocationName': dropoffLocationName,
-                            'fare': _calculateDeliveryFee(),
+                            'fare': _calculateDeliveryFee().toStringAsFixed(2),
                             'driverId': availableDriver.docs.first.id,
                             'driverName': availableDriver.docs.first['name'],
                             'driverContact':
@@ -186,7 +222,8 @@ class _RideScreenState extends State<RideScreen> {
                       ),
                     );
                   } catch (e) {
-                    showToast('Error creating booking: $e');
+                    print('Error creating booking: $e');
+                    showToast('Error creating booking. Please try again.');
                   }
                 },
                 child: Container(
@@ -234,15 +271,15 @@ class _RideScreenState extends State<RideScreen> {
     final markers = <Marker>{};
 
     if (pickupLocation != null) {
-      markers.add(
-        Marker(
-          markerId: const MarkerId('pickup'),
-          position: pickupLocation!,
-          icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-          infoWindow: InfoWindow(title: pickupLocationName),
-        ),
-      );
+      // markers.add(
+      //   Marker(
+      //     markerId: const MarkerId('pickup'),
+      //     position: pickupLocation!,
+      //     icon:
+      //         BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      //     infoWindow: InfoWindow(title: pickupLocationName),
+      //   ),
+      // );
     }
 
     if (dropoffLocation != null) {
