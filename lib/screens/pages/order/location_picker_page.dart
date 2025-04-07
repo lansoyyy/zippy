@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -29,6 +30,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   bool _isLoading = true;
   bool _isNavigating = false;
   late geocoding.GoogleMapsGeocoding _geocoding;
+  Timer? _debounce;
+  bool _isSearchSelected = false;
 
   @override
   void initState() {
@@ -62,7 +65,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<String> _getAddressName(LatLng position) async {
     try {
-      // First try to get a place name from Places API
+      // First try to get place details from Places API
       final placesService = places.GoogleMapsPlaces(apiKey: kGoogleApiKey);
       final nearbyResponse = await placesService.searchNearbyWithRadius(
         places.Location(lat: position.latitude, lng: position.longitude),
@@ -70,50 +73,51 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       );
 
       if (nearbyResponse.results.isNotEmpty) {
-        // If we have a place name (like a business or landmark), use that
         final place = nearbyResponse.results.first;
         if (place.name.isNotEmpty) {
-          // Try to get the full address for context
-          final geocodeResponse = await _geocoding.searchByLocation(
-            geocoding.Location(lat: position.latitude, lng: position.longitude),
-          );
-
-          if (geocodeResponse.results.isNotEmpty) {
-            final address = geocodeResponse.results.first;
-            // Combine place name with locality if available
-            String locality = '';
-            for (var component in address.addressComponents) {
-              if (component.types.contains('locality')) {
-                locality = component.longName;
-                break;
-              }
-            }
-
-            if (locality.isNotEmpty) {
-              return '${place.name}, $locality';
-            }
-            return place.name;
-          }
+          // Return just the place name if we have it
           return place.name;
         }
       }
 
-      // Fall back to reverse geocoding if no place name found
-      final response = await _geocoding.searchByLocation(
+      // If Places API didn't give us a good result, fall back to Geocoding API
+      final geocodeResponse = await _geocoding.searchByLocation(
         geocoding.Location(lat: position.latitude, lng: position.longitude),
       );
 
-      if (response.results.isNotEmpty) {
-        // Try to get a more detailed address
-        final address = response.results.first;
+      if (geocodeResponse.results.isNotEmpty) {
+        final address = geocodeResponse.results.first;
 
-        // Check if this is a specific establishment
-        if (address.types.contains('establishment') ||
-            address.types.contains('point_of_interest')) {
-          return address.formattedAddress ?? 'Selected Location';
+        // Extract address components
+        String? streetNumber;
+        String? route;
+        String? locality;
+        String? sublocality;
+
+        for (var component in address.addressComponents) {
+          if (component.types.contains('street_number')) {
+            streetNumber = component.longName;
+          } else if (component.types.contains('route')) {
+            route = component.longName;
+          } else if (component.types.contains('locality')) {
+            locality = component.longName;
+          } else if (component.types.contains('sublocality')) {
+            sublocality = component.longName;
+          }
         }
 
-        // Otherwise return the formatted address
+        // Build specific address
+        if (streetNumber != null && route != null) {
+          return '$streetNumber $route';
+        } else if (route != null) {
+          return route;
+        } else if (sublocality != null) {
+          return sublocality;
+        } else if (locality != null) {
+          return locality;
+        }
+
+        // Fall back to formatted address if no specific components found
         return address.formattedAddress ?? 'Selected Location';
       }
 
@@ -126,16 +130,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw 'Location services are disabled.';
-    }
+    if (!serviceEnabled) throw 'Location services are disabled.';
 
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
+      if (permission == LocationPermission.denied)
         throw 'Location permissions are denied.';
-      }
     }
 
     if (permission == LocationPermission.deniedForever) {
@@ -145,19 +146,27 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     return await Geolocator.getCurrentPosition();
   }
 
-  void _onCameraMove(CameraPosition position) async {
+  void _onCameraMove(CameraPosition position) {
     if (!mounted) return;
+    _selectedLocation = position.target;
+  }
 
-    setState(() {
-      _selectedLocation = position.target;
+  void _onCameraIdle() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 300), () async {
+      // Only update the address if not recently selected from search
+      if (!_isSearchSelected) {
+        final name = await _getAddressName(_selectedLocation);
+        if (mounted) {
+          setState(() {
+            _locationName = name;
+          });
+        }
+      }
+      // Reset the flag after camera idle
+      _isSearchSelected = false;
     });
-
-    final name = await _getAddressName(position.target);
-    if (mounted) {
-      setState(() {
-        _locationName = name;
-      });
-    }
   }
 
   Future<void> _handleSearch() async {
@@ -194,8 +203,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
       final lat = detail.result.geometry!.location.lat;
       final lng = detail.result.geometry!.location.lng;
-      final name = detail.result.name ??
-          detail.result.formattedAddress ??
+      final name = detail.result
+              .formattedAddress ?? // Use formattedAddress instead of name
+          detail.result.name ??
           'Selected Location';
 
       final searchedLocation = LatLng(lat, lng);
@@ -204,6 +214,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         setState(() {
           _selectedLocation = searchedLocation;
           _locationName = name;
+          _isSearchSelected = true; // Set the flag
         });
       }
 
@@ -214,32 +225,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       debugPrint("Error displaying location: $e");
     }
   }
-
-  // Future<void> _moveToCurrentLocation() async {
-  //   try {
-  //     Position position = await _determinePosition();
-  //     final currentLocation = LatLng(position.latitude, position.longitude);
-  //     final name = await _getAddressName(currentLocation);
-
-  //     if (mounted) {
-  //       setState(() {
-  //         _selectedLocation = currentLocation;
-  //         _locationName = name;
-  //       });
-  //     }
-
-  //     await _mapController.animateCamera(
-  //       CameraUpdate.newLatLng(currentLocation),
-  //     );
-  //   } catch (e) {
-  //     debugPrint("Error moving to current location: $e");
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Error: ${e.toString()}')),
-  //       );
-  //     }
-  //   }
-  // }
 
   Future<void> _returnWithLocation() async {
     if (_isNavigating || !mounted) return;
@@ -293,7 +278,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   ),
                   onMapCreated: (controller) {
                     _mapController = controller;
-                    // Move camera to position after map is created
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       _mapController.animateCamera(
                         CameraUpdate.newLatLng(_selectedLocation),
@@ -301,6 +285,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     });
                   },
                   onCameraMove: _onCameraMove,
+                  onCameraIdle: _onCameraIdle,
                   markers: {
                     Marker(
                       markerId: const MarkerId("selected"),
@@ -310,7 +295,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   },
                   myLocationButtonEnabled: true,
                   padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.1),
+                    top: MediaQuery.of(context).size.height * 0.1,
+                  ),
                   myLocationEnabled: true,
                 ),
                 Positioned(
@@ -364,22 +350,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 ),
               ],
             ),
-      // floatingActionButton: Column(
-      //   mainAxisAlignment: MainAxisAlignment.center,
-      //   children: [
-      //     FloatingActionButton(
-      //       heroTag: 'current_location',
-      //       onPressed: _moveToCurrentLocation,
-      //       child: const Icon(Icons.my_location),
-      //     ),
-      //   ],
-      // ),
     );
   }
 
   @override
   void dispose() {
     _mapController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 }
