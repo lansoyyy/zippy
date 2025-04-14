@@ -512,8 +512,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                   TextFieldWidget(
                                       inputType: TextInputType.multiline,
                                       borderColor: black,
-                                      maxLine: 500,
-                                      height: 150,
+                                      maxLine: null,
+                                      height: null,
                                       width: MediaQuery.of(context).size.width,
                                       radius: 10,
                                       color: secondary,
@@ -522,8 +522,11 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                       controller: itemsController),
                                   TextFieldWidget(
                                       borderColor: black,
-                                      maxLine: 50,
-                                      height: 150,
+                                      maxLine:
+                                          null, // Set to null to allow unlimited lines
+                                      // minLines: 1, // Start with 1 line
+                                      height:
+                                          null, // Remove fixed height to allow auto-expansion
                                       width: MediaQuery.of(context).size.width,
                                       radius: 10,
                                       color: secondary,
