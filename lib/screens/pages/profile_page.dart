@@ -15,7 +15,6 @@ import 'package:zippy/screens/pages/shop_page.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
 import 'package:zippy/widgets/button_widget.dart';
-import 'package:zippy/widgets/logout_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
 import '../../utils/colors.dart';
