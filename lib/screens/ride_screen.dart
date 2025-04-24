@@ -612,6 +612,6 @@ class _RideScreenState extends State<RideScreen> {
       dropoffLocation!.longitude,
     );
     double distanceInKm = distanceInMeters / 1000;
-    return 50 + (distanceInKm * 15);
+    return 50 + (distanceInKm * 50);
   }
 }

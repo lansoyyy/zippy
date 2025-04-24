@@ -65,60 +65,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<String> _getAddressName(LatLng position) async {
     try {
-      // First try to get place details from Places API
-      final placesService = places.GoogleMapsPlaces(apiKey: kGoogleApiKey);
-      final nearbyResponse = await placesService.searchNearbyWithRadius(
-        places.Location(lat: position.latitude, lng: position.longitude),
-        50,
-      );
-
-      if (nearbyResponse.results.isNotEmpty) {
-        final place = nearbyResponse.results.first;
-        if (place.name.isNotEmpty) {
-          // Return just the place name if we have it
-          return place.name;
-        }
-      }
-
-      // If Places API didn't give us a good result, fall back to Geocoding API
       final geocodeResponse = await _geocoding.searchByLocation(
         geocoding.Location(lat: position.latitude, lng: position.longitude),
       );
 
       if (geocodeResponse.results.isNotEmpty) {
-        final address = geocodeResponse.results.first;
-
-        // Extract address components
-        String? streetNumber;
-        String? route;
-        String? locality;
-        String? sublocality;
-
-        for (var component in address.addressComponents) {
-          if (component.types.contains('street_number')) {
-            streetNumber = component.longName;
-          } else if (component.types.contains('route')) {
-            route = component.longName;
-          } else if (component.types.contains('locality')) {
-            locality = component.longName;
-          } else if (component.types.contains('sublocality')) {
-            sublocality = component.longName;
-          }
-        }
-
-        // Build specific address
-        if (streetNumber != null && route != null) {
-          return '$streetNumber $route';
-        } else if (route != null) {
-          return route;
-        } else if (sublocality != null) {
-          return sublocality;
-        } else if (locality != null) {
-          return locality;
-        }
-
-        // Fall back to formatted address if no specific components found
-        return address.formattedAddress ?? 'Selected Location';
+        return geocodeResponse.results.first.formattedAddress ??
+            'Selected Location';
       }
 
       return 'Selected Location';
