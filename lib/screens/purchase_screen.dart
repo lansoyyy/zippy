@@ -8,6 +8,7 @@ import 'package:zippy/screens/pages/order/checkout_page.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/screens/ride_screen.dart';
+import 'package:zippy/screens/surprise_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
@@ -796,7 +797,9 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
               width: MediaQuery.of(context).size.height * 0.07,
             ),
             _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
-                onTap: () => showToast('Coming soon.')),
+                onTap: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const SurpriseScreen()))),
             SizedBox(
               width: MediaQuery.of(context).size.height * 0.07,
             ),

@@ -4,46 +4,51 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:zippy/screens/home_screen.dart';
 import 'package:zippy/screens/main_home_screen.dart';
 import 'package:zippy/screens/pages/profile_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/screens/pages/shop_page.dart';
 import 'package:zippy/screens/purchase_screen.dart';
 import 'package:zippy/screens/ride_screen.dart';
-import 'package:zippy/screens/surprise_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
-import 'package:zippy/utils/my_location.dart';
 import 'package:zippy/widgets/text_widget.dart';
 import 'package:zippy/widgets/toast_widget.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class SurpriseScreen extends StatefulWidget {
+  const SurpriseScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<SurpriseScreen> createState() => _SurpriseScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  List<Map<String, dynamic>> merchants = [];
+class _SurpriseScreenState extends State<SurpriseScreen> {
   Map<String, dynamic>? userData;
   String? profileImage;
+  double mylat = 0;
+  double mylng = 0;
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
+  List<Map<String, dynamic>> merchants = [];
 
   @override
   void initState() {
     super.initState();
 
-    _initializeData();
+    _fetchUser();
+    getMyLocation();
+    _fetchMerchants();
   }
 
-  void _initializeData() async {
-    await _fetchMerchants();
-    await _fetchUser();
-    await determinePosition();
-    await getMyLocation();
-    setState(() => hasLoaded = true);
+  Future<void> _fetchMerchants() async {
+    final merchantsCollection =
+        FirebaseFirestore.instance.collection('Merchant');
+    final querySnapshot =
+        await merchantsCollection.where('type', isEqualTo: 'Surprise').get();
+    final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    setState(() => merchants = allData);
   }
 
   Future getMyLocation() async {
@@ -55,21 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
       mylat = position.latitude;
       mylng = position.longitude;
     });
-  }
-
-  double mylat = 0;
-  double mylng = 0;
-
-  bool hasLoaded = false;
-
-  Future<void> _fetchMerchants() async {
-    final merchantsCollection =
-        FirebaseFirestore.instance.collection('Merchant');
-    final querySnapshot =
-        await merchantsCollection.where('type', isEqualTo: 'Food').get();
-    final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
-
-    setState(() => merchants = allData);
   }
 
   Future<void> _fetchUser() async {
@@ -95,20 +85,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: hasLoaded
-          ? Stack(
-              children: [
-                _buildGoogleMap(),
-                _buildTopSection(),
-                _buildFeaturedMerchants(),
-              ],
-            )
-          : const Center(
-              child: CircularProgressIndicator(
-                color: secondary,
-              ),
-            ),
-    );
+        body: Stack(
+      children: [
+        _buildGoogleMap(),
+        _buildTopSection(),
+        _buildFeaturedMerchants(),
+      ],
+    ));
   }
 
   Widget _buildGoogleMap() {
@@ -205,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   enabled: false,
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'What are you craving today?',
+                    hintText: 'Looking for a surprise today?',
                     hintStyle: TextStyle(
                       fontFamily: 'Regular',
                       fontSize: 14,
@@ -229,7 +212,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildCravingOption(Icons.fastfood_outlined, 'Food', true),
+            _buildCravingOption(Icons.fastfood_outlined, 'Food', false,
+                onTap: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const HomeScreen()))),
             SizedBox(
               width: MediaQuery.of(context).size.height * 0.07,
             ),
@@ -248,10 +234,11 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               width: MediaQuery.of(context).size.height * 0.07,
             ),
-            _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
-                onTap: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                        builder: (context) => const SurpriseScreen()))),
+            _buildCravingOption(
+              Icons.card_giftcard,
+              'Surprise',
+              true,
+            ),
             SizedBox(
               width: MediaQuery.of(context).size.height * 0.07,
             ),

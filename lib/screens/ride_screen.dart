@@ -13,6 +13,7 @@ import 'package:zippy/screens/pages/order/checkout_page.dart';
 import 'package:zippy/screens/pages/order/location_picker_page.dart';
 import 'package:zippy/screens/pages/search_page.dart';
 import 'package:zippy/screens/purchase_screen.dart';
+import 'package:zippy/screens/surprise_screen.dart';
 import 'package:zippy/utils/colors.dart';
 import 'package:zippy/utils/const.dart';
 import 'package:zippy/utils/keys.dart';
@@ -45,9 +46,32 @@ class _RideScreenState extends State<RideScreen> {
   @override
   void initState() {
     super.initState();
-    getMyLocation();
-    _fetchUser();
+
+    _initializeData();
   }
+
+  void _initializeData() async {
+    await _fetchUser();
+
+    await getMyLocation();
+    setState(() => hasLoaded = true);
+  }
+
+  Future getMyLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high));
+
+    setState(() {
+      mylat = position.latitude;
+      mylng = position.longitude;
+    });
+  }
+
+  double mylat = 0;
+  double mylng = 0;
+
+  bool hasLoaded = false;
 
   Future<void> _fetchUser() async {
     try {
@@ -68,20 +92,6 @@ class _RideScreenState extends State<RideScreen> {
       showToast('Error loading user data');
     }
   }
-
-  Future getMyLocation() async {
-    final position = await Geolocator.getCurrentPosition(
-        locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.high));
-
-    setState(() {
-      mylat = position.latitude;
-      mylng = position.longitude;
-    });
-  }
-
-  double mylat = 0;
-  double mylng = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -553,13 +563,17 @@ class _RideScreenState extends State<RideScreen> {
               width: MediaQuery.of(context).size.height * 0.07,
             ),
             _buildCravingOption(
-                Icons.directions_car_filled_outlined, 'Ride', true,
-                onTap: () => showToast('Coming soon.')),
+              Icons.directions_car_filled_outlined,
+              'Ride',
+              true,
+            ),
             SizedBox(
               width: MediaQuery.of(context).size.height * 0.07,
             ),
             _buildCravingOption(Icons.card_giftcard, 'Surprise', false,
-                onTap: () => showToast('Coming soon.')),
+                onTap: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const SurpriseScreen()))),
             SizedBox(
               width: MediaQuery.of(context).size.height * 0.07,
             ),
