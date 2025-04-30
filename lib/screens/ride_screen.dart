@@ -42,19 +42,29 @@ class _RideScreenState extends State<RideScreen> {
   final PolylinePoints _polylinePoints = PolylinePoints();
   List<LatLng> _routeCoordinates = [];
   Map<String, dynamic>? userData;
+  bool isLocationLoaded = false;
+  GoogleMapController? mapController;
 
   @override
   void initState() {
     super.initState();
-
-    _initializeData();
+    _fetchUser();
+    getMyLocation();
+    _initializeLocation();
   }
 
-  void _initializeData() async {
-    await _fetchUser();
+  // void _initializeData() async {
+  //   await _fetchUser();
 
+  //   await getMyLocation();
+  //   setState(() => hasLoaded = true);
+  // }
+
+  Future<void> _initializeLocation() async {
     await getMyLocation();
-    setState(() => hasLoaded = true);
+    setState(() {
+      isLocationLoaded = true;
+    });
   }
 
   Future getMyLocation() async {
@@ -70,8 +80,6 @@ class _RideScreenState extends State<RideScreen> {
 
   double mylat = 0;
   double mylng = 0;
-
-  bool hasLoaded = false;
 
   Future<void> _fetchUser() async {
     try {
@@ -262,18 +270,24 @@ class _RideScreenState extends State<RideScreen> {
   }
 
   Widget _buildGoogleMap() {
+    if (!isLocationLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return GoogleMap(
       zoomControlsEnabled: false,
       mapType: MapType.normal,
       myLocationButtonEnabled: true,
-      compassEnabled: false,
-      padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.32),
       myLocationEnabled: true,
-      initialCameraPosition:
-          CameraPosition(target: LatLng(mylat, mylng), zoom: 14.0),
-      onMapCreated: (controller) => _controller.complete(controller),
-      markers: _buildMarkers(),
-      polylines: _polylines,
+      padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.32),
+      initialCameraPosition: CameraPosition(
+        target: LatLng(mylat, mylng),
+        zoom: 14.4746,
+      ),
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+        mapController = controller;
+      },
     );
   }
 

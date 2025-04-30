@@ -377,8 +377,9 @@ class _ShopPageState extends State<ShopPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
+              padding: const EdgeInsets.all(3),
               width: double.infinity,
-              height: 33,
+              height: null,
               decoration: const BoxDecoration(
                 color: secondary,
                 borderRadius: BorderRadius.only(
@@ -397,12 +398,13 @@ class _ShopPageState extends State<ShopPage> {
             ),
             const SizedBox(height: 10),
             TextWidget(
+              maxLines: 3,
               text: item['description'] ?? 'No description available',
               fontSize: 12,
               fontFamily: 'Medium',
               color: Colors.black,
             ),
-            const SizedBox(height: 35),
+            SizedBox(height: MediaQuery.of(context).size.width * 0.04),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(

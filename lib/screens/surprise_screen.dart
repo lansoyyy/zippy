@@ -28,8 +28,10 @@ class _SurpriseScreenState extends State<SurpriseScreen> {
   String? profileImage;
   double mylat = 0;
   double mylng = 0;
+  GoogleMapController? mapController;
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
+  bool isLocationLoaded = false;
   List<Map<String, dynamic>> merchants = [];
 
   @override
@@ -37,8 +39,16 @@ class _SurpriseScreenState extends State<SurpriseScreen> {
     super.initState();
 
     _fetchUser();
+    _initializeLocation();
     getMyLocation();
     _fetchMerchants();
+  }
+
+  Future<void> _initializeLocation() async {
+    await getMyLocation();
+    setState(() {
+      isLocationLoaded = true;
+    });
   }
 
   Future<void> _fetchMerchants() async {
@@ -95,15 +105,24 @@ class _SurpriseScreenState extends State<SurpriseScreen> {
   }
 
   Widget _buildGoogleMap() {
+    if (!isLocationLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return GoogleMap(
       zoomControlsEnabled: false,
       mapType: MapType.normal,
       myLocationButtonEnabled: true,
       myLocationEnabled: true,
       padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.32),
-      initialCameraPosition:
-          CameraPosition(target: LatLng(mylat, mylng), zoom: 14.4746),
-      onMapCreated: (controller) => _controller.complete(controller),
+      initialCameraPosition: CameraPosition(
+        target: LatLng(mylat, mylng),
+        zoom: 14.4746,
+      ),
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+        mapController = controller;
+      },
     );
   }
 

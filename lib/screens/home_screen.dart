@@ -30,20 +30,31 @@ class _HomeScreenState extends State<HomeScreen> {
   String? profileImage;
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
+  bool isLocationLoaded = false;
+  GoogleMapController? mapController;
 
   @override
   void initState() {
     super.initState();
-
-    _initializeData();
+    _fetchMerchants();
+    _fetchUser();
+    _initializeLocation();
+    getMyLocation();
   }
 
-  void _initializeData() async {
-    await _fetchMerchants();
-    await _fetchUser();
-    await determinePosition();
+  // void _initializeData() async {
+  //   await _fetchMerchants();
+  //   await _fetchUser();
+  //   await determinePosition();
+  //   await getMyLocation();
+  //   setState(() => hasLoaded = true);
+  // }
+
+  Future<void> _initializeLocation() async {
     await getMyLocation();
-    setState(() => hasLoaded = true);
+    setState(() {
+      isLocationLoaded = true;
+    });
   }
 
   Future getMyLocation() async {
@@ -59,8 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   double mylat = 0;
   double mylng = 0;
-
-  bool hasLoaded = false;
 
   Future<void> _fetchMerchants() async {
     final merchantsCollection =
@@ -95,32 +104,34 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: hasLoaded
-          ? Stack(
-              children: [
-                _buildGoogleMap(),
-                _buildTopSection(),
-                _buildFeaturedMerchants(),
-              ],
-            )
-          : const Center(
-              child: CircularProgressIndicator(
-                color: secondary,
-              ),
-            ),
-    );
+        body: Stack(
+      children: [
+        _buildGoogleMap(),
+        _buildTopSection(),
+        _buildFeaturedMerchants(),
+      ],
+    ));
   }
 
   Widget _buildGoogleMap() {
+    if (!isLocationLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return GoogleMap(
       zoomControlsEnabled: false,
       mapType: MapType.normal,
       myLocationButtonEnabled: true,
       myLocationEnabled: true,
       padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.32),
-      initialCameraPosition:
-          CameraPosition(target: LatLng(mylat, mylng), zoom: 14.4746),
-      onMapCreated: (controller) => _controller.complete(controller),
+      initialCameraPosition: CameraPosition(
+        target: LatLng(mylat, mylng),
+        zoom: 14.4746,
+      ),
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+        mapController = controller;
+      },
     );
   }
 
