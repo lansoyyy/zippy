@@ -20,6 +20,7 @@ class ReviewPage extends StatefulWidget {
   final double merchantLng;
   final String merchantId;
   final String merchantName;
+  final String orderType;
 
   const ReviewPage({
     super.key,
@@ -30,6 +31,7 @@ class ReviewPage extends StatefulWidget {
     required this.merchantLng,
     required this.merchantId,
     required this.merchantName,
+    required this.orderType,
   });
 
   @override
@@ -48,6 +50,8 @@ class _ReviewPageState extends State<ReviewPage> {
       Completer<GoogleMapController>();
   Set<Marker> _markers = {};
   final String _nearestDriverId = '';
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
 
   @override
   void initState() {
@@ -191,13 +195,28 @@ class _ReviewPageState extends State<ReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: secondary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: TextWidget(
+          text: 'Review',
+          fontSize: 20,
+          color: secondary,
+          fontFamily: 'Bold',
+        ),
+      ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildAppBar(),
-            const SizedBox(height: 20),
+            // _buildAppBar(),
+            // const SizedBox(height: 20),
             _buildItemList(),
             const SizedBox(height: 10),
             _buildDeliveryAddressSection(),
@@ -205,6 +224,8 @@ class _ReviewPageState extends State<ReviewPage> {
             _buildRemarksAndTipSection(),
             const SizedBox(height: 10),
             _buildPaymentSection(),
+            const SizedBox(height: 10),
+            _buildScheduleDeliverySection(),
             const SizedBox(height: 10),
             _buildBillingSummary(),
             const SizedBox(height: 20),
@@ -252,7 +273,9 @@ class _ReviewPageState extends State<ReviewPage> {
 
   Widget _buildItemList() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+      padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width * 0.05,
+          right: MediaQuery.of(context).size.width * 0.05),
       child: Column(
         children: _itemCounts.entries.map((entry) {
           final itemName = entry.key;
@@ -325,7 +348,9 @@ class _ReviewPageState extends State<ReviewPage> {
 
   Widget _buildDeliveryAddressSection() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+      padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width * 0.05,
+          right: MediaQuery.of(context).size.width * 0.05),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -360,7 +385,7 @@ class _ReviewPageState extends State<ReviewPage> {
   Widget _buildAddressCard(dynamic userData) {
     return Card(
       child: Container(
-        width: MediaQuery.of(context).size.width,
+        width: MediaQuery.of(context).size.width * 1.4,
         height: 180,
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
@@ -508,10 +533,11 @@ class _ReviewPageState extends State<ReviewPage> {
       children: [
         SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: 150,
+          height: MediaQuery.of(context).size.height * 0.25,
           child: TextFieldWidget(
-            maxLine: 20,
-            height: 65,
+            fontSize: 15,
+            maxLine: 10,
+            height: 20,
             radius: 10,
             borderColor: secondary,
             label: 'Remarks',
@@ -522,13 +548,20 @@ class _ReviewPageState extends State<ReviewPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.6,
+              width: MediaQuery.of(context).size.width,
               height: 80,
               child: TextFieldWidget(
                 onChanged: (value) => setState(() => _tips = value),
                 inputType: TextInputType.number,
+                fontSize: 15,
                 height: 65,
                 radius: 10,
+                color: secondary,
+                prefix: TextWidget(
+                  text: '₱',
+                  fontSize: 15,
+                  color: secondary,
+                ),
                 borderColor: secondary,
                 label: 'Tip (optional)',
                 controller: _tipController,
@@ -579,6 +612,128 @@ class _ReviewPageState extends State<ReviewPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildScheduleDeliverySection() {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(25, 0, 25, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  TextWidget(
+                    text: 'Schedule Delivery',
+                    fontSize: 20,
+                    fontFamily: 'Bold',
+                    color: secondary,
+                  ),
+                  Checkbox(
+                    activeColor: secondary,
+                    value: selectedDate != null && selectedTime != null,
+                    onChanged: (bool? value) {
+                      if (value ?? false) {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) => Container(
+                            height: 300,
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              children: [
+                                TextWidget(
+                                  text: 'Select Delivery Schedule',
+                                  fontSize: 18,
+                                  fontFamily: 'Bold',
+                                  color: secondary,
+                                ),
+                                const SizedBox(height: 20),
+                                ListTile(
+                                  leading: const Icon(
+                                    Icons.calendar_today,
+                                    color: secondary,
+                                  ),
+                                  title: TextWidget(
+                                    text: 'Select Date',
+                                    fontSize: 18,
+                                    fontFamily: 'Bold',
+                                    color: secondary,
+                                  ),
+                                  onTap: () async {
+                                    final date = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime.now()
+                                          .add(const Duration(days: 7)),
+                                    );
+                                    if (date != null) {
+                                      setState(() => selectedDate = date);
+                                    }
+                                  },
+                                ),
+                                ListTile(
+                                  leading: const Icon(
+                                    Icons.access_time,
+                                    color: secondary,
+                                  ),
+                                  title: TextWidget(
+                                    text: 'Select Time',
+                                    fontSize: 18,
+                                    fontFamily: 'Bold',
+                                    color: secondary,
+                                  ),
+                                  onTap: () async {
+                                    final time = await showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay.now(),
+                                    );
+                                    if (time != null) {
+                                      setState(() => selectedTime = time);
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        setState(() {
+                          selectedDate = null;
+                          selectedTime = null;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              if (selectedDate != null && selectedTime != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 0),
+                  child: Container(
+                    height: null,
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: secondary),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextWidget(
+                      align: TextAlign.start,
+                      text:
+                          'Scheduled for: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedTime!.format(context)}',
+                      fontSize: 15,
+                      fontFamily: "Medium",
+                      color: secondary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -761,6 +916,52 @@ class _ReviewPageState extends State<ReviewPage> {
                       final double tipValue = double.tryParse(_tips) ?? 0;
                       final double total = _calculateTotal(userData);
 
+                      // Create base order data
+                      final Map<String, dynamic> orderData = {
+                        'items': widget.selectedItems,
+                        'merchantId': widget.merchantId,
+                        'merchantName': widget.merchantName,
+                        'address': _isHome
+                            ? userData['homeAddress']
+                            : userData['officeAddress'],
+                        'subtotal': _totalPrice,
+                        'isHome': _isHome,
+                        'remarks': _remarksController.text,
+                        'tip': tipValue,
+                        'mop': 'Cash',
+                        'deliveryFee': deliveryFee,
+                        'total': total,
+                        'type': widget.orderType,
+                        'customerNumber': userData['number'],
+                        'customerName': userData['name'],
+                        'riderId': sortedData.first.id,
+                        'isScheduled':
+                            selectedDate != null && selectedTime != null,
+                        if (selectedDate != null && selectedTime != null)
+                          'scheduledDateAndTime': DateTime(
+                            selectedDate!.year,
+                            selectedDate!.month,
+                            selectedDate!.day,
+                            selectedTime!.hour,
+                            selectedTime!.minute,
+                          ).toUtc(),
+                      };
+
+                      // Add scheduling data if it's a Surprise order and scheduled
+                      if (widget.orderType == 'Surprise' &&
+                          selectedDate != null &&
+                          selectedTime != null) {
+                        orderData['isScheduled'] = true;
+                        orderData['scheduledDateAndTime'] = DateTime(
+                          selectedDate!.year,
+                          selectedDate!.month,
+                          selectedDate!.day,
+                          selectedTime!.hour,
+                          selectedTime!.minute,
+                        );
+                      } else if (widget.orderType == 'Surprise') {
+                        orderData['isScheduled'] = false;
+                      }
                       final String orderId = await addOrder(
                         widget.selectedItems,
                         widget.merchantId,
@@ -778,32 +979,26 @@ class _ReviewPageState extends State<ReviewPage> {
                         sortedData.first.id,
                         userData['name'],
                         userData['number'],
+                        orderType: widget.orderType,
+                        isScheduled: selectedDate != null &&
+                            selectedTime != null, // Changed this line
+                        scheduledDateAndTime:
+                            selectedDate != null && selectedTime != null
+                                ? DateTime(
+                                    selectedDate!.year,
+                                    selectedDate!.month,
+                                    selectedDate!.day,
+                                    selectedTime!.hour,
+                                    selectedTime!.minute,
+                                  )
+                                : null,
                       );
 
+                      // Navigate to checkout
+                      orderData['orderId'] = orderId;
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
-                          builder: (context) => CheckoutPage(
-                            data: {
-                              'riderId': sortedData.first.id,
-                              'items': widget.selectedItems,
-                              'merchantId': widget.merchantId,
-                              'merchantName': widget.merchantName,
-                              'address': _isHome
-                                  ? userData['homeAddress']
-                                  : userData['officeAddress'],
-                              'subtotal': _totalPrice,
-                              'isHome': _isHome,
-                              'remarks': _remarksController.text,
-                              'tip': tipValue,
-                              'mop': 'Cash',
-                              'deliveryFee': deliveryFee,
-                              'total': total,
-                              'orderId': orderId,
-                              'type': 'Food',
-                              'customerNumber': userData['number'],
-                              'customerName': userData['name'],
-                            },
-                          ),
+                          builder: (context) => CheckoutPage(data: orderData),
                         ),
                         (route) => false,
                       );

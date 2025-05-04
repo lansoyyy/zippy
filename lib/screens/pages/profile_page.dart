@@ -685,14 +685,33 @@ class _ProfilePageState extends State<ProfilePage> {
                             children: [
                               SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.5,
-                                child: TextField(
-                                  decoration: const InputDecoration(
-                                      border: InputBorder.none),
-                                  controller: bdayController,
-                                  style: const TextStyle(
-                                    color: secondary,
-                                    fontSize: 14,
-                                    fontFamily: 'Medium',
+                                child: TextButton(
+                                  onPressed: () async {
+                                    DateTime? pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime.now(),
+                                    );
+
+                                    if (pickedDate != null) {
+                                      String formattedDate =
+                                          DateFormat('MM/dd/yyyy')
+                                              .format(pickedDate);
+                                      setState(() {
+                                        bdayController.text = formattedDate;
+                                      });
+                                    }
+                                  },
+                                  child: Text(
+                                    bdayController.text.isEmpty
+                                        ? 'Select Date'
+                                        : bdayController.text,
+                                    style: const TextStyle(
+                                      color: secondary,
+                                      fontSize: 14,
+                                      fontFamily: 'Medium',
+                                    ),
                                   ),
                                 ),
                               ),
@@ -702,7 +721,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   color: Colors.green,
                                   size: 20,
                                 ),
-                                onPressed: updateBday, // Confirm bday update
+                                onPressed: updateBday,
                               ),
                               const Padding(padding: EdgeInsets.zero),
                               IconButton(
@@ -711,8 +730,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 onPressed: () {
                                   setState(() {
                                     isEditingBday = false;
-                                    bdayController.text =
-                                        userData!['bday']; // Revert changes
+                                    bdayController.text = userData!['bday'];
                                   });
                                 },
                               ),
@@ -734,18 +752,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                   fontFamily: 'Medium',
                                 ),
                               ),
-                              // IconButton(
-                              //   icon: const Icon(Icons.edit,
-                              //       color: secondary, size: 17),
-                              //   onPressed: () {
-                              //     setState(() {
-                              //       isEditingBday = true;
-                              //       bdayController.text = userData!['bday'];
-                              //     });
-                              //   },
-                              // ),
                             ],
-                          ),
+                          )
                   ],
                 )),
             const SizedBox(

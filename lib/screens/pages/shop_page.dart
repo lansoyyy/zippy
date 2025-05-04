@@ -91,8 +91,8 @@ class _ShopPageState extends State<ShopPage> {
           const SizedBox(height: 20),
           _buildMerchantHeader(),
           const SizedBox(height: 10),
-          _buildCategoryTabs(),
-          const SizedBox(height: 10),
+          // _buildCategoryTabs(),
+          // const SizedBox(height: 10),
           _buildMenuItems(),
         ],
       ),
@@ -148,6 +148,7 @@ class _ShopPageState extends State<ShopPage> {
                     onUpdateCart: (updatedItems) {
                       setState(() => selectedItems = updatedItems);
                     },
+                      orderType: merchants[0]['type'] ?? 'Food',
                   ),
                 ),
               );
@@ -177,28 +178,25 @@ class _ShopPageState extends State<ShopPage> {
   }
 
   Widget _buildMerchantHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Card(
-        child: Container(
-          width: double.infinity,
-          height: 250,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: secondary),
-            borderRadius: BorderRadius.circular(10),
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: NetworkImage(merchants[0]['img']),
-            ),
+    return Card(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.93,
+        height: 250,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: secondary),
+          borderRadius: BorderRadius.circular(10),
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: NetworkImage(merchants[0]['img']),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildFavoriteButton(),
-              _buildMerchantInfo(),
-            ],
-          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildFavoriteButton(),
+            _buildMerchantInfo(),
+          ],
         ),
       ),
     );

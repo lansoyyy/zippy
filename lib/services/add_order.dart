@@ -1,46 +1,54 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:zippy/utils/const.dart';
 
-Future addOrder(
-    items,
-    merchantId,
-    merchantName,
-    deliveryAdd,
-    double subtotal, //
-    isHome,
-    remarks,
-    tip, //
-    mop,
-    double deliveryFee, //
-    double total, //,
-    String driverId,
-    String customerName,
-    String customerNumber) async {
-  final docUser = FirebaseFirestore.instance.collection('Orders').doc();
+Future<String> addOrder(
+  List<Map<String, dynamic>> items,
+  String merchantId,
+  String merchantName,
+  String address,
+  double subtotal,
+  bool isHome,
+  String remarks,
+  double tip,
+  String mop,
+  double deliveryFee,
+  double total,
+  String riderId,
+  String customerName,
+  String customerNumber, {
+  String? orderType,
+  bool? isScheduled,
+  DateTime? scheduledDateAndTime,
+}) async {
+  try {
+    final scheduledTime = scheduledDateAndTime;
 
-  final json = {
-    'userId': userId,
-    'merchantId': merchantId,
-    'merchantName': merchantName,
-    'deliveryAdd': deliveryAdd,
-    'subtotal': subtotal,
-    'items': items,
-    'isHome': isHome,
-    'remarks': remarks,
-    'tip': tip,
-    'mop': mop,
-    'deliveryFee': deliveryFee,
-    'total': total,
-    'date': DateTime.now(),
-    'status': 'Pending',
-    'driverId': driverId, // change this
-    'isDeleted': false,
-    'type': 'Food',
-    'customerName': customerName,
-    'customerNumber': customerNumber,
-  };
+    final orderRef = await FirebaseFirestore.instance.collection('Orders').add({
+      'items': items,
+      'merchantId': merchantId,
+      'merchantName': merchantName,
+      'address': address,
+      'subtotal': subtotal,
+      'isHome': isHome,
+      'remarks': remarks,
+      'tip': tip,
+      'mop': mop,
+      'deliveryFee': deliveryFee,
+      'total': total,
+      'riderId': riderId,
+      'customerName': customerName,
+      'customerNumber': customerNumber,
+      'type': orderType ?? 'Food',
+      'status': 'Pending',
+      'date': FieldValue.serverTimestamp(),
+      'isScheduled': isScheduled ?? false,
+      if (scheduledTime != null)
+        'scheduledDateAndTime': Timestamp.fromDate(scheduledTime),
+    });
 
-  await docUser.set(json);
-
-  return docUser.id;
+    return orderRef.id;
+  } catch (e) {
+    print('Error adding order: $e');
+    rethrow;
+  }
 }
