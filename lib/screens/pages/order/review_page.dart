@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zippy/screens/pages/order/checkout_page.dart';
+import 'package:zippy/screens/pages/order/completed_page.dart';
 import 'package:zippy/screens/pages/order/location_picker_page.dart';
 import 'package:zippy/services/add_order.dart';
 import 'package:zippy/utils/colors.dart';
@@ -301,11 +302,16 @@ class _ReviewPageState extends State<ReviewPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextWidget(
-                      text: itemName,
-                      fontSize: 15,
-                      fontFamily: 'Bold',
-                      color: Colors.white,
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      child: TextWidget(
+                        align: TextAlign.start,
+                        maxLines: 3,
+                        text: itemName,
+                        fontSize: 15,
+                        fontFamily: 'Bold',
+                        color: Colors.white,
+                      ),
                     ),
                     TextWidget(
                       text:
@@ -865,6 +871,8 @@ class _ReviewPageState extends State<ReviewPage> {
         _calculateDeliveryFee(userData);
   }
 
+  // ... (keep all the imports and other code above the same)
+
   Widget _buildCheckoutButton(dynamic userData) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -962,6 +970,7 @@ class _ReviewPageState extends State<ReviewPage> {
                       } else if (widget.orderType == 'Surprise') {
                         orderData['isScheduled'] = false;
                       }
+
                       final String orderId = await addOrder(
                         widget.selectedItems,
                         widget.merchantId,
@@ -980,8 +989,8 @@ class _ReviewPageState extends State<ReviewPage> {
                         userData['name'],
                         userData['number'],
                         orderType: widget.orderType,
-                        isScheduled: selectedDate != null &&
-                            selectedTime != null, // Changed this line
+                        isScheduled:
+                            selectedDate != null && selectedTime != null,
                         scheduledDateAndTime:
                             selectedDate != null && selectedTime != null
                                 ? DateTime(
@@ -994,14 +1003,27 @@ class _ReviewPageState extends State<ReviewPage> {
                                 : null,
                       );
 
-                      // Navigate to checkout
                       orderData['orderId'] = orderId;
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (context) => CheckoutPage(data: orderData),
-                        ),
-                        (route) => false,
-                      );
+
+                      // Check if the order is scheduled
+                      if (orderData['isScheduled'] == true) {
+                        // If scheduled, go directly to CompletedPage
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CompletedPage(data: orderData),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        // If not scheduled, proceed to CheckoutPage as before
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (context) => CheckoutPage(data: orderData),
+                          ),
+                          (route) => false,
+                        );
+                      }
                     } else {
                       showToast(
                           "We're sorry, but there are currently no available riders to take your order. Please try again later or check back soon. Thank you for your patience!");
@@ -1030,4 +1052,6 @@ class _ReviewPageState extends State<ReviewPage> {
       },
     );
   }
+
+// ... (keep all the remaining code the same)
 }

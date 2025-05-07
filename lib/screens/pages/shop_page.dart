@@ -148,7 +148,7 @@ class _ShopPageState extends State<ShopPage> {
                     onUpdateCart: (updatedItems) {
                       setState(() => selectedItems = updatedItems);
                     },
-                      orderType: merchants[0]['type'] ?? 'Food',
+                    orderType: merchants[0]['type'] ?? 'Food',
                   ),
                 ),
               );
@@ -339,7 +339,7 @@ class _ShopPageState extends State<ShopPage> {
       elevation: 3,
       child: Container(
         width: MediaQuery.of(context).size.width * 0.35,
-        height: MediaQuery.of(context).size.width * 0.35,
+        height: MediaQuery.of(context).size.width * 0.40,
         decoration: BoxDecoration(
           image: item['imageUrl'] != null
               ? DecorationImage(
@@ -364,14 +364,14 @@ class _ShopPageState extends State<ShopPage> {
       elevation: 3,
       child: Container(
         width: MediaQuery.of(context).size.width * 0.55,
-        height: MediaQuery.of(context).size.width * 0.35,
+        height: MediaQuery.of(context).size.width * 0.40,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: secondary),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
@@ -409,7 +409,7 @@ class _ShopPageState extends State<ShopPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextWidget(
-                    text: '₱ ${item['price']?.toString() ?? '0.00'}',
+                    text: '₱ ${(item['price'] ?? 0.0).toStringAsFixed(2)}',
                     fontSize: 15,
                     fontFamily: 'Bold',
                     color: secondary,
@@ -419,19 +419,20 @@ class _ShopPageState extends State<ShopPage> {
                     child: Row(
                       children: [
                         TextWidget(
-                          text: 'Add to Cart',
+                          text: 'Add',
                           fontSize: 15,
                           fontFamily: 'Bold',
                           color: secondary,
                         ),
-                        const Icon(Icons.arrow_right_alt_outlined,
-                            color: secondary),
+                        const SizedBox(width: 5),
+                        const Icon(Icons.add_circle, color: secondary),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
+            SizedBox(height: MediaQuery.of(context).size.width * 0.04),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:saver_gallery/saver_gallery.dart';
@@ -36,6 +37,10 @@ class _CompletedPageState extends State<CompletedPage> {
   double _foodRating = 5;
   double _experienceRating = 5;
 
+  bool get _isScheduledOrder =>
+      widget.data['isScheduled'] == true &&
+      (widget.data['type'] == 'Food' || widget.data['type'] == 'Surprise');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,6 +51,7 @@ class _CompletedPageState extends State<CompletedPage> {
             children: [
               const SizedBox(height: 50),
               _buildHeader(),
+              if (_isScheduledOrder) _buildScheduledOrderText(),
               const SizedBox(height: 20),
               _buildImage(),
               const SizedBox(height: 20),
@@ -68,10 +74,27 @@ class _CompletedPageState extends State<CompletedPage> {
       child: TextWidget(
         text: widget.data['type'] == 'Ride'
             ? 'Arrived at the destination'
-            : 'Delivery Completed',
+            : _isScheduledOrder
+                ? 'Booking Confirmed'
+                : 'Delivery Completed',
         fontSize: 22,
         fontFamily: 'Bold',
         color: secondary,
+      ),
+    );
+  }
+
+  Widget _buildScheduledOrderText() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: TextWidget(
+          text: 'Thanks for ordering in advance!',
+          fontSize: 18,
+          fontFamily: 'Bold',
+          color: secondary,
+          align: TextAlign.center,
+        ),
       ),
     );
   }
@@ -95,7 +118,9 @@ class _CompletedPageState extends State<CompletedPage> {
             ? 'Thank you for your purchase!'
             : widget.data['type'] == 'Ride'
                 ? 'Thanks for the ride!'
-                : 'Enjoy your meal!',
+                : _isScheduledOrder
+                    ? 'We look forward to serving you!'
+                    : 'Thanks for ordering! We look forward to serving you!',
         fontSize: 22,
         fontFamily: 'Bold',
         color: secondary,
@@ -120,10 +145,38 @@ class _CompletedPageState extends State<CompletedPage> {
             fontSize: 16,
             fontFamily: 'Bold',
           ),
+          if (_isScheduledOrder && widget.data['scheduledDateAndTime'] != null)
+            Column(
+              children: [
+                const Divider(color: secondary),
+                TextWidget(
+                  text: 'Scheduled For',
+                  fontSize: 16,
+                  fontFamily: 'Bold',
+                  color: secondary,
+                ),
+                TextWidget(
+                  text: _formatScheduledDateTime(
+                      widget.data['scheduledDateAndTime']),
+                  fontSize: 16,
+                  fontFamily: 'Bold',
+                ),
+              ],
+            ),
           const Divider(color: secondary),
         ],
       ),
     );
+  }
+
+  String _formatScheduledDateTime(dynamic dateTime) {
+    if (dateTime is Timestamp) {
+      dateTime = dateTime.toDate();
+    }
+    if (dateTime is DateTime) {
+      return '${dateTime.month}/${dateTime.day}/${dateTime.year} at ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+    }
+    return 'Not specified';
   }
 
   Widget _buildActionButtons() {
