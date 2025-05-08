@@ -68,18 +68,22 @@ class _ShopPageState extends State<ShopPage> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Stack(
-        children: [
-          Center(
-            child: CircularProgressIndicator(color: secondary),
-          ),
-        ],
+      return const Scaffold(
+        body: Stack(
+          children: [
+            Center(
+              child: CircularProgressIndicator(color: secondary),
+            ),
+          ],
+        ),
       );
     }
 
     if (merchants.isEmpty || menuItems.isEmpty) {
-      return const Center(
-        child: Text('No data available'),
+      return const Scaffold(
+        body: Center(
+          child: Text('No data available'),
+        ),
       );
     }
 
