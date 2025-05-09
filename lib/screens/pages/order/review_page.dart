@@ -609,7 +609,7 @@ class _ReviewPageState extends State<ReviewPage> {
                 ),
                 TextWidget(
                   text: 'Cash on Delivery',
-                  fontSize: 15,
+                  fontSize: 18,
                   color: secondary,
                   fontFamily: 'Bold',
                 ),
@@ -622,6 +622,8 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Widget _buildScheduleDeliverySection() {
+    bool isDeliverASAP = true;
+
     return StatefulBuilder(
       builder: (context, setState) {
         return Padding(
@@ -629,95 +631,137 @@ class _ReviewPageState extends State<ReviewPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  TextWidget(
-                    text: 'Schedule Delivery',
-                    fontSize: 20,
-                    fontFamily: 'Bold',
-                    color: secondary,
-                  ),
-                  Checkbox(
-                    activeColor: secondary,
-                    value: selectedDate != null && selectedTime != null,
-                    onChanged: (bool? value) {
-                      if (value ?? false) {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (context) => Container(
-                            height: 300,
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              children: [
-                                TextWidget(
-                                  text: 'Select Delivery Schedule',
-                                  fontSize: 18,
-                                  fontFamily: 'Bold',
-                                  color: secondary,
-                                ),
-                                const SizedBox(height: 20),
-                                ListTile(
-                                  leading: const Icon(
-                                    Icons.calendar_today,
-                                    color: secondary,
-                                  ),
-                                  title: TextWidget(
-                                    text: 'Select Date',
-                                    fontSize: 18,
-                                    fontFamily: 'Bold',
-                                    color: secondary,
-                                  ),
-                                  onTap: () async {
-                                    final date = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime.now()
-                                          .add(const Duration(days: 7)),
-                                    );
-                                    if (date != null) {
-                                      setState(() => selectedDate = date);
-                                    }
-                                  },
-                                ),
-                                ListTile(
-                                  leading: const Icon(
-                                    Icons.access_time,
-                                    color: secondary,
-                                  ),
-                                  title: TextWidget(
-                                    text: 'Select Time',
-                                    fontSize: 18,
-                                    fontFamily: 'Bold',
-                                    color: secondary,
-                                  ),
-                                  onTap: () async {
-                                    final time = await showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay.now(),
-                                    );
-                                    if (time != null) {
-                                      setState(() => selectedTime = time);
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      } else {
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 45,
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: secondary),
+                ),
+                child: Row(
+                  children: [
+                    Radio(
+                      activeColor: secondary,
+                      value: true,
+                      groupValue: isDeliverASAP,
+                      onChanged: (bool? value) {
                         setState(() {
+                          isDeliverASAP = true;
                           selectedDate = null;
                           selectedTime = null;
                         });
-                      }
-                    },
-                  ),
-                ],
+                      },
+                    ),
+                    TextWidget(
+                      text: 'Deliver Now',
+                      fontSize: 20,
+                      fontFamily: 'Bold',
+                      color: secondary,
+                    ),
+                  ],
+                ),
               ),
-              if (selectedDate != null && selectedTime != null)
+
+              // Schedule Delivery Option
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 45,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: secondary),
+                ),
+                child: Row(
+                  children: [
+                    Radio(
+                      activeColor: secondary,
+                      value: false,
+                      groupValue: isDeliverASAP,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isDeliverASAP = false;
+                          // Show schedule picker
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => Container(
+                              height: 300,
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                children: [
+                                  TextWidget(
+                                    text: 'Select Delivery Schedule',
+                                    fontSize: 18,
+                                    fontFamily: 'Bold',
+                                    color: secondary,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  ListTile(
+                                    leading: const Icon(
+                                      Icons.calendar_today,
+                                      color: secondary,
+                                    ),
+                                    title: TextWidget(
+                                      text: 'Select Date',
+                                      fontSize: 18,
+                                      fontFamily: 'Bold',
+                                      color: secondary,
+                                    ),
+                                    onTap: () async {
+                                      final date = await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime.now()
+                                            .add(const Duration(days: 7)),
+                                      );
+                                      if (date != null) {
+                                        setState(() => selectedDate = date);
+                                      }
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(
+                                      Icons.access_time,
+                                      color: secondary,
+                                    ),
+                                    title: TextWidget(
+                                      text: 'Select Time',
+                                      fontSize: 18,
+                                      fontFamily: 'Bold',
+                                      color: secondary,
+                                    ),
+                                    onTap: () async {
+                                      final time = await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay.now(),
+                                      );
+                                      if (time != null) {
+                                        setState(() => selectedTime = time);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                    TextWidget(
+                      text: 'Schedule Delivery',
+                      fontSize: 20,
+                      fontFamily: 'Bold',
+                      color: secondary,
+                    ),
+                  ],
+                ),
+              ),
+
+              if (!isDeliverASAP &&
+                  selectedDate != null &&
+                  selectedTime != null)
                 Padding(
-                  padding: const EdgeInsets.only(top: 0),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Container(
                     height: null,
                     width: MediaQuery.of(context).size.width,
@@ -726,13 +770,92 @@ class _ReviewPageState extends State<ReviewPage> {
                       border: Border.all(color: secondary),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: TextWidget(
-                      align: TextAlign.start,
-                      text:
-                          'Scheduled for: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedTime!.format(context)}',
-                      fontSize: 15,
-                      fontFamily: "Medium",
-                      color: secondary,
+                    child: Row(
+                      children: [
+                        TextWidget(
+                          align: TextAlign.start,
+                          text:
+                              'Scheduled for: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedTime!.format(context)}',
+                          fontSize: 15,
+                          fontFamily: "Medium",
+                          color: secondary,
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (context) => Container(
+                                height: 300,
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  children: [
+                                    TextWidget(
+                                      text: 'Select Delivery Schedule',
+                                      fontSize: 18,
+                                      fontFamily: 'Bold',
+                                      color: secondary,
+                                    ),
+                                    const SizedBox(height: 20),
+                                    ListTile(
+                                      leading: const Icon(
+                                        Icons.calendar_today,
+                                        color: secondary,
+                                      ),
+                                      title: TextWidget(
+                                        text: 'Select Date',
+                                        fontSize: 18,
+                                        fontFamily: 'Bold',
+                                        color: secondary,
+                                      ),
+                                      onTap: () async {
+                                        final date = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime.now()
+                                              .add(const Duration(days: 7)),
+                                        );
+                                        if (date != null) {
+                                          setState(() => selectedDate = date);
+                                        }
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(
+                                        Icons.access_time,
+                                        color: secondary,
+                                      ),
+                                      title: TextWidget(
+                                        text: 'Select Time',
+                                        fontSize: 18,
+                                        fontFamily: 'Bold',
+                                        color: secondary,
+                                      ),
+                                      onTap: () async {
+                                        final time = await showTimePicker(
+                                          context: context,
+                                          initialTime: TimeOfDay.now(),
+                                        );
+                                        if (time != null) {
+                                          setState(() => selectedTime = time);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          child: TextWidget(
+                            text: 'Change',
+                            fontSize: 15,
+                            fontFamily: "Medium",
+                            color: secondary,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
